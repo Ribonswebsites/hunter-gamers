@@ -503,3 +503,4 @@ html.hg-paged body{overflow:hidden}html.hg-paged .hg-nav{z-index:95}
 @media (min-width:760px){.hgf-grid{grid-template-columns:repeat(4,1fr)}}
 .hgl-col img{box-shadow:none!important}
 .hg-cf-card:not(.on) .rf{opacity:0}.hg-cf-card.on .rf{opacity:.22}
+.hgf-tx b.em{overflow-wrap:normal;word-break:normal;font-size:13px}
