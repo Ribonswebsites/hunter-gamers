@@ -86,7 +86,7 @@
 
   /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
   const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = '-md';
-  const HIBG = ['wolverine', 'gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
+  const HIBG = ['gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
   const bgSrc = s => HIBG.includes(s.id) ? I((MOB ? 't-' : 'w-') + s.id + '.webp') : I(s.bg + (s.id === 'wolverine' || s.id === 'gta6' ? '-md' : (MOB ? '-sm' : BIG)) + '.webp');
   const cutSrc = s => I('c-' + (s.cut || s.id) + CUT + '.webp');
   function buildHero() {
