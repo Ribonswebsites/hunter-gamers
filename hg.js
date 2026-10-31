@@ -6,7 +6,7 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=13';
+  const I = n => '/img/' + n + '?v=18';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -35,11 +35,11 @@
   const SLIDES = [
     { id: 'wolverine', pop: 'f-wolverine', clear: 1, bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
     { id: 'gow', bg: 'h-gow', tag: 'God of War Ragnarök', h: 'Kratos is <span>waiting.</span>' },
-    { id: 'gta6', bg: 'gta6-bg', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
+    { id: 'gta6', bg: 'gta6-bg', soon: 1, ring: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
     { id: 'sm2', cut: 'peter', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Swing into <span>the city.</span>' },
     { id: 'acs', bg: 'h-acs', tag: "Assassin's Creed Shadows", h: 'Strike from <span>the shadows.</span>' },
     { id: 'fc26', bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
-    { id: 'nr', bg: 'h-nr', tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
+    { id: 'nr', bg: 'h-nr', ring: 1, tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
     { id: 'wk', bg: 'h-wk', tag: 'Black Myth: Wukong', h: 'Take up <span>the staff.</span>' },
   ];
   const PIDS2 = ['sb', 'hfw', 'ff7r', 't8', 'mk1', 'hl', 'tlou2', 'rc', 'dmc5']; // second ring: its own posters, never shared
@@ -104,7 +104,7 @@
       <div class="hgx-progress"></div>`;
     if (!hx.parentNode) $('#top').prepend(hx);
     const bgs = $$('.hgx-bg', hx), subs = $$('.hgx-subject-w', hx), copies = $$('.hgx-copy', hx), prog = $('.hgx-progress', hx);
-    const preload = src => new Promise(r => { const im = new Image(); im.onload = im.onerror = r; im.src = src; });
+    const preload = src => new Promise(r => { const im = new Image(); im.decoding = 'async'; im.src = src; (im.decode ? im.decode() : new Promise((a, b) => { im.onload = a; im.onerror = b; })).then(r, r); });
     const ready = SLIDES.map(() => null);
     // Fetch + decode a slide's images before showing it, so nothing pops in half-loaded.
     const ensure = i => ready[i] || (ready[i] = Promise.all([preload(bgSrc(SLIDES[i])), preload(cutSrc(SLIDES[i]))].concat(SLIDES[i].pop ? [preload(I(SLIDES[i].pop + '.webp'))] : [])).then(() => {
@@ -125,8 +125,8 @@
     function place(cs, rot, st, rad) {
       for (let i = 0; i < cs.length; i++) {
         const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
-        cs[i].style.transform = `perspective(1000px) translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,0) rotateY(${(s * -38).toFixed(1)}deg) scale(${(0.62 + d * 0.48).toFixed(3)})`;
-        cs[i].style.zIndex = Math.round(d * 100); cs[i].style.filter = d < 0.3 ? `brightness(${(0.55 + d * 1.5).toFixed(2)})` : '';
+        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,0) scale(${(0.62 + d * 0.48).toFixed(3)})`;
+        cs[i].style.zIndex = Math.round(d * 100);
       }
     }
     function layout() { place(cards, auto + drag, step, R); }
@@ -135,7 +135,7 @@
       busy = true; t0 = performance.now(); lastP = 0;
       ensure(next).then(() => requestAnimationFrame(() => {
         const prev = cur; cur = next; fillRing();
-        bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear);
+        bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear); hx.classList.toggle('ring-on', !!SLIDES[cur].ring);
         subs[prev].classList.remove('on'); subs[prev].classList.add('out');
         setTimeout(() => subs[prev].classList.remove('out'), 700);
         subs[cur].classList.remove('out'); subs[cur].classList.add('on');
@@ -144,7 +144,7 @@
         ensure((cur + 1) % SLIDES.length); // preload the next slide while this one plays
       }));
     }
-    hx.classList.toggle('clr', !!SLIDES[0].clear); measure(); fillRing(); layout();
+    hx.classList.toggle('clr', !!SLIDES[0].clear); hx.classList.toggle('ring-on', !!SLIDES[0].ring); measure(); fillRing(); layout();
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
     addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; }, { passive: true });
@@ -156,12 +156,12 @@
     function loop() { if (!running) { running = true; requestAnimationFrame(tick); } }
     function tick(now) {
       if (!visible || document.hidden) { running = false; tick.l = 0; return; }
-      const dt = Math.min(50, now - (tick.l || now)); tick.l = now; if (!reduce) auto += dt * 0.00018; layout();
+      const dt = Math.min(50, now - (tick.l || now)); tick.l = now; if (!reduce && SLIDES[cur].ring) { auto += dt * 0.00018; layout(); }
       lastP = Math.min(1, (now - t0) / DUR); prog.style.transform = `scaleX(${lastP.toFixed(4)})`;
       if (lastP >= 1 && !reduce) go(cur + 1);
       requestAnimationFrame(tick);
     }
-    ensure(0); setTimeout(() => ensure(1), 1200);
+    ensure(0).then(() => SLIDES.forEach((_, i) => setTimeout(() => ensure(i), 300 * i)));
     loop();
     window.HG_go = go;
   }
@@ -209,17 +209,15 @@
     function render() {
       const W = cf.clientWidth, cw = Math.min(W * 0.5, 260);
       cs.forEach((c, i) => { let o = i - pos; o -= Math.round(o / n) * n; const a = Math.abs(o);
-        c.style.transform = `perspective(1100px) translate3d(${(Math.sign(o) * Math.min(a, 1) * cw * 0.62 + o * cw * 0.2).toFixed(1)}px,0,0) rotateY(${(-Math.max(-1, Math.min(1, o)) * 48).toFixed(1)}deg) scale(${(1 - Math.min(a, 1) * 0.22 - Math.max(0, Math.min(a, 3) - 1) * 0.08).toFixed(3)})`;
-        c.style.zIndex = 100 - Math.round(a * 10); c.style.opacity = a > 3.4 ? '0' : '1'; c.classList.toggle('on', a < 0.5); $('.sh', c).style.opacity = Math.min(1, a * 0.55).toFixed(2); });
+        c.style.transform = `translate3d(${(Math.sign(o) * Math.min(a, 1) * cw * 0.66 + o * cw * 0.14).toFixed(0)}px,0,0) scale(${a < 0.5 ? 1 : 0.78})`;
+        c.style.zIndex = 100 - Math.round(a * 10); c.style.visibility = a > 1.5 ? 'hidden' : 'visible'; c.classList.toggle('on', a < 0.5); });
       setCur(wrap(Math.round(pos)));
     }
     function tick(now) {
       raf = 0; const dt = Math.min(48, now - (last || now)); last = now;
-      if (drag == null) { const k = 1 - Math.pow(0.0009, dt / 1000 * 4); pos += (target - pos) * k; }
+      pos = target;
       render();
-      const p = reduce ? 0 : Math.min(1, (now - t0) / 5600); $('.p', dial).style.strokeDashoffset = (1 - p).toFixed(4);
-      if (p >= 1 && drag == null && vis) { target = Math.round(target) + 1; t0 = now; }
-      if (vis && !document.hidden) raf = requestAnimationFrame(tick); else last = 0;
+      
     }
     const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
     new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis) { t0 = performance.now(); kick(); } }).observe(cf);
@@ -227,11 +225,12 @@
     let sx = 0, lx = 0, lt = 0, moved = 0;
     cf.addEventListener('pointerdown', e => { if (e.target.closest('.hg-cf-info')) return; drag = pos; sx = lx = e.clientX; lt = performance.now(); vel = 0; moved = 0; kick(); });
     addEventListener('pointermove', e => { if (drag == null) return; const now = performance.now(), dx = e.clientX - lx; vel = dx / Math.max(1, now - lt); lx = e.clientX; lt = now; moved = e.clientX - sx;
-      pos = drag - moved / (cf.clientWidth * 0.42); kick(); }, { passive: true });
-    addEventListener('pointerup', () => { if (drag == null) return; drag = null; target = Math.round(pos - vel * 2.2); t0 = performance.now(); kick(); });
+      }, { passive: true });
+    addEventListener('pointerup', () => { if (drag == null) return; drag = null; if (Math.abs(moved) > 40) target = Math.round(target) + (moved < 0 ? 1 : -1); t0 = performance.now(); kick(); });
     cs.forEach((c, i) => c.addEventListener('click', e => { e.stopPropagation(); if (Math.abs(moved) > 8) return; let o = i - pos; o -= Math.round(o / n) * n;
       if (Math.abs(o) < 0.5) gamePopup(GAMES.find(g => g.id === SPOT[i])); else { target = Math.round(pos + o); t0 = performance.now(); kick(); } }));
     $$('img', cf).forEach(im => im.decode && im.decode().catch(() => {}));
+    setInterval(() => { if (vis && drag == null && !document.hidden && performance.now() - t0 > 5600) { target = Math.round(target) + 1; t0 = performance.now(); kick(); } }, 1000);
     render();
   }
   function gamePopup(g) {
@@ -632,3 +631,4 @@
 
   window.HG = { ordersPopup, gamePopup, games: () => GAMES, snacksPopup, accountPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, rentPopup, cookie: () => cookieEl.classList.add('on'), hide };
 })();
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));

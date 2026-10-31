@@ -11,7 +11,7 @@ printf 'versionCode=%s\nversionName=%s\n' "$CODE" "$NAME" > version.properties
 sed "s/@@CODE@@/$CODE/; s/@@NAME@@/$NAME/" AndroidManifest.xml > build/AndroidManifest.xml
 NOTES=${RELEASE_NOTES:-"New games lineup, faster loading and in-app updates."}
 # bundle the site
-cp ../index.html ../hg.css ../hg.js ../favicon.ico ../favicon-32.png ../apple-touch-icon.png ../site.webmanifest build/assets/www/
+cp ../index.html ../hg.css ../hg.js ../sw.js ../favicon.ico ../favicon-32.png ../apple-touch-icon.png ../site.webmanifest build/assets/www/
 cp -r ../img build/assets/www/
 $BT/aapt2 compile --dir res -o build/res.zip
 $BT/aapt2 link -o build/unsigned.apk -I $PLAT --manifest build/AndroidManifest.xml -A build/assets build/res.zip --java build/gen --min-sdk-version 24 --target-sdk-version 35
