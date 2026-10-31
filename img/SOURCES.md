@@ -113,7 +113,7 @@ All Steam art is publisher-uploaded store art fetched via IStoreBrowseService/Ge
 
 | File | Game | Source | Notes |
 |---|---|---|---|
-| c-peter-sm.webp, c-peter-md.webp | Marvel's Spider-Man 2 (red/blue suit, mid-swing) | Extracted from the owner's phone screenshot (01M694REDB797JTHP3V1PFD2FE.png); official original file not located | 2x Lanczos + unsharp, BiRefNet cutout; flat-cropped head top rounded with an alpha mask |
+| c-peter-sm.webp, c-peter-md.webp | Marvel's Spider-Man 2 (Peter Parker) | Restored original cutout from commit 4ed6231 (Insomniac official art, see Round 7) | Replaces the screenshot extraction |
 | c-spidey-feature.webp | Marvel's Spider-Man 2 (symbiote spider-arms) | Earlier site asset img/spidey2-cutout.webp (git 86350cb^) | Alpha thresholded, side edges feathered |
 | r-account | Ghost of Yotei | sonyinteractive.com/tachyon/2025/05/Games_Ghost-of-Yotei-2.jpg | |
 | r-choose | Destiny 2 | sonyinteractive.com/tachyon/2026/09/Games_Destiny2-1.jpg | |
