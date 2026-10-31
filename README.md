@@ -1,8 +1,8 @@
 # Hunter Gamers
 
-## 📲 Download APK
+## Download APK
 
-**[⬇ Download hunter-game.apk (latest build)](https://github.com/Ribonswebsites/hunter-gamers/releases/download/latest/hunter-game.apk)** · [v1.0 release](https://github.com/Ribonswebsites/hunter-gamers/releases/tag/v1.0) · [All releases](https://github.com/Ribonswebsites/hunter-gamers/releases)
+**[Download hunter-game.apk (latest build)](https://github.com/Ribonswebsites/hunter-gamers/releases/download/latest/hunter-game.apk)** · [v1.0 release](https://github.com/Ribonswebsites/hunter-gamers/releases/tag/v1.0) · [All releases](https://github.com/Ribonswebsites/hunter-gamers/releases)
 
 Also on the website: https://hunter-gamers.pages.dev/downloads/hunter-game.apk — on Android, allow "Install unknown apps" when asked.
 

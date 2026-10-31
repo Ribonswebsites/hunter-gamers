@@ -9,6 +9,24 @@
   const I = n => '/img/' + n;
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
+  const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
+  const IC = {
+    pad: w => sv('<path d="M6 11h4M8 9v4M15 12h.01M18 10h.01"/><path d="M17.3 5H6.7a4 4 0 0 0-3.9 3.2L1.6 14.6A3 3 0 0 0 4.5 18c1 0 1.9-.5 2.4-1.3L8 15h8l1.1 1.7c.5.8 1.4 1.3 2.4 1.3a3 3 0 0 0 2.9-3.4l-1.2-6.4A4 4 0 0 0 17.3 5z"/>', w),
+    bolt: w => sv('<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>', w),
+    joy: w => sv('<circle cx="12" cy="6" r="3"/><path d="M12 9v6M5 15h14l1 5H4z"/>', w),
+    home: w => sv('<path d="M3 11 12 3l9 8"/><path d="M5 10v10h14V10"/><path d="M10 20v-6h4v6"/>', w),
+    chips: w => sv('<path d="M6 3h12l-1.5 18h-9z"/><path d="M9 8l3 3 3-3M9 14h6"/>', w),
+    drink: w => sv('<path d="M6 6h12l-1.6 15H7.6z"/><path d="M12 6l2-4h3"/><path d="M6.6 11h10.8"/>', w),
+    snack: w => sv('<path d="M5 9h14l-2 12H7z"/><path d="M7 9a2.5 2.5 0 0 1 2-4 2.5 2.5 0 0 1 3-2 2.5 2.5 0 0 1 3 2 2.5 2.5 0 0 1 2 4"/>', w),
+    user: w => sv('<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>', w),
+    cookie: w => sv('<path d="M21 12a9 9 0 1 1-9-9 3 3 0 0 0 4 4 3 3 0 0 0 5 5z"/><circle cx="8.5" cy="9.5" r="1" fill="currentColor"/><circle cx="14" cy="15" r="1" fill="currentColor"/><circle cx="8" cy="15.5" r="1" fill="currentColor"/><circle cx="12" cy="11" r=".6" fill="currentColor"/>', w),
+    x: w => sv('<path d="M6 6l12 12M18 6 6 18"/>', w),
+    arrow: () => sv('<path d="M5 12h14M13 6l6 6-6 6"/>', 16),
+    play: () => sv('<path d="M7 4v16l13-8z" fill="currentColor"/>', 16),
+    dl: () => sv('<path d="M12 3v12M6 11l6 6 6-6M4 21h16"/>', 16),
+    left: () => sv('<path d="M15 6l-6 6 6 6"/>', 12), right: () => sv('<path d="M9 6l6 6-6 6"/>', 12),
+  };
+  const ARW = ' ' + IC.arrow();
 
   // Each slide: one game, its own centre character (official art), orbit of official art behind (NowssB HeroCurveStage layout)
   const SLIDES = [
@@ -27,7 +45,7 @@
     const el = document.createElement('div');
     el.className = 'hg-sheet ' + (center ? 'center ' : '') + cls;
     el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
-    el.innerHTML = (center ? '' : '<div class="hg-grab"></div>') + '<button class="hg-x" aria-label="Close" data-close>✕</button>' + html;
+    el.innerHTML = (center ? '' : '<div class="hg-grab"></div>') + `<button class="hg-x" aria-label="Close" data-close>${IC.x(18)}</button>` + html;
     document.body.append(el); return el;
   }
   function show(el) {
@@ -45,7 +63,7 @@
   document.addEventListener('click', e => { const c = e.target.closest('[data-close]'); if (c) hide(c.closest('.hg-sheet')); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
   function popup(o) {
-    const el = sheet(`<div class="hg-icon">${o.icon || '🎮'}</div><h3>${o.title}</h3><p>${o.text}</p>${o.extra || ''}<div class="hg-row">${(o.actions || []).map((a, i) => `<button class="hg-btn ${a.primary ? 'p' : 's'}" data-i="${i}">${a.label}</button>`).join('')}</div>`, { center: o.center });
+    const el = sheet(`<div class="hg-icon">${o.icon || IC.pad()}</div><h3>${o.title}</h3><p>${o.text}</p>${o.extra || ''}<div class="hg-row">${(o.actions || []).map((a, i) => `<button class="hg-btn ${a.primary ? 'p' : 's'}" data-i="${i}">${a.label}</button>`).join('')}</div>`, { center: o.center });
     el._temp = true;
     $$('[data-i]', el).forEach(b => b.onclick = () => { const a = o.actions[+b.dataset.i]; hide(el, !!a.keep); a.run && a.run(); });
     show(el); return el;
@@ -66,8 +84,8 @@
       <div class="hgx-subject ${s.cut ? 'cut' : 'poster'}"><img src="${I(s.subject)}" alt="" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}></div>
       <div class="hgx-copy"><span class="hgx-tag"><i></i>${s.tag}</span><h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
-      <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot →</button><button class="hg-btn s" data-hg-console>See rates</button></div></div></div>`).join('') +
-      `<div class="hgx-ring"></div><div class="hgx-hint">◁ drag to spin ▷</div><div class="hgx-dots">${SLIDES.map((_, i) => `<button aria-label="Slide ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div><div class="hgx-progress"></div>`;
+      <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div></div>`).join('') +
+      `<div class="hgx-ring"></div><div class="hgx-hint">${IC.left()} drag to spin ${IC.right()}</div><div class="hgx-dots">${SLIDES.map((_, i) => `<button aria-label="Slide ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div><div class="hgx-progress"></div>`;
     $('#top').prepend(hx);
     const ring = $('.hgx-ring', hx);
     const cards = POSTERS.slice(0, 9).map(src => { const c = document.createElement('div'); c.className = 'hgx-card'; c.style.backgroundImage = `url(${src})`; ring.append(c); return c; });
@@ -136,24 +154,24 @@
   const CONS = { ps5: { n: 'PS5', r: 100, img: 'card-06.webp', d: '4K graphics, DualSense haptics, fast loading.' }, ps4: { n: 'PS4', r: 75, img: 'card-02.webp', d: 'Huge library of classics. Best value for groups.' } };
   function consolePopup(id) {
     const c = CONS[id];
-    popup({ icon: id === 'ps5' ? '⚡' : '🎮', title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
+    popup({ icon: id === 'ps5' ? IC.bolt() : IC.pad(), title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
       extra: `<div class="hg-dl-art"><img src="${I('card-01.webp')}" alt=""><img src="${I(c.img)}" alt=""><img src="${I('card-05.webp')}" alt=""></div>`,
-      actions: [{ label: 'Not now' }, { label: `Book ${c.n} →`, primary: true, keep: true, run: () => document.querySelector(`[data-pick="${id}"]`)._hgReal() }] });
+      actions: [{ label: 'Not now' }, { label: `Book ${c.n}${ARW}`, primary: true, keep: true, run: () => document.querySelector(`[data-pick="${id}"]`)._hgReal() }] });
   }
   function chooseConsole() {
-    popup({ icon: '🕹️', title: 'Pick your console', text: 'Rates are per player, per hour. Up to 4 players.',
+    popup({ icon: IC.joy(), title: 'Pick your console', text: 'Rates are per player, per hour. Up to 4 players.',
       actions: [{ label: 'PS4 · ₹75', keep: true, run: () => consolePopup('ps4') }, { label: 'PS5 · ₹100', primary: true, keep: true, run: () => consolePopup('ps5') }] });
   }
   function rentPopup(real) {
-    popup({ icon: '🏠', title: 'Take a PS5 home', text: '₹1,000 for 12 hours with 2 controllers. Extra controller ₹200 (up to 4). ₹1,000 refundable deposit. Pick up and return at the shop.',
-      actions: [{ label: 'Cancel' }, { label: 'Rent a PS5 →', primary: true, keep: true, run: real }] });
+    popup({ icon: IC.home(), title: 'Take a PS5 home', text: '₹1,000 for 12 hours with 2 controllers. Extra controller ₹200 (up to 4). ₹1,000 refundable deposit. Pick up and return at the shop.',
+      actions: [{ label: 'Cancel' }, { label: `Rent a PS5${ARW}`, primary: true, keep: true, run: real }] });
   }
   function snackAdded(name, qty, price) {
-    popup({ icon: name.startsWith('Chips') ? '🍟' : '🥤', title: `${name} added`, text: `${qty} in your booking · ₹${price} each. Pay together with your slot.`,
-      actions: [{ label: 'Keep browsing' }, { label: 'View booking →', primary: true, keep: true, run: openBook }] });
+    popup({ icon: name.startsWith('Chips') ? IC.chips() : IC.drink(), title: `${name} added`, text: `${qty} in your booking · ₹${price} each. Pay together with your slot.`,
+      actions: [{ label: 'Keep browsing' }, { label: `View booking${ARW}`, primary: true, keep: true, run: openBook }] });
   }
   function snacksPopup() {
-    popup({ icon: '🍿', title: 'Snacks & drinks', text: 'Add them to your booking and pay for everything together.',
+    popup({ icon: IC.snack(), title: 'Snacks & drinks', text: 'Add them to your booking and pay for everything together.',
       actions: [{ label: '+ Chips ₹50', keep: true, run: () => $('[data-add="chips50"]').click() }, { label: '+ Cold drink ₹40', primary: true, keep: true, run: () => $('[data-add="drink"]').click() }] });
   }
   function wireActions() {
@@ -182,7 +200,8 @@
   function buildLogin() {
     const L = document.createElement('div'); L.className = 'hg-login'; L.setAttribute('role', 'dialog'); L.setAttribute('aria-label', 'Login');
     const col = k => `<div class="hgl-col">${[...POSTERS.slice(k), ...POSTERS.slice(0, k), ...POSTERS.slice(k), ...POSTERS.slice(0, k)].map(s => `<img src="${s}" alt="">`).join('')}</div>`;
-    const glyphs = '△○✕□'.split('').flatMap(g => [g, g, g]).map((g, i) => `<span style="left:${(i * 37) % 100}%;animation-duration:${14 + (i * 7) % 16}s;animation-delay:-${(i * 3) % 14}s;font-size:${18 + (i * 11) % 30}px">${g}</span>`).join('');
+    const SH = ['<path d="M12 4 21 20H3z"/>', '<circle cx="12" cy="12" r="9"/>', '<path d="M5 5l14 14M19 5 5 19"/>', '<rect x="4" y="4" width="16" height="16" rx="1"/>'];
+    const glyphs = SH.flatMap(g => [g, g, g]).map((g, i) => `<span style="left:${(i * 37) % 100}%;animation-duration:${14 + (i * 7) % 16}s;animation-delay:-${(i * 3) % 14}s;width:${18 + (i * 11) % 30}px"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5">${g}</svg></span>`).join('');
     L.innerHTML = `<div class="hgl-bg" style="background-image:url(${I('wolverine-bg.webp')})"></div>
       <div class="hgl-cols">${[0, 3, 6, 2, 8, 5].map(col).join('')}</div><div class="hgl-shade"></div><div class="hgl-glyphs">${glyphs}</div>
       <form class="hgl-card" novalidate>
@@ -192,7 +211,7 @@
         <div class="hgl-field"><label for="hglName">Gamer name</label><input id="hglName" autocomplete="name" placeholder="e.g. Rohan" required></div>
         <div class="hgl-field"><label for="hglPhone">Mobile number</label><input id="hglPhone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="10-digit number" required></div>
         <div class="hgl-err" aria-live="polite"></div>
-        <button class="hg-btn p" type="submit">▶ Start playing</button>
+        <button class="hg-btn p" type="submit">${IC.play()} Start playing</button>
         <div class="hgl-or">or</div>
         <button class="hg-btn s" type="button" data-guest>Continue as guest</button>
         <p class="hgl-note">Saved only on this device to fill your bookings. No password needed.</p>
@@ -230,14 +249,14 @@
   function accountPopup() {
     const u = store.get('user');
     if (!u) return openLogin();
-    popup({ icon: '👾', title: `Hi, ${u.name}`, text: `Bookings are filled with +91 ${u.phone}.`,
-      actions: [{ label: 'Log out', run: () => { localStorage.removeItem('hg.user'); fillUser(); } }, { label: 'Book a slot →', primary: true, keep: true, run: () => { fillUser(); openBook(); } }] });
+    popup({ icon: IC.user(), title: `Hi, ${u.name}`, text: `Bookings are filled with +91 ${u.phone}.`,
+      actions: [{ label: 'Log out', run: () => { localStorage.removeItem('hg.user'); fillUser(); } }, { label: 'Book a slot${ARW}', primary: true, keep: true, run: () => { fillUser(); openBook(); } }] });
   }
 
   /* ---------- Cookies ---------- */
   function buildCookie() {
     const c = document.createElement('div'); c.className = 'hg-cookie'; c.setAttribute('role', 'dialog'); c.setAttribute('aria-label', 'Cookie preferences');
-    c.innerHTML = `<div class="top"><div class="ck">🍪</div><div><h4>Cookies, but make it gaming</h4>
+    c.innerHTML = `<div class="top"><div class="ck">${IC.cookie(28)}</div><div><h4>Cookies, but make it gaming</h4>
       <p>We use essential storage to keep you logged in and remember your booking. With your OK we also measure which pages help players book.</p></div></div>
       <div class="prefs"><label>Essential (always on)<input type="checkbox" class="hg-tog" checked disabled></label>
       <label>Analytics<input type="checkbox" class="hg-tog" data-k="analytics"></label>
@@ -259,7 +278,7 @@
   function appPopup() {
     popup({ icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Game app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
       extra: `<div class="hg-dl-art"><img src="${I('card-06.webp')}" alt=""><img src="${I('card-01.webp')}" alt=""><img src="${I('card-05.webp')}" alt=""></div><p style="font-size:12px">Android 7+ · about 6 MB · allow "install unknown apps" when asked.</p>`,
-      actions: [{ label: 'Maybe later', run: () => store.set('appAsked', Date.now()) }, { label: '⬇ Download APK', primary: true, run: () => { store.set('appAsked', Date.now()); location.href = '/downloads/hunter-game.apk'; } }] });
+      actions: [{ label: 'Maybe later', run: () => store.set('appAsked', Date.now()) }, { label: `${IC.dl()} Download APK`, primary: true, run: () => { store.set('appAsked', Date.now()); location.href = '/downloads/hunter-game.apk'; } }] });
   }
   function maybeApp() {
     if (IN_APP || !IS_ANDROID) return;
