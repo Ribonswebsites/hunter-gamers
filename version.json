@@ -1,6 +1,6 @@
 {
- "versionCode": 7,
- "versionName": "1.7",
+ "versionCode": 8,
+ "versionName": "1.8",
  "apkUrl": "https://hunter-gamers.pages.dev/downloads/hunter-game.apk",
- "notes": "Sharper hero art, fixed Spider-Man layering, new game feature sections, map in footer"
+ "notes": "Sharper heroes, solid character cutouts, new console status, control room, order history and popups"
 }
