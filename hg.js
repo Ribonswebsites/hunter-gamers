@@ -7,7 +7,7 @@
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   const I = n => '/img/' + n;
-  const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
+  const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}-sm.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   const IC = {
@@ -30,12 +30,12 @@
 
   // Each slide: one game, its own centre character (official art), orbit of official art behind (NowssB HeroCurveStage layout)
   const SLIDES = [
-    { bg: 'wolverine-bg.webp', subject: 'wolverine-cutout.webp', cut: true, tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
-    { bg: 'gta6-bg.webp', subject: 'gta6-duo-cutout.webp', cut: true, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Your call.</span>' },
-    { bg: 'spidey-bg.webp', subject: 'spidey-cutout.webp', cut: true, tag: "Marvel's Spider-Man", h: 'Swing into <span>your slot.</span>' },
-    { bg: 'spidey2-bg.webp', subject: 'spidey2-centre.webp', tag: "Marvel's Spider-Man 2", h: 'Book PS5. <span>Claim the screen.</span>' },
-    { bg: 'miles-bg.webp', subject: 'miles-centre.webp', tag: 'Spider-Man: Miles Morales', h: 'Squad up. <span>Drop in.</span>' },
-    { bg: 'gta6-jason-bg.webp', subject: 'gta6-lucia-centre.webp', tag: 'GTA VI · Lucia Caminos', h: 'Ride out. <span>₹100/hr.</span>' },
+    { bg: 'wolverine-key', pm: '50% 32%', pd: '50% 30%', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
+    { bg: 'gta6-bg', tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Your call.</span>' },
+    { bg: 'spidey2-bg', m: 'spidey2-centre', pm: '50% 30%', pd: '62% 0%', tag: "Marvel's Spider-Man 2", h: 'Book PS5. <span>Claim the screen.</span>' },
+    { bg: 'spidey-bg', tag: "Marvel's Spider-Man", h: 'Swing into <span>your slot.</span>' },
+    { bg: 'miles-hero', m: 'miles-centre', pm: '50% 30%', pd: '45% 20%', tag: 'Spider-Man: Miles Morales', h: 'Squad up. <span>Drop in.</span>' },
+    { bg: 'gta6-jason-bg', tag: 'GTA VI · Lucia Caminos', h: 'Ride out. <span>₹100/hr.</span>' },
   ];
 
   /* ---------- Sheets ---------- */
@@ -75,56 +75,102 @@
   if (bookSec) bookSheet.append(bookSec);
   const openBook = () => { if (openSheet !== bookSheet) show(bookSheet); };
 
-  /* ---------- Orbit hero ---------- */
+  /* ---------- Hero: alternates style A (image-led key art) and style B (3D poster ring) ---------- */
+  const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm';
+  const bgSrc = s => I((MOB ? (s.m || s.bg) + '-sm' : s.bg + BIG) + '.webp');
+  const bgPos = s => (MOB ? s.pm : s.pd) || 'center';
   function buildHero() {
-    const hx = document.createElement('section');
-    hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
-    hx.innerHTML = SLIDES.map((s, i) => `<div class="hgx-slide${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}">
-      <div class="hgx-bg" style="background-image:url(${I(s.bg)})"></div>
-      <div class="hgx-subject ${s.cut ? 'cut' : 'poster'}"><img src="${I(s.subject)}" alt="" ${i ? 'loading="lazy"' : 'fetchpriority="high"'}></div>
+    const hx = $('#top > .hgx') || document.createElement('section');
+    hx.className = 'hgx style-a'; hx.setAttribute('aria-label', 'Featured games');
+    hx.innerHTML = SLIDES.map((s, i) => `<div class="hgx-slide ${i % 2 ? 'b' : 'a'}${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}">
+      <div class="hgx-bg" style="background-position:${bgPos(s)}${i ? '' : `;background-image:url(${bgSrc(s)})`}"></div>
       <div class="hgx-copy"><span class="hgx-tag"><i></i>${s.tag}</span><h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
       <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div></div>`).join('') +
       `<div class="hgx-ring"></div><div class="hgx-hint">${IC.left()} drag to spin ${IC.right()}</div><div class="hgx-dots">${SLIDES.map((_, i) => `<button aria-label="Slide ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div><div class="hgx-progress"></div>`;
-    $('#top').prepend(hx);
+    if (!hx.parentNode) $('#top').prepend(hx);
+        const slides = $$('.hgx-slide', hx), dots = $$('.hgx-dots button', hx), prog = $('.hgx-progress', hx);
+    const ensureBg = i => { const el = $('.hgx-bg', slides[i]); if (!el.style.backgroundImage) el.style.backgroundImage = `url(${bgSrc(SLIDES[i])})`; };
     const ring = $('.hgx-ring', hx);
-    const cards = POSTERS.slice(0, 9).map(src => { const c = document.createElement('div'); c.className = 'hgx-card'; c.style.backgroundImage = `url(${src})`; ring.append(c); return c; });
-    let auto = 0, drag = 0, scroll = 0, cur = 0, t0 = performance.now();
+    let cards = null, auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, step = 0;
     const DUR = 6500;
+    function makeRing() {
+      if (cards) return;
+      cards = POSTERS.slice(0, 9).map(src => { const c = document.createElement('div'); c.className = 'hgx-card'; c.style.backgroundImage = `url(${src})`; ring.append(c); return c; });
+      measure();
+    }
+    function measure() {
+      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / 9;
+      ring.style.setProperty('--cw', Math.max(92, Math.min(170, w * 0.13)) + 'px');
+    }
     function layout() {
-      const w = hx.clientWidth, n = cards.length, step = Math.PI * 2 / n;
-      const R = Math.min(w * 0.42, 620), cw = Math.max(92, Math.min(170, w * 0.13));
-      ring.style.setProperty('--cw', cw + 'px');
-      const rot = auto + drag + scroll * 0.0016;
-      cards.forEach((c, i) => {
-        const a = rot + i * step, x = Math.sin(a) * R, z = Math.cos(a) * R * 0.55, y = Math.cos(a) * -18;
-        const depth = (Math.cos(a) + 1) / 2;                 // 1 = front, 0 = back
-        c.style.transform = `translate3d(${x}px,${y}px,${z}px) rotateY(${Math.sin(a) * -38}deg) scale(${0.72 + depth * 0.38})`;
-        c.style.opacity = (0.25 + depth * 0.75).toFixed(2);
-        c.style.zIndex = Math.round(depth * 100);
-        c.style.filter = `brightness(${0.45 + depth * 0.55})`;
-      });
+      if (!cards) return;
+      const rot = auto + drag;
+      for (let i = 0; i < cards.length; i++) {
+        const a = rot + i * step, cs = Math.cos(a), sn = Math.sin(a), depth = (cs + 1) / 2;
+        cards[i].style.transform = `translate3d(${(sn * R).toFixed(1)}px,${(cs * -18).toFixed(1)}px,${(cs * R * 0.55).toFixed(1)}px) rotateY(${(sn * -38).toFixed(1)}deg) scale(${(0.72 + depth * 0.38).toFixed(3)})`;
+        cards[i].style.opacity = (0.2 + depth * 0.8).toFixed(2);
+      }
     }
     function go(i) {
       cur = (i + SLIDES.length) % SLIDES.length; t0 = performance.now();
-      $$('.hgx-slide', hx).forEach((s, j) => { s.classList.toggle('on', j === cur); s.setAttribute('aria-hidden', j !== cur); });
-      $$('.hgx-dots button', hx).forEach((d, j) => d.classList.toggle('on', j === cur));
+      ensureBg(cur); ensureBg((cur + 1) % SLIDES.length);
+      const isB = cur % 2 === 1; if (isB) makeRing();
+      hx.classList.toggle('style-b', isB); hx.classList.toggle('style-a', !isB);
+      slides.forEach((s, j) => { s.classList.toggle('on', j === cur); s.setAttribute('aria-hidden', j !== cur); });
+      dots.forEach((d, j) => d.classList.toggle('on', j === cur));
     }
-    $$('.hgx-dots button', hx).forEach((d, j) => d.onclick = () => go(j));
+    dots.forEach((d, j) => d.onclick = () => go(j));
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
-    addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; });
+    addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; }, { passive: true });
     addEventListener('pointerup', () => { if (sx == null) return; sx = null; if (Math.abs(moved) > 60) go(cur + (moved < 0 ? 1 : -1)); });
-    addEventListener('scroll', () => { scroll = scrollY; }, { passive: true });
-    addEventListener('resize', layout);
-    (function tick(now) {
-      if (!reduce) auto += 0.0055 * 0.6;
-      layout();
-      const p = Math.min(1, (now - t0) / DUR); $('.hgx-progress', hx).style.width = p * 100 + '%';
-      if (p >= 1 && !reduce) go(cur + 1);
+    let rz; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { measure(); layout(); }); });
+    new IntersectionObserver(([e]) => { visible = e.isIntersecting; hx.classList.toggle('paused', !visible); if (visible) { t0 = performance.now() - lastP * DUR; loop(); } }).observe(hx);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && visible) { t0 = performance.now() - lastP * DUR; loop(); } });
+    let running = false, lastP = 0;
+    function loop() { if (!running) { running = true; requestAnimationFrame(tick); } }
+    function tick(now) {
+      if (!visible || document.hidden) { running = false; return; }
+      if (hx.classList.contains('style-b')) { if (!reduce) auto += 0.0033; layout(); }
+      lastP = Math.min(1, (now - t0) / DUR); prog.style.transform = `scaleX(${lastP.toFixed(4)})`;
+      if (lastP >= 1 && !reduce) { lastP = 0; go(cur + 1); }
       requestAnimationFrame(tick);
-    })(performance.now());
+    }
+    requestIdleCallback ? requestIdleCallback(() => ensureBg(1)) : setTimeout(() => ensureBg(1), 1500);
+    loop();
     window.HG_go = go;
+  }
+
+  /* ---------- Games available to play (cutout-on-stage cards) ---------- */
+  const GAMES = [
+    { id: 'wolverine', name: "Marvel's Wolverine", cut: 'wolverine-cutout', bg: 'wolverine-bg', tag: 'PS5', blurb: 'Brutal, fast melee action as Logan. Best on PS5 with the big screen and surround sound.' },
+    { id: 'gta6', name: 'Grand Theft Auto VI', cut: 'gta6-duo-cutout', bg: 'gta6-bg', tag: 'PS5', blurb: 'Jason and Lucia in Vice City. Ask at the counter about availability on our PS5s.' },
+    { id: 'spidey', name: "Marvel's Spider-Man", cut: 'spidey-cutout', bg: 'spidey-bg', tag: 'PS5 · PS4', blurb: 'Swing across New York as Peter Parker. Plays on both PS5 and PS4.' },
+    { id: 'spidey2', name: "Marvel's Spider-Man 2", cut: 'spidey2-cutout', bg: 'spidey2-bg', tag: 'PS5', blurb: 'Peter and Miles team up against Venom. A PS5 showcase.' },
+    { id: 'miles', name: 'Spider-Man: Miles Morales', cut: 'miles-cutout', bg: 'miles-bg', tag: 'PS5 · PS4', blurb: 'Miles takes over Harlem. Quick sessions, huge fun.' },
+    { id: 'lucia', name: 'GTA VI · Lucia', cut: 'lucia-cutout', bg: 'gta6-jason-bg', tag: 'PS5', blurb: 'Lucia Caminos in Leonida. Ask at the counter about availability on our PS5s.' },
+  ];
+  function buildGames() {
+    const sec = document.createElement('section');
+    sec.className = 'section hg-games'; sec.id = 'games'; sec.setAttribute('aria-labelledby', 'games-title');
+    sec.innerHTML = `<div class="hg-games-in"><p class="hg-eyebrow">On our consoles</p><h2 id="games-title">Games available to play</h2>
+      <p class="hg-games-sub">Tap a game to book a slot for it.</p>
+      <div class="hg-games-grid">${GAMES.map(g => `<button class="hg-game" data-game="${g.id}" aria-label="${g.name}">
+        <span class="stage"><span class="art" data-bg="${I(g.bg + '-sm.webp')}"></span></span>
+        <img class="who" data-src="${I(g.cut + '-sm.webp')}" alt="" decoding="async">
+        <span class="meta"><b>${g.name}</b><small>${g.tag}</small></span></button>`).join('')}</div></div>`;
+    const after = $('#how') || $('#consoles');
+    after ? after.after(sec) : $('#top').append(sec);
+    const io = new IntersectionObserver(es => es.forEach(e => {
+      e.target.classList.toggle('inview', e.isIntersecting);
+      const art = $('.art', e.target); if (e.isIntersecting && art.dataset.bg) { art.style.backgroundImage = `url(${art.dataset.bg})`; delete art.dataset.bg; const w = $('.who', e.target); w.src = w.dataset.src; }
+    }), { rootMargin: '200px 0px' });
+    $$('.hg-game', sec).forEach(b => { io.observe(b); b.onclick = () => gamePopup(GAMES.find(g => g.id === b.dataset.game)); });
+  }
+  function gamePopup(g) {
+    popup({ icon: `<img src="${I(g.cut + '-sm.webp')}" alt="" class="hg-pop-cut">`, title: g.name, text: `${g.blurb} PS5 ₹100 / PS4 ₹75 per player per hour.`,
+      actions: [{ label: 'See consoles', keep: true, run: () => document.querySelector('[data-hg-console]').click() }, { label: `Book this game${ARW}`, primary: true, keep: true, run: openBook }] });
   }
 
   /* ---------- Bottom nav ---------- */
@@ -202,7 +248,7 @@
     const col = k => `<div class="hgl-col">${[...POSTERS.slice(k), ...POSTERS.slice(0, k), ...POSTERS.slice(k), ...POSTERS.slice(0, k)].map(s => `<img src="${s}" alt="">`).join('')}</div>`;
     const SH = ['<path d="M12 4 21 20H3z"/>', '<circle cx="12" cy="12" r="9"/>', '<path d="M5 5l14 14M19 5 5 19"/>', '<rect x="4" y="4" width="16" height="16" rx="1"/>'];
     const glyphs = SH.flatMap(g => [g, g, g]).map((g, i) => `<span style="left:${(i * 37) % 100}%;animation-duration:${14 + (i * 7) % 16}s;animation-delay:-${(i * 3) % 14}s;width:${18 + (i * 11) % 30}px"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5">${g}</svg></span>`).join('');
-    L.innerHTML = `<div class="hgl-bg" style="background-image:url(${I('wolverine-bg.webp')})"></div>
+    L.innerHTML = `<div class="hgl-bg" style="background-image:url(${I('wolverine-bg-sm.webp')})"></div>
       <div class="hgl-cols">${[0, 3, 6, 2, 8, 5].map(col).join('')}</div><div class="hgl-shade"></div><div class="hgl-glyphs">${glyphs}</div>
       <form class="hgl-card" novalidate>
         <div class="hgl-brand"><img src="${LOGO}" alt="">HUNTER GAMERS</div>
@@ -215,16 +261,15 @@
         <div class="hgl-or">or</div>
         <button class="hg-btn s" type="button" data-guest>Continue as guest</button>
         <p class="hgl-note">Saved only on this device to fill your bookings. No password needed.</p>
-      </form>
-      <div class="hgl-ticker"><div>${'PS5 ₹100/HR · PS4 ₹75/HR · TAKE A PS5 HOME ₹1,000 · SNACKS & COLD DRINKS · INDORA, NAGPUR · '.repeat(6)}</div></div>`;
+      </form>`;
     document.body.append(L);
-    const bgs = ['wolverine-bg.webp', 'gta6-bg.webp', 'spidey2-bg.webp', 'gta6-jason-bg.webp', 'miles-bg.webp'];
+    const bgs = ['wolverine-bg', 'gta6-bg', 'spidey2-bg', 'gta6-jason-bg', 'miles-bg'].map(b => b + '-sm.webp');
     let bi = 0; setInterval(() => { if (L.classList.contains('on')) $('.hgl-bg', L).style.backgroundImage = `url(${I(bgs[++bi % bgs.length])})`; }, 5000);
-    L.addEventListener('pointermove', e => {
+    let pm = 0; L.addEventListener('pointermove', e => { if (pm) return; pm = requestAnimationFrame(() => { pm = 0;
       const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
       $('.hgl-bg', L).style.transform = `translate(${x * -30}px,${y * -30}px)`;
       $('.hgl-cols', L).style.transform = `rotate(-12deg) scale(1.15) translate(${x * 40}px,${y * 40}px)`;
-    });
+    }); });
     const f = $('form', L), err = $('.hgl-err', L);
     $('#hglPhone', L).addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10));
     f.addEventListener('submit', e => {
@@ -296,7 +341,7 @@
   function afterLogin() { if (!store.get('consent')) setTimeout(() => cookieEl.classList.add('on'), 500); else setTimeout(maybeApp, 900); }
 
   let cookieEl;
-  buildHero(); buildNav(); wireActions(); addAppLinks();
+  buildHero(); buildGames(); buildNav(); wireActions(); addAppLinks();
   loginEl = buildLogin(); cookieEl = buildCookie(); fillUser();
   if (IN_APP) document.documentElement.classList.add('in-app');
   if (!store.get('user') && !store.get('guest')) openLogin(); else afterLogin();
