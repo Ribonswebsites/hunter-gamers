@@ -150,3 +150,12 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 /* Section backgrounds: plain official art, one image per section, never reused */
 #consoles{background:linear-gradient(180deg,rgba(11,8,9,.82),rgba(11,8,9,.62) 50%,rgba(11,8,9,.92)),url(/img/s-consoles.webp) center/cover no-repeat}
 .book-sheet{background-image:linear-gradient(180deg,rgba(14,10,11,.82),rgba(14,10,11,.94)),url(/img/s-book.webp);background-size:cover;background-position:center}
+.hgx-dots{display:none!important}
+/* In-app update popup */
+.hg-upd{margin:4px 0 14px}
+.hg-upd-bar{height:6px;border-radius:9px;background:rgba(255,255,255,.1);overflow:hidden;opacity:0;transition:opacity .3s}
+.hg-upd-bar i{display:block;height:100%;background:linear-gradient(90deg,#fb241c,#ff8a83);transform-origin:0 50%;transform:scaleX(0);transition:transform .2s linear}
+.upd-busy .hg-upd-bar{opacity:1}
+.hg-upd-st{display:block;margin-top:8px;color:#AE9DA1;font-size:12px}
+.upd-err .hg-upd-st{color:#ff8a83}
+.upd-busy .hg-row .hg-btn{opacity:.5;pointer-events:none}

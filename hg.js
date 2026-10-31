@@ -39,7 +39,7 @@
     { id: 'nr', bg: 'h-nr', tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
     { id: 'wk', bg: 'h-wk', tag: 'Black Myth: Wukong', h: 'Take up <span>the staff.</span>' },
   ];
-  const PIDS = ['wolverine', 'gow', 'gta6', 'sm2', 'acs', 'fc26', 'nr', 'wk', 're9', 'got', 'ds2', 'bo7'];
+  const PIDS = ['wolverine', 'gow', 'sm2', 'acs', 'fc26', 'nr', 'wk', 're9', 'got', 'ds2', 'bo7'];
 
   /* ---------- Sheets ---------- */
   const scrim = document.createElement('div'); scrim.className = 'hg-scrim'; document.body.append(scrim);
@@ -348,6 +348,24 @@
   function afterLogin() { if (!store.get('consent')) setTimeout(() => cookieEl.classList.add('on'), 500); else setTimeout(maybeApp, 900); }
 
   let cookieEl;
+  /* ---------- In-app update (Android app only; native side calls HGUpdate when /version.json is newer) ---------- */
+  IC.update = () => sv('<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/><path d="M12 8v5l3 2"/>', 30);
+  window.HGUpdate = (ver, notes) => {
+    if ($('.hg-upd')) return;
+    const el = popup({ icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
+      extra: '<div class="hg-upd"><div class="hg-upd-bar"><i></i></div><small class="hg-upd-st">Takes a few seconds. Your bookings stay saved.</small></div>',
+      actions: [{ label: 'Later', run: () => window.HGApp && HGApp.later() },
+        { label: `Update now${ARW}`, primary: true, keep: true, run: () => { el.classList.add('upd-busy'); window.HGApp && HGApp.startUpdate(); HGUpdateProgress(0, 'downloading'); } }] });
+  };
+  window.HGUpdateProgress = (pct, st) => {
+    const box = $('.hg-upd'); if (!box) return;
+    const sh = box.closest('.hg-sheet'); sh.classList.add('upd-busy'); sh.classList.toggle('upd-err', pct < 0);
+    if (pct >= 0) $('i', box).style.transform = `scaleX(${pct / 100})`;
+    const msg = { downloading: pct >= 0 ? `Downloading ${pct}%` : 'Downloading...', installing: 'Opening installer...', permission: 'Allow "Install unknown apps" for Hunter Game, then come back.', error: 'Download failed. Check your internet and try again.', denied: 'Install permission was not allowed. Tap Update now to try again.' };
+    $('.hg-upd-st', box).textContent = msg[st] || '';
+    if (pct < 0) sh.classList.remove('upd-busy');
+  };
+
   buildHero(); buildGames(); buildNav(); wireActions(); addAppLinks();
   loginEl = buildLogin(); cookieEl = buildCookie(); fillUser();
   if (IN_APP) document.documentElement.classList.add('in-app');

@@ -1,0 +1,15 @@
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/hg.js
+  Cache-Control: no-cache
+/hg.css
+  Cache-Control: no-cache
+/version.json
+  Cache-Control: no-store
+  Access-Control-Allow-Origin: *
+/downloads/*
+  Cache-Control: no-cache
+/img/*
+  Cache-Control: public, max-age=604800
