@@ -99,7 +99,7 @@
       ${SLIDES.map((s, i) => `<div class="hgx-copy${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
       <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div>`).join('')}
-      <div class="hgx-hint">${IC.left()} drag to spin ${IC.right()}</div><div class="hgx-progress"></div>`;
+      <div class="hgx-progress"></div>`;
     if (!hx.parentNode) $('#top').prepend(hx);
     const bgs = $$('.hgx-bg', hx), subs = $$('.hgx-subject-w', hx), copies = $$('.hgx-copy', hx), prog = $('.hgx-progress', hx);
     const preload = src => new Promise(r => { const im = new Image(); im.onload = im.onerror = r; im.src = src; });
