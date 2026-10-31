@@ -663,3 +663,8 @@ main>section,.section,.hg-games,.hg-feat,.hgx,.hgf,section{overflow-x:clip}
 .hg-cf-dial .p{display:none}
 .hg-cf-card{-webkit-box-reflect:none!important;transform-style:flat!important}
 .hg-nav{backdrop-filter:none!important;-webkit-backdrop-filter:none!important;background:rgba(16,11,12,.96)!important}
+
+/* r16: ring on every slide, per-slide height */
+.hgx-ring,.hgx-ring.r1{top:var(--rt,58%)!important}
+/* r16: FC26 - the official key art is the hero; no extra cutout floating over the players' faces */
+.hgx-subject:nth-child(6){display:none!important}

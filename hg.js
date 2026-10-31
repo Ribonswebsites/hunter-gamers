@@ -6,7 +6,7 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=18';
+  const I = n => '/img/' + n + '?v=19';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -32,14 +32,14 @@
   const ARW = ' ' + IC.arrow();
 
   // Each slide: one game. Centre = clean cutout, background = different official art (dimmed + blurred), ring = posters of the OTHER games
-  const SLIDES = [
+  const SLIDES = [ // every slide shows the ring; rt = per-slide ring centre (% of hero height), kept below background faces
     { id: 'wolverine', pop: 'f-wolverine', clear: 1, bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
     { id: 'gow', bg: 'h-gow', tag: 'God of War Ragnarök', h: 'Kratos is <span>waiting.</span>' },
-    { id: 'gta6', bg: 'gta6-bg', soon: 1, ring: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
+    { id: 'gta6', bg: 'gta6-bg', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
     { id: 'sm2', cut: 'peter', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Swing into <span>the city.</span>' },
     { id: 'acs', bg: 'h-acs', tag: "Assassin's Creed Shadows", h: 'Strike from <span>the shadows.</span>' },
-    { id: 'fc26', bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
-    { id: 'nr', bg: 'h-nr', ring: 1, tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
+    { id: 'fc26', clear: 1, bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
+    { id: 'nr', bg: 'h-nr', tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
     { id: 'wk', bg: 'h-wk', tag: 'Black Myth: Wukong', h: 'Take up <span>the staff.</span>' },
   ];
   const PIDS2 = ['sb', 'hfw', 'ff7r', 't8', 'mk1', 'hl', 'tlou2', 'rc', 'dmc5']; // second ring: its own posters, never shared
@@ -135,7 +135,7 @@
       busy = true; t0 = performance.now(); lastP = 0;
       ensure(next).then(() => requestAnimationFrame(() => {
         const prev = cur; cur = next; fillRing();
-        bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear); hx.classList.toggle('ring-on', !!SLIDES[cur].ring);
+        bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear); hx.classList.add('ring-on'); setTimeout(fitRing, 750);
         subs[prev].classList.remove('on'); subs[prev].classList.add('out');
         setTimeout(() => subs[prev].classList.remove('out'), 700);
         subs[cur].classList.remove('out'); subs[cur].classList.add('on');
@@ -144,19 +144,27 @@
         ensure((cur + 1) % SLIDES.length); // preload the next slide while this one plays
       }));
     }
-    hx.classList.toggle('clr', !!SLIDES[0].clear); hx.classList.toggle('ring-on', !!SLIDES[0].ring); measure(); fillRing(); layout();
+    hx.classList.toggle('clr', !!SLIDES[0].clear); hx.classList.add('ring-on');
+    // Ring sits as low as possible: its bottom edge stops just above the game tag, so it stays under every face and title.
+    function fitRing() {
+      const tag = $('.hgx-copy.on .hgx-tag', hx) || $('.hgx-copy.on', hx); if (!tag) return;
+      const hr = hx.getBoundingClientRect(); let bo = -1e9; cards.forEach(c => { const r = c.getBoundingClientRect(); if (r.bottom > bo) bo = r.bottom; });
+      const cur = parseFloat(getComputedStyle(ring1).top) || 0, want = cur + (tag.getBoundingClientRect().top - 12 - bo);
+      hx.style.setProperty('--rt', Math.round(want) + 'px');
+    }
+    measure(); fillRing(); layout(); fitRing(); setTimeout(fitRing, 800); document.fonts && document.fonts.ready.then(fitRing);
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
     addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; }, { passive: true });
     addEventListener('pointerup', () => { if (sx == null) return; sx = null; if (Math.abs(moved) > 60) go(cur + (moved < 0 ? 1 : -1)); });
-    let rz; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { measure(); layout(); }); });
+    let rz; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { measure(); layout(); fitRing(); }); });
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; hx.classList.toggle('paused', !visible); if (visible) { t0 = performance.now() - lastP * DUR; loop(); } }).observe(hx);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && visible) { t0 = performance.now() - lastP * DUR; loop(); } });
     let running = false, lastP = 0;
     function loop() { if (!running) { running = true; requestAnimationFrame(tick); } }
     function tick(now) {
       if (!visible || document.hidden) { running = false; tick.l = 0; return; }
-      const dt = Math.min(50, now - (tick.l || now)); tick.l = now; if (!reduce && SLIDES[cur].ring) { auto += dt * 0.00018; layout(); }
+      const dt = Math.min(50, now - (tick.l || now)); tick.l = now; if (!reduce) { auto += dt * 0.00018; layout(); }
       lastP = Math.min(1, (now - t0) / DUR); prog.style.transform = `scaleX(${lastP.toFixed(4)})`;
       if (lastP >= 1 && !reduce) go(cur + 1);
       requestAnimationFrame(tick);
@@ -386,16 +394,21 @@
 
   /* ---------- App download ---------- */
   function appPopup() {
-    popup({ cls: 'p-app', art: I('r-app.webp'), icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Game app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
-      extra: `<p style="font-size:12px">Android 7+ · about 6 MB · allow "install unknown apps" when asked.</p>`,
+    const el = popup({ cls: 'p-app', art: I('k-re9.webp'), icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Gamers app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
+      extra: `<p class="hg-app-meta" style="font-size:12px">Android 7+ · latest version</p>`,
       actions: [{ label: 'Maybe later', run: () => store.set('appAsked', Date.now()) }, { label: `${IC.dl()} Download APK`, primary: true, run: () => { store.set('appAsked', Date.now()); location.href = '/downloads/hunter-game.apk'; } }] });
+    $$('[data-close]', el).forEach(x => x.addEventListener('click', () => store.set('appAsked', Date.now())));
+    Promise.all([fetch('/version.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null), fetch('/downloads/hunter-game.apk', { method: 'HEAD', cache: 'no-store' }).then(r => +r.headers.get('content-length') || 0).catch(() => 0)])
+      .then(([v, len]) => { const m = $('.hg-app-meta', el); if (m) m.textContent = `Android 7+ · ${v ? 'v' + v.versionName : 'latest version'}${len ? ' · ' + (len / 1048576).toFixed(1) + ' MB' : ''}`; });
   }
+  let appTries = 0;
   function maybeApp() {
-    if (IN_APP || !IS_ANDROID) return;
+    if (IN_APP || window.HGApp) return;
     const t = store.get('appAsked'); if (t && Date.now() - t < 3 * 864e5) return;
-    if (loginEl.classList.contains('on') || openSheet) return;
+    if (loginEl.classList.contains('on') || openSheet || document.querySelector('.hg-cookie.on')) { if (appTries++ < 30) setTimeout(maybeApp, 2000); return; }
     appPopup();
   }
+  setTimeout(maybeApp, 2000);
   function addAppLinks() {
     if (IN_APP) return;
     const a = `<a class="hg-dl-link" href="/downloads/hunter-game.apk" data-hg-app>${svg(ico.dl).replace('<svg', '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"')}Get the app</a>`;
@@ -623,7 +636,7 @@
     if (pct < 0) sh.classList.remove('upd-busy');
   };
 
-  buildHero(); buildGames(); buildFeature(); buildHardware(); buildLive(); buildReveal(); route(); buildNav(); wireActions(); addAppLinks();
+  buildHero(); buildGames(); buildFeature(); buildHardware(); buildLive(); { const lv = $('#live'), co = $('#consoles'), re = $('#rent'); if (lv && co) { lv.after(co); if (re) co.after(re); } } buildReveal(); route(); buildNav(); wireActions(); addAppLinks();
   loginEl = buildLogin(); cookieEl = buildCookie(); fillUser();
   if (IN_APP) document.documentElement.classList.add('in-app');
   if (!store.get('user') && !store.get('guest')) openLogin(); else afterLogin();
