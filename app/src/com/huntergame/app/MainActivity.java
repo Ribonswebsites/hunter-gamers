@@ -120,7 +120,7 @@ public class MainActivity extends Activity {
   }
 
   void offerUpdate(UpdateInfo i) {
-    js("window.HGUpdate&&window.HGUpdate(" + jsonStr(i.versionName) + "," + jsonStr(i.notes) + ")");
+    js("(function(v,n,k){var f=function(){if(window.HGUpdate&&!document.querySelector('.hg-upd')){window.HGUpdate(v,n)}else if(!window.HGUpdate&&k++<20)setTimeout(f,500)};f()})(" + jsonStr(i.versionName) + "," + jsonStr(i.notes) + ",0)");
   }
 
   void js(final String code) { ui.post(new Runnable() { public void run() { if (web != null) web.evaluateJavascript(code, null); } }); }
