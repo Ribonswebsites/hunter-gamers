@@ -2,8 +2,8 @@
 # Builds Hunter Game WebView APK without Gradle: aapt2 + javac + d8 + apksigner.
 set -euo pipefail
 cd "$(dirname "$0")"
-SDK=${ANDROID_SDK:-/workspace/android-sdk}; BT=$SDK/build-tools/35.0.0; PLAT=$SDK/platforms/android-35/android.jar
-export JAVA_HOME=${JAVA_HOME:-/workspace/jdk17}; export PATH=$JAVA_HOME/bin:$PATH
+SDK=${ANDROID_SDK:-${ANDROID_HOME:-/workspace/android-sdk}}; BT=$SDK/build-tools/35.0.0; PLAT=$SDK/platforms/android-35/android.jar
+[ -n "${JAVA_HOME:-}" ] || export JAVA_HOME=/workspace/jdk17; export PATH=$JAVA_HOME/bin:$PATH
 rm -rf build && mkdir -p build/res build/classes build/assets/www
 # bundle the site
 cp ../index.html ../hg.css ../hg.js ../favicon.ico ../favicon-32.png ../apple-touch-icon.png ../site.webmanifest build/assets/www/
@@ -14,7 +14,8 @@ javac -source 8 -target 8 -nowarn -cp $PLAT -d build/classes $(find src build/ge
 $BT/d8 --lib $PLAT --min-api 24 --output build $(find build/classes -name '*.class')
 python3 -c "import zipfile;zipfile.ZipFile('build/unsigned.apk','a').write('build/classes.dex','classes.dex')"
 $BT/zipalign -f 4 build/unsigned.apk build/aligned.apk
-[ -f hunter-game.keystore ] || keytool -genkeypair -keystore hunter-game.keystore -alias huntergame -keyalg RSA -keysize 2048 -validity 10000 -storepass huntergame -keypass huntergame -dname "CN=Hunter Game, L=Nagpur, C=IN"
-$BT/apksigner sign --ks hunter-game.keystore --ks-pass pass:huntergame --out build/hunter-game.apk build/aligned.apk
+KS=${KEYSTORE_PATH:-hunter-game.keystore}; KS_PASS=${KEYSTORE_PASSWORD:-huntergame}; KEY_ALIAS=${KEY_ALIAS:-huntergame}; KEY_PASS=${KEY_PASSWORD:-$KS_PASS}
+[ -f "$KS" ] || keytool -genkeypair -keystore "$KS" -alias "$KEY_ALIAS" -keyalg RSA -keysize 2048 -validity 10000 -storepass "$KS_PASS" -keypass "$KEY_PASS" -dname "CN=Hunter Game, L=Nagpur, C=IN"
+$BT/apksigner sign --ks "$KS" --ks-key-alias "$KEY_ALIAS" --ks-pass "pass:$KS_PASS" --key-pass "pass:$KEY_PASS" --out build/hunter-game.apk build/aligned.apk
 mkdir -p ../downloads && cp build/hunter-game.apk ../downloads/hunter-game.apk
 echo "APK: $(ls -la ../downloads/hunter-game.apk)"
