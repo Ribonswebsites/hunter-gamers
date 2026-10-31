@@ -70,7 +70,7 @@
   document.addEventListener('click', e => { const c = e.target.closest('[data-close]'); if (c) hide(c.closest('.hg-sheet')); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
   function popup(o) {
-    const art = o.art === false ? '' : `<div class="hg-art" style="background-image:url(${o.art || I('s-book.webp')})"></div>`;
+    const art = o.art === false ? '' : `<div class="hg-art" style="background-image:url(${o.art || I('r-bookings.webp')})"></div>`;
     const el = sheet(`${art}<div class="hg-icon">${o.icon || IC.pad()}</div><h3>${o.title}</h3><p>${o.text}</p>${o.extra || ''}<div class="hg-row">${(o.actions || []).map((a, i) => `<button class="hg-btn ${a.primary ? 'p' : 's'}" data-i="${i}">${a.label}</button>`).join('')}</div>`, { center: o.center, cls: 'hg-pop' + (art ? ' has-art' : '') + (o.cls ? ' ' + o.cls : '') });
     el._temp = true;
     $$('[data-i]', el).forEach(b => b.onclick = () => { const a = o.actions[+b.dataset.i]; hide(el, !!a.keep); a.run && a.run(); });
@@ -114,7 +114,7 @@
     const N = 9, cards = mkRing(ring1, null, N), cards2 = mkRing(ring2, PIDS2.map(p => 'q-' + p), PIDS2.length);
     let auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, R2 = 0, step = 0, step2 = 0, busy = false;
     const DUR = 6500;
-    function fillRing() { const others = PIDS.filter(p => p !== SLIDES[cur].id); cards.forEach((c, i) => { c.style.backgroundImage = `url(${I('p-' + others[(i + cur) % others.length] + '.webp')})`; }); }
+    function fillRing() { const HERO = SLIDES.map(x => x.id), others = PIDS.concat(['er', 'cp', 'rdr2', 'dg', 're4']).filter(p => !HERO.includes(p)); cards.forEach((c, i) => { c.style.backgroundImage = `url(${I('p-' + others[(i + cur) % others.length] + '.webp')})`; }); }
     function measure() {
       const w = hx.clientWidth; R = Math.min(w * 0.42, 620); R2 = Math.min(w * 0.36, 520); step = Math.PI * 2 / N; step2 = Math.PI * 2 / cards2.length;
       const cw = Math.max(84, Math.min(160, w * 0.12));
@@ -179,7 +179,7 @@
     { id: 'ds2', name: 'Death Stranding 2', tag: 'PS5', blurb: "Hideo Kojima's journey across a broken world." },
     { id: 'bo7', name: 'Call of Duty: Black Ops 7', tag: 'PS5 · PS4', blurb: 'Campaign, multiplayer and Zombies. Squad up.' },
   ];
-  const SPOT = ['gow', 'gta6', 'acs', 'got', 'nr', 're9', 'wk', 'ds2'];
+  const SPOT = ['gow', 'gta6', 'acs', 'got', 'nr', 'wk', 'sm2', 'wolverine'];
   function buildGames() {
     const sec = document.createElement('section');
     sec.className = 'section hg-games'; sec.id = 'games'; sec.setAttribute('aria-labelledby', 'games-title');
@@ -192,7 +192,7 @@
           <button class="hg-btn ${g.soon ? 's' : 'p'}" data-game="${g.id}">${g.soon ? 'Ask about launch day' : 'Book this game'}${ARW}</button></div></div>`).join('')}
         <div class="hg-spot-dots">${sp.map((_, i) => `<button aria-label="Show ${sp[i].name}" data-d="${i}"${i ? '' : ' class="on"'}><i></i></button>`).join('')}</div>
       </div>
-      <div class="hg-shelf rv" tabindex="0" aria-label="All games">${GAMES.map(g => `<button class="hg-post" data-game="${g.id}" aria-label="${g.name}"><span class="pi"><img loading="lazy" decoding="async" src="${I((g.id === 'gta6' ? 'k-' : 'p-') + g.id + '.webp')}" alt=""${g.id === 'gta6' ? ' class="land"' : ''}>${g.soon ? '<span class="soon">Coming soon</span>' : ''}</span><b>${g.name}</b><small>${g.tag}</small></button>`).join('')}</div></div>`;
+      <div class="hg-shelf rv" tabindex="0" aria-label="All games">${GAMES.map(g => `<button class="hg-post" data-game="${g.id}" aria-label="${g.name}"><span class="pi"><img loading="lazy" decoding="async" src="${I('p-' + g.id + '.webp')}" alt="">${g.soon ? '<span class="soon">Coming soon</span>' : ''}</span><b>${g.name}</b><small>${g.tag}</small></button>`).join('')}</div></div>`;
     const after = $('#how') || $('#consoles');
     after ? after.after(sec) : $('#top').append(sec);
     sec.addEventListener('click', e => { const b = e.target.closest('[data-game]'); if (b) gamePopup(GAMES.find(g => g.id === b.dataset.game)); });
@@ -243,7 +243,7 @@
   const CONS = { ps5: { n: 'PS5', r: 100, img: 'card-06.webp', d: '4K graphics, DualSense haptics, fast loading.' }, ps4: { n: 'PS4', r: 75, img: 'card-02.webp', d: 'Huge library of classics. Best value for groups.' } };
   function consolePopup(id) {
     const c = CONS[id];
-    popup({ art: I(id === 'ps5' ? 'x-ps5pro.webp' : 'card-02.webp'), icon: id === 'ps5' ? IC.bolt() : IC.pad(), title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
+    popup({ art: I(id === 'ps5' ? 'x-ps5duo.webp' : 'r-ps4.webp'), icon: id === 'ps5' ? IC.bolt() : IC.pad(), title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
       extra: liveChips(id),
       actions: [{ label: 'Not now' }, { label: `Book ${c.n}${ARW}`, primary: true, keep: true, run: () => document.querySelector(`[data-pick="${id}"]`)._hgReal() }] });
   }
@@ -366,7 +366,7 @@
 
   /* ---------- App download ---------- */
   function appPopup() {
-    popup({ art: I('s-consoles.webp'), icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Game app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
+    popup({ art: I('r-app.webp'), icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Game app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
       extra: `<p style="font-size:12px">Android 7+ · about 6 MB · allow "install unknown apps" when asked.</p>`,
       actions: [{ label: 'Maybe later', run: () => store.set('appAsked', Date.now()) }, { label: `${IC.dl()} Download APK`, primary: true, run: () => { store.set('appAsked', Date.now()); location.href = '/downloads/hunter-game.apk'; } }] });
   }
@@ -466,7 +466,7 @@
   function buildHardware() {
     const c = $('#consoles'); if (!c) return;
     const d = document.createElement('div'); d.className = 'hg-hw';
-    d.innerHTML = [['x-ps5pro.webp', 'PS5 Pro', 'Sharper 4K and higher frame rates on Pro-enhanced games.'], ['x-ps5.webp', 'PS5', 'Ultra-fast SSD loading and 3D audio.', 'cut'], ['x-dualsense.webp', 'DualSense', 'Haptic feedback and adaptive triggers you feel.', 'cut']]
+    d.innerHTML = [['x-ps5.webp', 'PS5', 'Ultra-fast SSD loading and 3D audio.', 'cut'], ['x-dualsense.webp', 'DualSense', 'Haptic feedback and adaptive triggers you feel.', 'cut']]
       .map(([img, t, p, cut]) => `<figure class="rv${cut ? ' cut' : ''}"><img loading="lazy" decoding="async" src="${I(img)}" alt="${t}"><figcaption><b>${t}</b><span>${p}</span></figcaption></figure>`).join('');
     ($('.wrap', c) || c).append(d);
   }
@@ -479,7 +479,7 @@
     const fmtD = (k, h) => { const [y, m, d] = k.split('-').map(Number); const t = new Date(y, m - 1, d, h || 0); return t.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + tfmt(t); };
     const list = a.length ? `<ul class="hg-orders">${a.map(o => `<li><div class="l"><b>${o.game || (o.kind === 'rental' ? 'PS5 home rental' : 'Gaming session')}</b><small>${CN[o.console] || ''} · ${o.hours} h · ${fmtD(o.date, o.start)}</small><small class="c">#${o.code || ''}</small></div><div class="r"><b>₹${Number(o.amount || 0).toLocaleString('en-IN')}</b><span class="s ${(o.status || '').toLowerCase()}">${o.status}</span></div></li>`).join('')}</ul>`
       : `<div class="hg-empty">${IC.pad(40)}<b>No bookings yet</b><span>Your slots will show up here with game, console, time and amount.</span></div>`;
-    popup({ art: I('s-book.webp'), icon: IC.list(), title: 'My bookings', text: 'Saved on this phone.', extra: list,
+    popup({ art: I('r-bookings.webp'), icon: IC.list(), title: 'My bookings', text: 'Saved on this phone.', extra: list,
       actions: [{ label: 'Close' }, { label: `Book a slot${ARW}`, primary: true, keep: true, run: openBook }] });
   }
 

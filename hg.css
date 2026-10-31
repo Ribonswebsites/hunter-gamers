@@ -273,3 +273,19 @@ body{padding-bottom:calc(84px + env(safe-area-inset-bottom))}
 @media (prefers-reduced-motion:reduce){.hg-rv .rv{opacity:1;transform:none}.hg-spot-s .art{transition:none}.hg-pop .hg-art{transform:none}}
 .hg-con .q li::before,.hg-orders li::before{display:none!important;content:none!important}
 .hg-con .ps4i{position:absolute;left:18px;top:18px;color:#ff8a83;display:grid}
+/* ===== Round 8: board polish ===== */
+.hg-live{scroll-margin-top:88px;position:relative;isolation:isolate}
+.hg-con{position:relative;overflow:hidden;border-radius:22px;padding:18px;background:linear-gradient(160deg,rgba(255,255,255,.08),rgba(255,255,255,.015) 55%),#120c0e;box-shadow:0 18px 40px -22px rgba(0,0,0,.9),inset 0 1px 0 rgba(255,255,255,.08)}
+.hg-con::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:#fb241c}
+.hg-con[data-st=free]::before{background:#33d17a}.hg-con[data-st=reserved]::before{background:#ffd23f}
+.hg-con::after{content:"";position:absolute;right:-40px;top:-40px;width:140px;height:140px;border-radius:50%;background:radial-gradient(closest-side,rgba(251,36,28,.18),transparent);pointer-events:none}
+.hg-con[data-st=free]::after{background:radial-gradient(closest-side,rgba(51,209,122,.16),transparent)}
+.hg-con[data-st=reserved]::after{background:radial-gradient(closest-side,rgba(255,210,63,.14),transparent)}
+.hg-pop .hg-art{transform:none;image-rendering:auto;-webkit-mask:linear-gradient(180deg,#000 62%,transparent);mask:linear-gradient(180deg,#000 62%,transparent)}
+.hg-pop.on .hg-art{transform:none}
+/* Round 8: titled key art shown whole on phones (no crop, no zoom blur) */
+@media (max-width:759px){
+.hg-spot-s .art{inset:0 0 auto 0;aspect-ratio:16/10;background-size:cover;background-position:center;transform:none!important;transition:none}
+.hg-spot-s::after{background:linear-gradient(180deg,transparent 0,transparent calc(62.5vw - 60px),#0B0809 calc(62.5vw - 22px))}
+.hg-spot-s .txt{bottom:42px}.hg-spot-s h3{font-size:26px}.hg-spot-s p{font-size:14px;margin-bottom:14px}}
+@media (min-width:760px){.hg-spot-s .art{transform:none!important;background-position:right center}}

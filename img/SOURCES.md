@@ -83,9 +83,8 @@ All Steam art is publisher-uploaded store art fetched via IStoreBrowseService/Ge
 ## Round 7 (31 Oct 2026)
 | File | Subject | Official source | Notes |
 |---|---|---|---|
-| c-peter-sm.webp, c-peter-md.webp | Marvel's Spider-Man 2 (Peter Parker, single cutout) | https://sonyinteractive.com/tachyon/2026/09/Games_Marvels-Spider-Man-2.jpg (Sony Interactive asset library) | Peter isolated from the official key art; replaces the two-Spidey c-sm2 cutout |
+| c-peter-sm.webp, c-peter-md.webp | Marvel's Spider-Man 2 (Peter Parker, single cutout) | https://cdn.craft.cloud/eceafce0-560a-4eac-b843-eba40951739b/assets/timeline/MSM2_Story_Duo_4k_Legal_2025.jpg (Insomniac Games official 4K art) | Full-body Peter (mid-leap, no clipped limbs) cut with BiRefNet |
 | f-wolverine.webp | Marvel's Wolverine (poster frame) | https://sonyinteractive.com/tachyon/2026/09/Marvels-Wolverine.jpg | 560x760 |
-| x-ps5pro.webp | PS5 Pro with DualSense | https://sonyinteractive.com/tachyon/2025/09/sony-interactive-our-company-fast-facts-01-ps5-pro.png | 800x450 |
 | x-ps5.webp | PS5 (slim) | https://sonyinteractive.com/tachyon/2025/09/sony-interactive-our-company-products-ps5-slim-fg.png | transparent, 560w |
 | x-ps5duo.webp, x-dualsense.webp | PS5 consoles + DualSense | https://sonyinteractive.com/tachyon/2025/09/sie-our-company-fast-facts-04-playstation-5-ps5-slim-disc.png | DualSense cut out of the right controller |
 | q-sb.webp | Stellar Blade | Steam library capsule, app 3489700 | 300x450 |
@@ -97,3 +96,15 @@ All Steam art is publisher-uploaded store art fetched via IStoreBrowseService/Ge
 | q-tlou2.webp | The Last of Us Part II Remastered | Steam library capsule, app 2531310 | 300x450 |
 | q-rc.webp | Ratchet & Clank: Rift Apart | Steam library capsule, app 1895880 | 300x450 |
 | q-dmc5.webp | Devil May Cry 5 | Steam library capsule, app 601150 | 300x450 |
+
+## Round 8 (titled key art, posters, popup art)
+| File | Game | Source |
+|---|---|---|
+| k-gow, k-acs, k-nr, k-wk | GoW Ragnarok, AC Shadows, Nightreign, Black Myth Wukong | Steam official library_hero.jpg + logo_2x.png (shared.akamai.steamstatic.com/store_item_assets/steam/apps/<appid>/), composited at native 992x620 |
+| k-got, k-sm2 | Ghost of Tsushima, Marvel's Spider-Man 2 | sonyinteractive.com/tachyon/2025/02/Games_Ghost-of-Tsushima.jpg, /2026/09/Games_Marvels-Spider-Man-2.jpg |
+| k-gta6 | Grand Theft Auto VI | rockstargames.com/VI/media (Jason and Lucia 01 With Logos, 3840x2160) |
+| p-gta6 | Grand Theft Auto VI | rockstargames.com/VI/media (Official Cover Art) |
+| k-wolverine, p-wolverine | Marvel's Wolverine | crops of wolverine-key (titled official key art) |
+| k-re9, k-ds2, k-fc26, k-bo7 | RE Requiem, Death Stranding 2, FC 26, Black Ops 7 | official Steam titled capsule over darkened official library hero / page background |
+| p-er, p-cp, p-rdr2, p-dg, p-re4 | Elden Ring, Cyberpunk 2077, RDR2, Days Gone, RE4 | Steam library_600x900_2x.jpg (appids 1245620, 1091500, 1174180, 1259420, 2050650) |
+| r-bookings, r-app, r-ps4 | Gran Turismo 7, Astro Bot, God of War (PS4) | sonyinteractive.com/tachyon Games_Gran-Turismo-7.jpg (2026/09), Games_Astro-Bot.jpg, Games_God-of-War.jpg (2025/02) |
