@@ -28,15 +28,18 @@
   };
   const ARW = ' ' + IC.arrow();
 
-  // Each slide: one game, its own centre character (official art), orbit of official art behind (NowssB HeroCurveStage layout)
+  // Each slide: one game. Centre = clean cutout, background = different official art (dimmed + blurred), ring = posters of the OTHER games
   const SLIDES = [
-    { bg: 'wolverine-key', pm: '50% 32%', pd: '50% 30%', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
-    { bg: 'gta6-bg', tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Your call.</span>' },
-    { bg: 'spidey2-bg', m: 'spidey2-centre', pm: '50% 30%', pd: '62% 0%', tag: "Marvel's Spider-Man 2", h: 'Book PS5. <span>Claim the screen.</span>' },
-    { bg: 'spidey-bg', tag: "Marvel's Spider-Man", h: 'Swing into <span>your slot.</span>' },
-    { bg: 'miles-hero', m: 'miles-centre', pm: '50% 30%', pd: '45% 20%', tag: 'Spider-Man: Miles Morales', h: 'Squad up. <span>Drop in.</span>' },
-    { bg: 'gta6-jason-bg', tag: 'GTA VI · Lucia Caminos', h: 'Ride out. <span>₹100/hr.</span>' },
+    { id: 'wolverine', pos: '50% 12%', bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
+    { id: 'gow', bg: 'h-gow', tag: 'God of War Ragnarök', h: 'Kratos is <span>waiting.</span>' },
+    { id: 'gta6', bg: 'gta6-bg', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
+    { id: 'sm2', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Two Spideys. <span>One couch.</span>' },
+    { id: 'acs', bg: 'h-acs', tag: "Assassin's Creed Shadows", h: 'Strike from <span>the shadows.</span>' },
+    { id: 'fc26', bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
+    { id: 'nr', bg: 'h-nr', tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
+    { id: 'wk', bg: 'h-wk', tag: 'Black Myth: Wukong', h: 'Take up <span>the staff.</span>' },
   ];
+  const PIDS = ['wolverine', 'gow', 'gta6', 'sm2', 'acs', 'fc26', 'nr', 'wk', 're9', 'got', 'ds2', 'bo7'];
 
   /* ---------- Sheets ---------- */
   const scrim = document.createElement('div'); scrim.className = 'hg-scrim'; document.body.append(scrim);
@@ -75,36 +78,36 @@
   if (bookSec) bookSheet.append(bookSec);
   const openBook = () => { if (openSheet !== bookSheet) show(bookSheet); };
 
-  /* ---------- Hero: alternates style A (image-led key art) and style B (3D poster ring) ---------- */
-  const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm';
-  const bgSrc = s => I((MOB ? (s.m || s.bg) + '-sm' : s.bg + BIG) + '.webp');
-  const bgPos = s => (MOB ? s.pm : s.pd) || 'center';
+  /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
+  const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = innerWidth > 760 ? '-md' : '-sm';
+  const bgSrc = s => I(s.bg + (MOB ? '-sm' : BIG) + '.webp');
+  const cutSrc = s => I('c-' + s.id + CUT + '.webp');
   function buildHero() {
     const hx = $('#top > .hgx') || document.createElement('section');
-    hx.className = 'hgx style-a'; hx.setAttribute('aria-label', 'Featured games');
-    hx.innerHTML = SLIDES.map((s, i) => `<div class="hgx-slide ${i % 2 ? 'b' : 'a'}${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}">
-      <div class="hgx-bg" style="background-position:${bgPos(s)}${i ? '' : `;background-image:url(${bgSrc(s)})`}"></div>
-      <div class="hgx-copy"><span class="hgx-tag"><i></i>${s.tag}</span><h1>${s.h}</h1>
+    hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
+    hx.innerHTML = SLIDES.map((s, i) => `<div class="hgx-slide${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}">
+      <div class="hgx-bg"${i ? '' : ` style="background-image:url(${bgSrc(s)})"`}></div>
+      <img class="hgx-subject"${s.pos ? ` style="object-position:${s.pos}"` : ''} ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}>
+      <div class="hgx-copy"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
       <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div></div>`).join('') +
       `<div class="hgx-ring"></div><div class="hgx-hint">${IC.left()} drag to spin ${IC.right()}</div><div class="hgx-dots">${SLIDES.map((_, i) => `<button aria-label="Slide ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div><div class="hgx-progress"></div>`;
     if (!hx.parentNode) $('#top').prepend(hx);
-        const slides = $$('.hgx-slide', hx), dots = $$('.hgx-dots button', hx), prog = $('.hgx-progress', hx);
-    const ensureBg = i => { const el = $('.hgx-bg', slides[i]); if (!el.style.backgroundImage) el.style.backgroundImage = `url(${bgSrc(SLIDES[i])})`; };
+    const slides = $$('.hgx-slide', hx), dots = $$('.hgx-dots button', hx), prog = $('.hgx-progress', hx);
+    const ensureBg = i => { const el = $('.hgx-bg', slides[i]); if (!el.style.backgroundImage) el.style.backgroundImage = `url(${bgSrc(SLIDES[i])})`; const im = $('.hgx-subject', slides[i]); if (im.dataset.src) { im.src = im.dataset.src; delete im.dataset.src; } };
     const ring = $('.hgx-ring', hx);
-    let cards = null, auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, step = 0;
-    const DUR = 6500;
+    let cards = [], auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, step = 0;
+    const DUR = 6500, N = 9;
     function makeRing() {
-      if (cards) return;
-      cards = POSTERS.slice(0, 9).map(src => { const c = document.createElement('div'); c.className = 'hgx-card'; c.style.backgroundImage = `url(${src})`; ring.append(c); return c; });
+      for (let i = 0; i < N; i++) { const c = document.createElement('div'); c.className = 'hgx-card'; ring.append(c); cards.push(c); }
       measure();
     }
+    function fillRing() { const others = PIDS.filter(p => p !== SLIDES[cur].id); cards.forEach((c, i) => { c.style.backgroundImage = `url(${I('p-' + others[(i + cur) % others.length] + '.webp')})`; }); }
     function measure() {
-      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / 9;
-      ring.style.setProperty('--cw', Math.max(92, Math.min(170, w * 0.13)) + 'px');
+      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / N;
+      ring.style.setProperty('--cw', Math.max(84, Math.min(160, w * 0.12)) + 'px');
     }
     function layout() {
-      if (!cards) return;
       const rot = auto + drag;
       for (let i = 0; i < cards.length; i++) {
         const a = rot + i * step, cs = Math.cos(a), sn = Math.sin(a), depth = (cs + 1) / 2;
@@ -114,12 +117,11 @@
     }
     function go(i) {
       cur = (i + SLIDES.length) % SLIDES.length; t0 = performance.now();
-      ensureBg(cur); ensureBg((cur + 1) % SLIDES.length);
-      const isB = cur % 2 === 1; if (isB) makeRing();
-      hx.classList.toggle('style-b', isB); hx.classList.toggle('style-a', !isB);
+      ensureBg(cur); ensureBg((cur + 1) % SLIDES.length); fillRing();
       slides.forEach((s, j) => { s.classList.toggle('on', j === cur); s.setAttribute('aria-hidden', j !== cur); });
       dots.forEach((d, j) => d.classList.toggle('on', j === cur));
     }
+    makeRing(); fillRing(); layout();
     dots.forEach((d, j) => d.onclick = () => go(j));
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
@@ -132,24 +134,30 @@
     function loop() { if (!running) { running = true; requestAnimationFrame(tick); } }
     function tick(now) {
       if (!visible || document.hidden) { running = false; return; }
-      if (hx.classList.contains('style-b')) { if (!reduce) auto += 0.0033; layout(); }
+      if (!reduce) auto += 0.0033; layout();
       lastP = Math.min(1, (now - t0) / DUR); prog.style.transform = `scaleX(${lastP.toFixed(4)})`;
       if (lastP >= 1 && !reduce) { lastP = 0; go(cur + 1); }
       requestAnimationFrame(tick);
     }
-    requestIdleCallback ? requestIdleCallback(() => ensureBg(1)) : setTimeout(() => ensureBg(1), 1500);
+    setTimeout(() => ensureBg(1), 1500);
     loop();
     window.HG_go = go;
   }
 
   /* ---------- Games available to play (cutout-on-stage cards) ---------- */
   const GAMES = [
-    { id: 'wolverine', name: "Marvel's Wolverine", cut: 'wolverine-cutout', bg: 'wolverine-bg', tag: 'PS5', blurb: 'Brutal, fast melee action as Logan. Best on PS5 with the big screen and surround sound.' },
-    { id: 'gta6', name: 'Grand Theft Auto VI', cut: 'gta6-duo-cutout', bg: 'gta6-bg', tag: 'PS5', blurb: 'Jason and Lucia in Vice City. Ask at the counter about availability on our PS5s.' },
-    { id: 'spidey', name: "Marvel's Spider-Man", cut: 'spidey-cutout', bg: 'spidey-bg', tag: 'PS5 · PS4', blurb: 'Swing across New York as Peter Parker. Plays on both PS5 and PS4.' },
-    { id: 'spidey2', name: "Marvel's Spider-Man 2", cut: 'spidey2-cutout', bg: 'spidey2-bg', tag: 'PS5', blurb: 'Peter and Miles team up against Venom. A PS5 showcase.' },
-    { id: 'miles', name: 'Spider-Man: Miles Morales', cut: 'miles-cutout', bg: 'miles-bg', tag: 'PS5 · PS4', blurb: 'Miles takes over Harlem. Quick sessions, huge fun.' },
-    { id: 'lucia', name: 'GTA VI · Lucia', cut: 'lucia-cutout', bg: 'gta6-jason-bg', tag: 'PS5', blurb: 'Lucia Caminos in Leonida. Ask at the counter about availability on our PS5s.' },
+    { id: 'wolverine', name: "Marvel's Wolverine", tag: 'PS5', blurb: 'Brutal, fast melee action as Logan. Best on the big screen with surround sound.' },
+    { id: 'gow', name: 'God of War Ragnarök', tag: 'PS5 · PS4', blurb: 'Kratos and Atreus journey across the Nine Realms.' },
+    { id: 'gta6', name: 'Grand Theft Auto VI', tag: 'Coming soon · PS5', soon: 1, blurb: 'Jason and Lucia in Vice City. Coming soon; ask at the counter about launch-day slots.' },
+    { id: 'sm2', name: "Marvel's Spider-Man 2", tag: 'PS5', blurb: 'Peter and Miles team up against Venom. A PS5 showcase.' },
+    { id: 'acs', name: "Assassin's Creed Shadows", tag: 'PS5', blurb: 'Naoe and Yasuke in feudal Japan. Stealth or steel, your call.' },
+    { id: 'fc26', name: 'EA SPORTS FC 26', tag: 'PS5 · PS4', blurb: 'Bring a friend and settle it on the pitch.' },
+    { id: 'nr', name: 'Elden Ring Nightreign', tag: 'PS5 · PS4', blurb: 'Three-player co-op runs against the night.' },
+    { id: 'wk', name: 'Black Myth: Wukong', tag: 'PS5', blurb: 'Mythic boss fights as the Destined One.' },
+    { id: 're9', name: 'Resident Evil Requiem', tag: 'PS5', blurb: 'Survival horror at its finest. Lights off, headphones on.' },
+    { id: 'got', name: 'Ghost of Tsushima', tag: 'PS5 · PS4', blurb: 'Jin Sakai defends Tsushima. Gorgeous on PS5.' },
+    { id: 'ds2', name: 'Death Stranding 2', tag: 'PS5', blurb: "Hideo Kojima's journey across a broken world." },
+    { id: 'bo7', name: 'Call of Duty: Black Ops 7', tag: 'PS5 · PS4', blurb: 'Campaign, multiplayer and Zombies. Squad up.' },
   ];
   function buildGames() {
     const sec = document.createElement('section');
@@ -157,19 +165,18 @@
     sec.innerHTML = `<div class="hg-games-in"><p class="hg-eyebrow">On our consoles</p><h2 id="games-title">Games available to play</h2>
       <p class="hg-games-sub">Tap a game to book a slot for it.</p>
       <div class="hg-games-grid">${GAMES.map(g => `<button class="hg-game" data-game="${g.id}" aria-label="${g.name}">
-        <span class="stage"><span class="art" data-bg="${I(g.bg + '-sm.webp')}"></span></span>
-        <img class="who" data-src="${I(g.cut + '-sm.webp')}" alt="" decoding="async">
+        <span class="stage"><span class="art" data-bg="${I('k-' + g.id + '.webp')}"></span>${g.soon ? '<span class="soon">Coming soon</span>' : ''}</span>
         <span class="meta"><b>${g.name}</b><small>${g.tag}</small></span></button>`).join('')}</div></div>`;
     const after = $('#how') || $('#consoles');
     after ? after.after(sec) : $('#top').append(sec);
     const io = new IntersectionObserver(es => es.forEach(e => {
       e.target.classList.toggle('inview', e.isIntersecting);
-      const art = $('.art', e.target); if (e.isIntersecting && art.dataset.bg) { art.style.backgroundImage = `url(${art.dataset.bg})`; delete art.dataset.bg; const w = $('.who', e.target); w.src = w.dataset.src; }
+      const art = $('.art', e.target); if (e.isIntersecting && art.dataset.bg) { art.style.backgroundImage = `url(${art.dataset.bg})`; delete art.dataset.bg; }
     }), { rootMargin: '200px 0px' });
     $$('.hg-game', sec).forEach(b => { io.observe(b); b.onclick = () => gamePopup(GAMES.find(g => g.id === b.dataset.game)); });
   }
   function gamePopup(g) {
-    popup({ icon: `<img src="${I(g.cut + '-sm.webp')}" alt="" class="hg-pop-cut">`, title: g.name, text: `${g.blurb} PS5 ₹100 / PS4 ₹75 per player per hour.`,
+    popup({ icon: `<img src="${I('p-' + g.id + '.webp')}" alt="" class="hg-pop-cut">`, title: g.name, text: `${g.blurb} PS5 ₹100 / PS4 ₹75 per player per hour.`,
       actions: [{ label: 'See consoles', keep: true, run: () => document.querySelector('[data-hg-console]').click() }, { label: `Book this game${ARW}`, primary: true, keep: true, run: openBook }] });
   }
 
