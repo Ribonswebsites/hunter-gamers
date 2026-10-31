@@ -74,6 +74,7 @@
     const el = sheet(`${art}<div class="hg-icon">${o.icon || IC.pad()}</div><h3>${o.title}</h3><p>${o.text}</p>${o.extra || ''}<div class="hg-row">${(o.actions || []).map((a, i) => `<button class="hg-btn ${a.primary ? 'p' : 's'}" data-i="${i}">${a.label}</button>`).join('')}</div>`, { center: o.center, cls: 'hg-pop' + (art ? ' has-art' : '') + (o.cls ? ' ' + o.cls : '') });
     el._temp = true;
     $$('[data-i]', el).forEach(b => b.onclick = () => { const a = o.actions[+b.dataset.i]; hide(el, !!a.keep); a.run && a.run(); });
+    const artEl = $('.hg-art', el); if (artEl) { const src = (o.art || I('r-bookings.webp')), im = new Image(); im.onload = () => { const r = im.naturalHeight / im.naturalWidth; artEl.style.aspectRatio = `${im.naturalWidth} / ${Math.round(im.naturalWidth * Math.min(r, 0.72))}`; }; im.src = src; }
     show(el); return el;
   }
 
@@ -84,8 +85,9 @@
   const openBook = () => { if (openSheet !== bookSheet) show(bookSheet); };
 
   /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
-  const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = innerWidth > 760 ? '-md' : '-sm';
-  const bgSrc = s => I(s.bg + (MOB ? '-sm' : BIG) + '.webp');
+  const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = '-md';
+  const HIBG = ['gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
+  const bgSrc = s => HIBG.includes(s.id) ? I((MOB ? 't-' : 'w-') + s.id + '.webp') : I(s.bg + (s.id === 'wolverine' || s.id === 'gta6' ? '-md' : (MOB ? '-sm' : BIG)) + '.webp');
   const cutSrc = s => I('c-' + (s.cut || s.id) + CUT + '.webp');
   function buildHero() {
     const hx = $('#top > .hgx') || document.createElement('section');
@@ -123,7 +125,7 @@
     function place(cs, rot, st, rad) {
       for (let i = 0; i < cs.length; i++) {
         const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
-        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,${(c * rad * 0.55).toFixed(1)}px) rotateY(${(s * -38).toFixed(1)}deg) scale(${(0.72 + d * 0.38).toFixed(3)})`;
+        cs[i].style.transform = `perspective(1000px) translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,0) rotateY(${(s * -38).toFixed(1)}deg) scale(${(0.62 + d * 0.48).toFixed(3)})`;
         cs[i].style.zIndex = Math.round(d * 100); cs[i].style.filter = d < 0.3 ? `brightness(${(0.55 + d * 1.5).toFixed(2)})` : '';
       }
     }
@@ -188,7 +190,7 @@
       <p class="hg-games-sub rv">Featured this week. Swipe the shelf for everything else.</p>
       <div class="hg-cf rv" aria-roledescription="carousel" aria-label="Featured games">
         <div class="hg-cf-bg">${sp.map((g, i) => `<span data-bg="${I('k-' + g.id + '.webp')}"${i ? '' : ' class="on" style="background-image:url(' + I('k-' + g.id + '.webp') + ')"'}></span>`).join('')}</div>
-        <div class="hg-cf-stage">${sp.map((g, i) => `<button class="hg-cf-card" data-i="${i}" aria-label="${g.name}"><img src="${I('p-' + g.id + '.webp')}" alt="" decoding="async"${i < 3 ? '' : ' loading="lazy"'}><i class="sh"></i></button>`).join('')}</div>
+        <div class="hg-cf-stage">${sp.map((g, i) => `<button class="hg-cf-card" data-i="${i}" aria-label="${g.name}"><img src="${I('p-' + g.id + '.webp')}" alt="" decoding="sync"><img class="rf" src="${I('p-' + g.id + '.webp')}" alt="" decoding="sync"><i class="sh"></i></button>`).join('')}</div>
         <div class="hg-cf-info">${sp.map((g, i) => `<div class="hg-cf-t${i ? '' : ' on'}"><div class="hg-cf-chips"><span>${g.tag}</span>${g.soon ? (/soon/i.test(g.tag) ? '' : '<span class="y">Coming soon</span>') : `<span>Up to 4 players</span><span>From ₹${/PS4/.test(g.tag) ? 75 : 100} / player / hr</span>`}</div><h3>${g.name}</h3><p>${g.blurb}</p></div>`).join('')}
           <div class="hg-cf-row"><button class="hg-btn p hg-cf-go" data-game="${sp[0].id}">Book this game${ARW}</button>
           <div class="hg-cf-dial" aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="p" cx="22" cy="22" r="19" pathLength="1"/></svg><b>01</b><small>/${String(sp.length).padStart(2, '0')}</small></div></div></div>
@@ -207,8 +209,8 @@
     function render() {
       const W = cf.clientWidth, cw = Math.min(W * 0.5, 260);
       cs.forEach((c, i) => { let o = i - pos; o -= Math.round(o / n) * n; const a = Math.abs(o);
-        c.style.transform = `translate3d(${(Math.sign(o) * Math.min(a, 1) * cw * 0.62 + o * cw * 0.2).toFixed(1)}px,0,${(-a * 160).toFixed(0)}px) rotateY(${(-Math.max(-1, Math.min(1, o)) * 52).toFixed(1)}deg) scale(${(1 - Math.min(a, 2.5) * 0.06).toFixed(3)})`;
-        c.style.zIndex = 100 - Math.round(a * 10); c.style.visibility = a > 3.2 ? 'hidden' : ''; c.classList.toggle('on', a < 0.5); $('.sh', c).style.opacity = Math.min(1, a * 0.55).toFixed(2); });
+        c.style.transform = `perspective(1100px) translate3d(${(Math.sign(o) * Math.min(a, 1) * cw * 0.62 + o * cw * 0.2).toFixed(1)}px,0,0) rotateY(${(-Math.max(-1, Math.min(1, o)) * 48).toFixed(1)}deg) scale(${(1 - Math.min(a, 1) * 0.22 - Math.max(0, Math.min(a, 3) - 1) * 0.08).toFixed(3)})`;
+        c.style.zIndex = 100 - Math.round(a * 10); c.style.opacity = a > 3.4 ? '0' : '1'; c.classList.toggle('on', a < 0.5); $('.sh', c).style.opacity = Math.min(1, a * 0.55).toFixed(2); });
       setCur(wrap(Math.round(pos)));
     }
     function tick(now) {
@@ -229,6 +231,7 @@
     addEventListener('pointerup', () => { if (drag == null) return; drag = null; target = Math.round(pos - vel * 2.2); t0 = performance.now(); kick(); });
     cs.forEach((c, i) => c.addEventListener('click', e => { e.stopPropagation(); if (Math.abs(moved) > 8) return; let o = i - pos; o -= Math.round(o / n) * n;
       if (Math.abs(o) < 0.5) gamePopup(GAMES.find(g => g.id === SPOT[i])); else { target = Math.round(pos + o); t0 = performance.now(); kick(); } }));
+    $$('img', cf).forEach(im => im.decode && im.decode().catch(() => {}));
     render();
   }
   function gamePopup(g) {
@@ -312,31 +315,26 @@
   /* ---------- Login ---------- */
   function buildLogin() {
     const L = document.createElement('div'); L.className = 'hg-login'; L.setAttribute('role', 'dialog'); L.setAttribute('aria-label', 'Login');
-    const col = k => `<div class="hgl-col">${[...POSTERS.slice(k), ...POSTERS.slice(0, k), ...POSTERS.slice(k), ...POSTERS.slice(0, k)].map(s => `<img src="${s}" alt="">`).join('')}</div>`;
+    const col = k => { const set = [0, 1, 2, 3, 4, 5].map(j => POSTERS[(k + j * 2) % POSTERS.length]); return `<div class="hgl-col"><div class="hgl-track">${[...set, ...set].map(s => `<img src="${s}" alt="" decoding="sync">`).join('')}</div></div>`; };
     const SH = ['<path d="M12 4 21 20H3z"/>', '<circle cx="12" cy="12" r="9"/>', '<path d="M5 5l14 14M19 5 5 19"/>', '<rect x="4" y="4" width="16" height="16" rx="1"/>'];
     const glyphs = SH.flatMap(g => [g, g, g]).map((g, i) => `<span style="left:${(i * 37) % 100}%;animation-duration:${14 + (i * 7) % 16}s;animation-delay:-${(i * 3) % 14}s;width:${18 + (i * 11) % 30}px"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5">${g}</svg></span>`).join('');
     L.innerHTML = `<div class="hgl-bg" style="background-image:url(${I('wolverine-bg-sm.webp')})"></div>
-      <div class="hgl-cols">${[0, 3, 6, 2, 8, 5].map(col).join('')}</div><div class="hgl-shade"></div><div class="hgl-glyphs">${glyphs}</div>
+      <div class="hgl-cols">${[0, 3, 6, 9].map(col).join('')}</div><div class="hgl-shade"></div><div class="hgl-glyphs">${glyphs}</div>
       <form class="hgl-card" novalidate>
         <div class="hgl-brand"><img src="${LOGO}" alt="">HUNTER GAMERS</div>
         <h2>Press start.<br><em>Enter the arena.</em></h2>
         <p class="sub">Save your name &amp; number once, book any slot in two taps.</p>
-        <div class="hgl-field"><label for="hglName">Gamer name</label><input id="hglName" autocomplete="name" placeholder="e.g. Rohan" required></div>
-        <div class="hgl-field"><label for="hglPhone">Mobile number</label><input id="hglPhone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="10-digit number" required></div>
+        <div class="hgl-field"><label for="hglName">Gamer name</label><input id="hglName" autocomplete="name" required></div>
+        <div class="hgl-field"><label for="hglPhone">Mobile number</label><input id="hglPhone" inputmode="numeric" autocomplete="tel-national" maxlength="10" required></div>
         <div class="hgl-err" aria-live="polite"></div>
         <button class="hg-btn p" type="submit">${IC.play()} Start playing</button>
         <div class="hgl-or">or</div>
         <button class="hg-btn s" type="button" data-guest>Continue as guest</button>
-        <p class="hgl-note">Saved only on this device to fill your bookings. No password needed.</p>
       </form>`;
     document.body.append(L);
     const bgs = ['wolverine-bg', 'gta6-bg', 'spidey2-bg', 'gta6-jason-bg', 'miles-bg'].map(b => b + '-sm.webp');
     let bi = 0; setInterval(() => { if (L.classList.contains('on')) $('.hgl-bg', L).style.backgroundImage = `url(${I(bgs[++bi % bgs.length])})`; }, 5000);
-    let pm = 0; L.addEventListener('pointermove', e => { if (pm) return; pm = requestAnimationFrame(() => { pm = 0;
-      const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5;
-      $('.hgl-bg', L).style.transform = `translate(${x * -30}px,${y * -30}px)`;
-      $('.hgl-cols', L).style.transform = `rotate(-12deg) scale(1.15) translate(${x * 40}px,${y * 40}px)`;
-    }); });
+    $$('.hgl-col img', L).forEach(im => im.decode && im.decode().catch(() => {}));
     const f = $('form', L), err = $('.hgl-err', L);
     $('#hglPhone', L).addEventListener('input', e => e.target.value = e.target.value.replace(/\D/g, '').slice(0, 10));
     f.addEventListener('submit', e => {
@@ -540,14 +538,22 @@
 
 
   /* ---------- Official PS5 hardware strip (Sony Interactive press images) ---------- */
+  const FEATS = [
+    { id: 'sm2', img: 'c-spidey-feature.webp', alt: 'Spider-Man', kick: "Marvel's Spider-Man 2 · PS5", h: 'Suit up. <span>Swing in.</span>', p: 'Play the full campaign on our PS5s, at the shop, by the hour.', glow: '251,36,28' },
+    { id: 'gow', img: 'f-kratos.webp', alt: 'Kratos and Atreus', kick: 'God of War · PS5 · PS4', h: 'Father. <span>Son. War.</span>', p: 'Kratos and Atreus take on the Norse realms. Big screen, surround sound, controller in hand.', glow: '64,156,255' },
+    { id: 'got', img: 'f-jin.webp', alt: 'Jin Sakai', kick: "Ghost of Tsushima Director's Cut · PS5 · PS4", h: 'Become <span>the Ghost.</span>', p: 'Draw your blade as Jin Sakai in feudal Japan. Stunning on our PS5s.', glow: '232,176,74' },
+    { id: 'smm', img: 'f-miles.webp', alt: 'Miles Morales', kick: "Marvel's Spider-Man: Miles Morales · PS5", h: 'Be yourself. <span>Be Spider-Man.</span>', p: 'Venom blasts, camouflage and Harlem at Christmas. Swing by for a session.', glow: '160,82,255' },
+  ];
   function buildFeature() {
-    const g = $('#games'); if (!g) return;
-    const d = document.createElement('section'); d.className = 'hg-feat'; d.setAttribute('aria-label', "Marvel's Spider-Man 2");
-    d.innerHTML = `<div class="hg-feat-in"><img class="hg-feat-cut rv" src="${I('c-spidey-feature.webp')}" alt="Spider-Man" loading="lazy" decoding="async">
-      <div class="hg-feat-txt rv"><p class="hg-eyebrow">Marvel's Spider-Man 2 · PS5</p><h2>Suit up. <span>Swing in.</span></h2>
-      <p>Play the full campaign on our PS5s, at the shop, by the hour.</p><button class="hg-btn p" data-game="sm2">Book this game${ARW}</button></div></div>`;
-    g.after(d);
-    d.addEventListener('click', e => { if (e.target.closest('[data-game]')) gamePopup(GAMES.find(x => x.id === 'sm2')); });
+    let at = $('#games'); if (!at) return;
+    FEATS.forEach((f, i) => {
+      const d = document.createElement('section'); d.className = 'hg-feat' + (i % 2 ? ' alt' : ''); d.style.setProperty('--glow', f.glow); d.setAttribute('aria-label', f.alt);
+      d.innerHTML = `<div class="hg-feat-in"><img class="hg-feat-cut" src="${I(f.img)}" alt="${f.alt}" loading="lazy" decoding="async">
+        <div class="hg-feat-txt"><p class="hg-eyebrow">${f.kick}</p><h2>${f.h}</h2>
+        <p>${f.p}</p><button class="hg-btn p" data-feat="${f.id}">Book this game${ARW}</button></div></div>`;
+      at.after(d); at = d;
+      d.addEventListener('click', e => { if (!e.target.closest('[data-feat]')) return; const g = GAMES.find(x => x.id === f.id); g ? gamePopup(g) : openBook(); });
+    });
   }
   function buildHardware() {
     const c = $('#consoles'); if (!c) return;
@@ -572,7 +578,7 @@
   /* ---------- Scroll reveal (transform + opacity only) ---------- */
   function buildReveal() {
     if (reduce || !('IntersectionObserver' in window)) return;
-    $$('main .section:not(.book) .wrap > *, .steps .wrap > *, .hg-games-in > *:not(.hg-live-grid), .hg-con, .hg-hw figure').forEach(el => el.classList.add('rv'));
+    $$('main .section:not(.book) .wrap > *, .hg-games-in > *:not(.hg-live-grid), .hg-con, .hg-hw figure').forEach(el => el.classList.add('rv'));
     document.documentElement.classList.add('hg-rv');
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: .05 });
     const watch = () => $$('.rv:not(.in)').forEach((el, i) => { if (!el._rv) { el._rv = 1; el.style.transitionDelay = (i % 4) * 60 + 'ms'; io.observe(el); } });
@@ -584,7 +590,7 @@
   IC.update = () => sv('<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/><path d="M12 8v5l3 2"/>', 30);
   window.HGUpdate = (ver, notes) => {
     if ($('.hg-upd')) return;
-    const el = popup({ art: I('wolverine-key-sm.webp'), cls: 'upd', icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
+    const el = popup({ art: I('k-wolverine.webp'), cls: 'upd', icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
       extra: '<div class="hg-upd"><div class="hg-upd-bar"><i></i></div><small class="hg-upd-st">Takes a few seconds. Your bookings stay saved.</small></div>',
       actions: [{ label: 'Later', run: () => { try { sessionStorage.setItem('hg.updLater', ver.replace(/^1\./, '')); } catch (e) {} window.HGApp && HGApp.later(); } },
         { label: `Update now${ARW}`, primary: true, keep: true, run: () => { el.classList.add('upd-busy'); window.HGApp && HGApp.startUpdate(); HGUpdateProgress(0, 'downloading');
