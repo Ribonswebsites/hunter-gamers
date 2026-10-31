@@ -410,3 +410,5 @@ html.hg-paged body{overflow:hidden}html.hg-paged .hg-nav{z-index:95}
 .hg-oh-empty{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:34px 18px;border:1px dashed #2c2c36;border-radius:20px;color:#aaa}.hg-oh-empty b{color:#fff;font-size:18px}
 .hg-stn .ico svg{width:28px;height:28px}.hg-oc .th svg{width:28px;height:28px}.hg-oh-empty>svg{width:46px;height:46px}
 @media (max-width:760px){.hgx-hint{display:none!important}}
+.hg-pop.upd .hg-art,.hg-pop.g-gta6 .hg-art,.hg-pop.g-wolverine .hg-art{background-position:center top}
+.hg-pop .s.cancelled{background:rgba(255,59,59,.14)!important;color:#ff6b6b!important;border-color:rgba(255,59,59,.35)!important}

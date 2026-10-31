@@ -189,7 +189,7 @@
       <div class="hg-cf rv" aria-roledescription="carousel" aria-label="Featured games">
         <div class="hg-cf-bg">${sp.map((g, i) => `<span data-bg="${I('k-' + g.id + '.webp')}"${i ? '' : ' class="on" style="background-image:url(' + I('k-' + g.id + '.webp') + ')"'}></span>`).join('')}</div>
         <div class="hg-cf-stage">${sp.map((g, i) => `<button class="hg-cf-card" data-i="${i}" aria-label="${g.name}"><img src="${I('p-' + g.id + '.webp')}" alt="" decoding="async"${i < 3 ? '' : ' loading="lazy"'}><i class="sh"></i></button>`).join('')}</div>
-        <div class="hg-cf-info">${sp.map((g, i) => `<div class="hg-cf-t${i ? '' : ' on'}"><div class="hg-cf-chips"><span>${g.tag}</span>${g.soon ? '<span class="y">Coming soon</span>' : `<span>Up to 4 players</span><span>From ₹${/PS4/.test(g.tag) ? 75 : 100} / player / hr</span>`}</div><h3>${g.name}</h3><p>${g.blurb}</p></div>`).join('')}
+        <div class="hg-cf-info">${sp.map((g, i) => `<div class="hg-cf-t${i ? '' : ' on'}"><div class="hg-cf-chips"><span>${g.tag}</span>${g.soon ? (/soon/i.test(g.tag) ? '' : '<span class="y">Coming soon</span>') : `<span>Up to 4 players</span><span>From ₹${/PS4/.test(g.tag) ? 75 : 100} / player / hr</span>`}</div><h3>${g.name}</h3><p>${g.blurb}</p></div>`).join('')}
           <div class="hg-cf-row"><button class="hg-btn p hg-cf-go" data-game="${sp[0].id}">Book this game${ARW}</button>
           <div class="hg-cf-dial" aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="p" cx="22" cy="22" r="19" pathLength="1"/></svg><b>01</b><small>/${String(sp.length).padStart(2, '0')}</small></div></div></div>
       </div>
@@ -233,7 +233,7 @@
   }
   function gamePopup(g) {
     window.HG_lastGame = g.name;
-    popup({ art: I('k-' + g.id + '.webp'), icon: g.soon ? IC.clock() : IC.pad(), title: g.name, text: g.soon ? `${g.blurb}` : `${g.blurb} PS5 ₹100 / PS4 ₹75 per player per hour.`,
+    popup({ art: I('k-' + g.id + '.webp'), cls: 'g-' + g.id, icon: g.soon ? IC.clock() : IC.pad(), title: g.name, text: g.soon ? `${g.blurb}` : `${g.blurb} PS5 ₹100 / PS4 ₹75 per player per hour.`,
       extra: `<div class="hg-chips"><span>${g.tag.replace('Coming soon · ', '')}</span>${g.soon ? '<span class="y">Coming soon</span>' : '<span>Up to 4 players</span>'}</div>`,
       actions: g.soon ? [{ label: 'Close' }, { label: `Live consoles${ARW}`, primary: true, run: () => $('#live').scrollIntoView({ behavior: 'smooth' }) }]
         : [{ label: 'Live status', run: () => $('#live').scrollIntoView({ behavior: 'smooth' }) }, { label: `Book this game${ARW}`, primary: true, keep: true, run: openBook }] });
