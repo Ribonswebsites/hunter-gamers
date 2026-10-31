@@ -1,6 +1,6 @@
 {
- "versionCode": 8,
- "versionName": "1.8",
+ "versionCode": 9,
+ "versionName": "1.9",
  "apkUrl": "https://hunter-gamers.pages.dev/downloads/hunter-game.apk",
- "notes": "Sharper heroes, solid character cutouts, new console status, control room, order history and popups"
+ "notes": "Smoother hero, solid Spider-Man, faster loading (everything pre-cached)"
 }
