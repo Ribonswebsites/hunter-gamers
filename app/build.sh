@@ -6,7 +6,7 @@ SDK=${ANDROID_SDK:-${ANDROID_HOME:-/workspace/android-sdk}}; BT=$SDK/build-tools
 [ -n "${JAVA_HOME:-}" ] || export JAVA_HOME=/workspace/jdk17; export PATH=$JAVA_HOME/bin:$PATH
 rm -rf build && mkdir -p build/res build/classes build/assets/www
 # auto-bump version (app/version.properties holds the last released code)
-CODE=$(( $(grep -oP '(?<=versionCode=)\d+' version.properties) + 1 )); NAME="${NAME:-1.$CODE}"
+CODE="${CODE:-$(( $(grep -oP "(?<=versionCode=)\d+" version.properties) + 1 ))}"; NAME="${NAME:-2.$(( CODE - 10 ))}"
 printf 'versionCode=%s\nversionName=%s\n' "$CODE" "$NAME" > version.properties
 sed "s/@@CODE@@/$CODE/; s/@@NAME@@/$NAME/" AndroidManifest.xml > build/AndroidManifest.xml
 NOTES=${RELEASE_NOTES:-"New games lineup, faster loading and in-app updates."}

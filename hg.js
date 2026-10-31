@@ -6,7 +6,7 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=19';
+  const I = n => '/img/' + n + '?v=20';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -38,7 +38,7 @@
     { id: 'gta6', bg: 'gta6-bg', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
     { id: 'sm2', cut: 'peter', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Swing into <span>the city.</span>' },
     { id: 'acs', bg: 'h-acs', tag: "Assassin's Creed Shadows", h: 'Strike from <span>the shadows.</span>' },
-    { id: 'fc26', clear: 1, bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
+    { id: 'fc26', bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
     { id: 'nr', bg: 'h-nr', tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
     { id: 'wk', bg: 'h-wk', tag: 'Black Myth: Wukong', h: 'Take up <span>the staff.</span>' },
   ];
@@ -135,7 +135,7 @@
       busy = true; t0 = performance.now(); lastP = 0;
       ensure(next).then(() => requestAnimationFrame(() => {
         const prev = cur; cur = next; fillRing();
-        bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear); hx.classList.add('ring-on'); setTimeout(fitRing, 750);
+        bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear); hx.classList.add('ring-on'); hx.dataset.s = SLIDES[cur].id; requestAnimationFrame(fitRing); setTimeout(fitRing, 750);
         subs[prev].classList.remove('on'); subs[prev].classList.add('out');
         setTimeout(() => subs[prev].classList.remove('out'), 700);
         subs[cur].classList.remove('out'); subs[cur].classList.add('on');
@@ -144,7 +144,7 @@
         ensure((cur + 1) % SLIDES.length); // preload the next slide while this one plays
       }));
     }
-    hx.classList.toggle('clr', !!SLIDES[0].clear); hx.classList.add('ring-on');
+    hx.classList.toggle('clr', !!SLIDES[0].clear); hx.classList.add('ring-on'); hx.dataset.s = SLIDES[0].id;
     // Ring sits as low as possible: its bottom edge stops just above the game tag, so it stays under every face and title.
     function fitRing() {
       const tag = $('.hgx-copy.on .hgx-tag', hx) || $('.hgx-copy.on', hx); if (!tag) return;
