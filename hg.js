@@ -589,7 +589,7 @@
       actions: [{ label: 'Later', run: () => { try { sessionStorage.setItem('hg.updLater', ver.replace(/^1\./, '')); } catch (e) {} window.HGApp && HGApp.later(); } },
         { label: `Update now${ARW}`, primary: true, keep: true, run: () => { el.classList.add('upd-busy'); window.HGApp && HGApp.startUpdate(); HGUpdateProgress(0, 'downloading');
           // fallback: if the native downloader never reports progress, hand the APK to the phone's browser
-          window.__hgUpdTick = 0; setTimeout(() => { if (!window.__hgUpdTick) location.href = 'https://github.com/Ribonswebsites/hunter-gamers/releases/latest/download/hunter-game.apk'; }, 4000); } }] });
+          window.__hgUpdTick = 0; setTimeout(() => { if (!window.__hgUpdTick) location.href = 'https://github.com/Ribonswebsites/hunter-gamers/releases/download/latest/hunter-game.apk'; }, 4000); } }] });
   };
   // Site-side update check (works even if an older app's native check never fires the popup)
   function selfUpdateCheck() {
