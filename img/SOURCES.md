@@ -79,3 +79,21 @@ All Steam art is publisher-uploaded store art fetched via IStoreBrowseService/Ge
   - page_background: https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3606480/ced309b03740ccd5f2ea33f58fc2059a2257e235/page_bg_v6.jpg
   - screenshot (card k-bo7): https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3606480/10be1d8a9b68f19a7b0321f4adc819374955268d/ss_10be1d8a9b68f19a7b0321f4adc819374955268d.1920x1080.jpg
 - Mapping: c-<id> = hero centre cutout; h-<id> = hero background (library_hero); p-<id> = ring poster (library_capsule / hero_capsule for bo7); k-<id> = Games card; s-consoles = bo7 page_background; s-book = ds2 page_background. got/ds2 cards use library_hero; acs card uses screenshot.
+
+## Round 7 (31 Oct 2026)
+| File | Subject | Official source | Notes |
+|---|---|---|---|
+| c-peter-sm.webp, c-peter-md.webp | Marvel's Spider-Man 2 (Peter Parker, single cutout) | https://sonyinteractive.com/tachyon/2026/09/Games_Marvels-Spider-Man-2.jpg (Sony Interactive asset library) | Peter isolated from the official key art; replaces the two-Spidey c-sm2 cutout |
+| f-wolverine.webp | Marvel's Wolverine (poster frame) | https://sonyinteractive.com/tachyon/2026/09/Marvels-Wolverine.jpg | 560x760 |
+| x-ps5pro.webp | PS5 Pro with DualSense | https://sonyinteractive.com/tachyon/2025/09/sony-interactive-our-company-fast-facts-01-ps5-pro.png | 800x450 |
+| x-ps5.webp | PS5 (slim) | https://sonyinteractive.com/tachyon/2025/09/sony-interactive-our-company-products-ps5-slim-fg.png | transparent, 560w |
+| x-ps5duo.webp, x-dualsense.webp | PS5 consoles + DualSense | https://sonyinteractive.com/tachyon/2025/09/sie-our-company-fast-facts-04-playstation-5-ps5-slim-disc.png | DualSense cut out of the right controller |
+| q-sb.webp | Stellar Blade | Steam library capsule, app 3489700 | 300x450 |
+| q-hfw.webp | Horizon Forbidden West | Steam library capsule, app 2420110 | 300x450 |
+| q-ff7r.webp | Final Fantasy VII Rebirth | Steam library capsule, app 2909400 | 300x450 |
+| q-t8.webp | Tekken 8 | Steam library capsule, app 1778820 | 300x450 |
+| q-mk1.webp | Mortal Kombat 1 | Steam library capsule, app 1971870 | 300x450 |
+| q-hl.webp | Hogwarts Legacy | Steam library capsule, app 990080 | 300x450 |
+| q-tlou2.webp | The Last of Us Part II Remastered | Steam library capsule, app 2531310 | 300x450 |
+| q-rc.webp | Ratchet & Clank: Rift Apart | Steam library capsule, app 1895880 | 300x450 |
+| q-dmc5.webp | Devil May Cry 5 | Steam library capsule, app 601150 | 300x450 |

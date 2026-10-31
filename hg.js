@@ -24,21 +24,25 @@
     arrow: () => sv('<path d="M5 12h14M13 6l6 6-6 6"/>', 16),
     play: () => sv('<path d="M7 4v16l13-8z" fill="currentColor"/>', 16),
     dl: () => sv('<path d="M12 3v12M6 11l6 6 6-6M4 21h16"/>', 16),
+    clock: w => sv('<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>', w),
+    list: w => sv('<path d="M9 6h11M9 12h11M9 18h11"/><circle cx="4.5" cy="6" r="1"/><circle cx="4.5" cy="12" r="1"/><circle cx="4.5" cy="18" r="1"/>', w),
+    live: w => sv('<circle cx="12" cy="12" r="2"/><path d="M16.2 7.8a6 6 0 0 1 0 8.4M7.8 16.2a6 6 0 0 1 0-8.4M19 5a10 10 0 0 1 0 14M5 19A10 10 0 0 1 5 5"/>', w),
     left: () => sv('<path d="M15 6l-6 6 6 6"/>', 12), right: () => sv('<path d="M9 6l6 6-6 6"/>', 12),
   };
   const ARW = ' ' + IC.arrow();
 
   // Each slide: one game. Centre = clean cutout, background = different official art (dimmed + blurred), ring = posters of the OTHER games
   const SLIDES = [
-    { id: 'wolverine', pos: '50% 12%', bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
+    { id: 'wolverine', pop: 'f-wolverine', clear: 1, bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
     { id: 'gow', bg: 'h-gow', tag: 'God of War Ragnarök', h: 'Kratos is <span>waiting.</span>' },
     { id: 'gta6', bg: 'gta6-bg', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
-    { id: 'sm2', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Two Spideys. <span>One couch.</span>' },
+    { id: 'sm2', cut: 'peter', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Swing into <span>the city.</span>' },
     { id: 'acs', bg: 'h-acs', tag: "Assassin's Creed Shadows", h: 'Strike from <span>the shadows.</span>' },
     { id: 'fc26', bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
     { id: 'nr', bg: 'h-nr', tag: 'Elden Ring Nightreign', h: 'Survive <span>the night.</span>' },
     { id: 'wk', bg: 'h-wk', tag: 'Black Myth: Wukong', h: 'Take up <span>the staff.</span>' },
   ];
+  const PIDS2 = ['sb', 'hfw', 'ff7r', 't8', 'mk1', 'hl', 'tlou2', 'rc', 'dmc5']; // second ring: its own posters, never shared
   const PIDS = ['wolverine', 'gow', 'sm2', 'acs', 'fc26', 'nr', 'wk', 're9', 'got', 'ds2', 'bo7'];
 
   /* ---------- Sheets ---------- */
@@ -66,7 +70,8 @@
   document.addEventListener('click', e => { const c = e.target.closest('[data-close]'); if (c) hide(c.closest('.hg-sheet')); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') hide(); });
   function popup(o) {
-    const el = sheet(`<div class="hg-icon">${o.icon || IC.pad()}</div><h3>${o.title}</h3><p>${o.text}</p>${o.extra || ''}<div class="hg-row">${(o.actions || []).map((a, i) => `<button class="hg-btn ${a.primary ? 'p' : 's'}" data-i="${i}">${a.label}</button>`).join('')}</div>`, { center: o.center });
+    const art = o.art === false ? '' : `<div class="hg-art" style="background-image:url(${o.art || I('s-book.webp')})"></div>`;
+    const el = sheet(`${art}<div class="hg-icon">${o.icon || IC.pad()}</div><h3>${o.title}</h3><p>${o.text}</p>${o.extra || ''}<div class="hg-row">${(o.actions || []).map((a, i) => `<button class="hg-btn ${a.primary ? 'p' : 's'}" data-i="${i}">${a.label}</button>`).join('')}</div>`, { center: o.center, cls: 'hg-pop' + (art ? ' has-art' : '') + (o.cls ? ' ' + o.cls : '') });
     el._temp = true;
     $$('[data-i]', el).forEach(b => b.onclick = () => { const a = o.actions[+b.dataset.i]; hide(el, !!a.keep); a.run && a.run(); });
     show(el); return el;
@@ -81,48 +86,63 @@
   /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
   const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = innerWidth > 760 ? '-md' : '-sm';
   const bgSrc = s => I(s.bg + (MOB ? '-sm' : BIG) + '.webp');
-  const cutSrc = s => I('c-' + s.id + CUT + '.webp');
+  const cutSrc = s => I('c-' + (s.cut || s.id) + CUT + '.webp');
   function buildHero() {
     const hx = $('#top > .hgx') || document.createElement('section');
     hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
-    hx.innerHTML = SLIDES.map((s, i) => `<div class="hgx-slide${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}">
-      <div class="hgx-bg"${i ? '' : ` style="background-image:url(${bgSrc(s)})"`}></div>
-      <img class="hgx-subject"${s.pos ? ` style="object-position:${s.pos}"` : ''} ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}>
-      <div class="hgx-copy"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
+    // Separate layers (not per-slide wrappers) so fading never creates a stacking context that lets the ring pass in front.
+    hx.innerHTML = `<div class="hgx-layer hgx-bgs">${SLIDES.map((s, i) => `<div class="hgx-bg${s.clear ? ' clear' : ''}${i ? '' : ' on'}"${i ? '' : ` style="background-image:url(${bgSrc(s)})"`}></div>`).join('')}</div>
+      <div class="hgx-ring r2"></div><div class="hgx-ring r1"></div>
+      <div class="hgx-layer hgx-subs">${SLIDES.map((s, i) => s.pop
+        ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}"><span class="frame" style="background-image:url(${I(s.pop + '.webp')})"></span><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
+        : `<img class="hgx-subject hgx-subject-w${i ? '' : ' on'}" ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async">`).join('')}</div>
+      ${SLIDES.map((s, i) => `<div class="hgx-copy${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
-      <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div></div>`).join('') +
-      `<div class="hgx-ring"></div><div class="hgx-hint">${IC.left()} drag to spin ${IC.right()}</div><div class="hgx-dots">${SLIDES.map((_, i) => `<button aria-label="Slide ${i + 1}"${i ? '' : ' class="on"'}></button>`).join('')}</div><div class="hgx-progress"></div>`;
+      <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div>`).join('')}
+      <div class="hgx-hint">${IC.left()} drag to spin ${IC.right()}</div><div class="hgx-progress"></div>`;
     if (!hx.parentNode) $('#top').prepend(hx);
-    const slides = $$('.hgx-slide', hx), dots = $$('.hgx-dots button', hx), prog = $('.hgx-progress', hx);
-    const ensureBg = i => { const el = $('.hgx-bg', slides[i]); if (!el.style.backgroundImage) el.style.backgroundImage = `url(${bgSrc(SLIDES[i])})`; const im = $('.hgx-subject', slides[i]); if (im.dataset.src) { im.src = im.dataset.src; delete im.dataset.src; } };
-    const ring = $('.hgx-ring', hx);
-    let cards = [], auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, step = 0;
-    const DUR = 6500, N = 9;
-    function makeRing() {
-      for (let i = 0; i < N; i++) { const c = document.createElement('div'); c.className = 'hgx-card'; ring.append(c); cards.push(c); }
-      measure();
-    }
+    const bgs = $$('.hgx-bg', hx), subs = $$('.hgx-subject-w', hx), copies = $$('.hgx-copy', hx), prog = $('.hgx-progress', hx);
+    const preload = src => new Promise(r => { const im = new Image(); im.onload = im.onerror = r; im.src = src; });
+    const ready = SLIDES.map(() => null);
+    // Fetch + decode a slide's images before showing it, so nothing pops in half-loaded.
+    const ensure = i => ready[i] || (ready[i] = Promise.all([preload(bgSrc(SLIDES[i])), preload(cutSrc(SLIDES[i]))].concat(SLIDES[i].pop ? [preload(I(SLIDES[i].pop + '.webp'))] : [])).then(() => {
+      if (!bgs[i].style.backgroundImage) bgs[i].style.backgroundImage = `url(${bgSrc(SLIDES[i])})`;
+      const im = subs[i].tagName === 'IMG' ? subs[i] : $('img', subs[i]); if (im.dataset.src) { im.src = im.dataset.src; delete im.dataset.src; }
+    }));
+    function mkRing(el, ids, n) { const cs = []; for (let i = 0; i < n; i++) { const c = document.createElement('div'); c.className = 'hgx-card'; if (ids) c.style.backgroundImage = `url(${I(ids[i] + '.webp')})`; el.append(c); cs.push(c); } return cs; }
+    const ring1 = $('.hgx-ring.r1', hx), ring2 = $('.hgx-ring.r2', hx);
+    const N = 9, cards = mkRing(ring1, null, N), cards2 = mkRing(ring2, PIDS2.map(p => 'q-' + p), PIDS2.length);
+    let auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, R2 = 0, step = 0, step2 = 0, busy = false;
+    const DUR = 6500;
     function fillRing() { const others = PIDS.filter(p => p !== SLIDES[cur].id); cards.forEach((c, i) => { c.style.backgroundImage = `url(${I('p-' + others[(i + cur) % others.length] + '.webp')})`; }); }
     function measure() {
-      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / N;
-      ring.style.setProperty('--cw', Math.max(84, Math.min(160, w * 0.12)) + 'px');
+      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); R2 = Math.min(w * 0.36, 520); step = Math.PI * 2 / N; step2 = Math.PI * 2 / cards2.length;
+      const cw = Math.max(84, Math.min(160, w * 0.12));
+      ring1.style.setProperty('--cw', cw + 'px'); ring2.style.setProperty('--cw', cw * 0.68 + 'px');
     }
-    function layout() {
-      const rot = auto + drag;
-      for (let i = 0; i < cards.length; i++) {
-        const a = rot + i * step, cs = Math.cos(a), sn = Math.sin(a), depth = (cs + 1) / 2;
-        cards[i].style.transform = `translate3d(${(sn * R).toFixed(1)}px,${(cs * -18).toFixed(1)}px,${(cs * R * 0.55).toFixed(1)}px) rotateY(${(sn * -38).toFixed(1)}deg) scale(${(0.72 + depth * 0.38).toFixed(3)})`;
-        cards[i].style.opacity = (0.2 + depth * 0.8).toFixed(2);
+    function place(cs, rot, st, rad) {
+      for (let i = 0; i < cs.length; i++) {
+        const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
+        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,${(c * rad * 0.55).toFixed(1)}px) rotateY(${(s * -38).toFixed(1)}deg) scale(${(0.72 + d * 0.38).toFixed(3)})`;
+        cs[i].style.opacity = (0.2 + d * 0.8).toFixed(2);
       }
     }
+    function layout() { place(cards, auto + drag, step, R); place(cards2, -auto * 0.8 - drag * 0.6 + 0.35, step2, R2); }
     function go(i) {
-      cur = (i + SLIDES.length) % SLIDES.length; t0 = performance.now();
-      ensureBg(cur); ensureBg((cur + 1) % SLIDES.length); fillRing();
-      slides.forEach((s, j) => { s.classList.toggle('on', j === cur); s.setAttribute('aria-hidden', j !== cur); });
-      dots.forEach((d, j) => d.classList.toggle('on', j === cur));
+      const next = (i + SLIDES.length) % SLIDES.length; if (next === cur || busy) { t0 = performance.now(); return; }
+      busy = true; t0 = performance.now(); lastP = 0;
+      ensure(next).then(() => requestAnimationFrame(() => {
+        const prev = cur; cur = next; fillRing();
+        bgs.forEach((b, j) => b.classList.toggle('on', j === cur));
+        subs[prev].classList.remove('on'); subs[prev].classList.add('out');
+        setTimeout(() => subs[prev].classList.remove('out'), 700);
+        subs[cur].classList.remove('out'); subs[cur].classList.add('on');
+        copies.forEach((c, j) => { c.classList.toggle('on', j === cur); c.setAttribute('aria-hidden', j !== cur); });
+        t0 = performance.now(); busy = false;
+        ensure((cur + 1) % SLIDES.length); // preload the next slide while this one plays
+      }));
     }
-    makeRing(); fillRing(); layout();
-    dots.forEach((d, j) => d.onclick = () => go(j));
+    measure(); fillRing(); layout();
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
     addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; }, { passive: true });
@@ -136,10 +156,10 @@
       if (!visible || document.hidden) { running = false; return; }
       if (!reduce) auto += 0.0033; layout();
       lastP = Math.min(1, (now - t0) / DUR); prog.style.transform = `scaleX(${lastP.toFixed(4)})`;
-      if (lastP >= 1 && !reduce) { lastP = 0; go(cur + 1); }
+      if (lastP >= 1 && !reduce) go(cur + 1);
       requestAnimationFrame(tick);
     }
-    setTimeout(() => ensureBg(1), 1500);
+    ensure(0); setTimeout(() => ensure(1), 1200);
     loop();
     window.HG_go = go;
   }
@@ -159,25 +179,41 @@
     { id: 'ds2', name: 'Death Stranding 2', tag: 'PS5', blurb: "Hideo Kojima's journey across a broken world." },
     { id: 'bo7', name: 'Call of Duty: Black Ops 7', tag: 'PS5 · PS4', blurb: 'Campaign, multiplayer and Zombies. Squad up.' },
   ];
+  const SPOT = ['gow', 'gta6', 'acs', 'got', 'nr', 're9', 'wk', 'ds2'];
   function buildGames() {
     const sec = document.createElement('section');
     sec.className = 'section hg-games'; sec.id = 'games'; sec.setAttribute('aria-labelledby', 'games-title');
-    sec.innerHTML = `<div class="hg-games-in"><p class="hg-eyebrow">On our consoles</p><h2 id="games-title">Games available to play</h2>
-      <p class="hg-games-sub">Tap a game to book a slot for it.</p>
-      <div class="hg-games-grid">${GAMES.map(g => `<button class="hg-game" data-game="${g.id}" aria-label="${g.name}">
-        <span class="stage"><span class="art" data-bg="${I('k-' + g.id + '.webp')}"></span>${g.soon ? '<span class="soon">Coming soon</span>' : ''}</span>
-        <span class="meta"><b>${g.name}</b><small>${g.tag}</small></span></button>`).join('')}</div></div>`;
+    const sp = SPOT.map(id => GAMES.find(g => g.id === id));
+    sec.innerHTML = `<div class="hg-games-in"><p class="hg-eyebrow rv">On our consoles</p><h2 id="games-title" class="rv">Games available to play</h2>
+      <p class="hg-games-sub rv">Featured this week. Swipe the shelf for everything else.</p>
+      <div class="hg-spot rv" aria-roledescription="carousel">
+        ${sp.map((g, i) => `<div class="hg-spot-s${i ? '' : ' on'}" data-i="${i}"><span class="art" ${i ? 'data-bg' : 'style="background-image:url(' + I('k-' + g.id + '.webp') + ')" data-x'}="${I('k-' + g.id + '.webp')}"></span>
+          <div class="txt"><small>${g.soon ? '<i class="soon">Coming soon</i>' : ''}${g.tag}</small><h3>${g.name}</h3><p>${g.blurb}</p>
+          <button class="hg-btn ${g.soon ? 's' : 'p'}" data-game="${g.id}">${g.soon ? 'Ask about launch day' : 'Book this game'}${ARW}</button></div></div>`).join('')}
+        <div class="hg-spot-dots">${sp.map((_, i) => `<button aria-label="Show ${sp[i].name}" data-d="${i}"${i ? '' : ' class="on"'}><i></i></button>`).join('')}</div>
+      </div>
+      <div class="hg-shelf rv" tabindex="0" aria-label="All games">${GAMES.map(g => `<button class="hg-post" data-game="${g.id}" aria-label="${g.name}"><span class="pi"><img loading="lazy" decoding="async" src="${I((g.id === 'gta6' ? 'k-' : 'p-') + g.id + '.webp')}" alt=""${g.id === 'gta6' ? ' class="land"' : ''}>${g.soon ? '<span class="soon">Coming soon</span>' : ''}</span><b>${g.name}</b><small>${g.tag}</small></button>`).join('')}</div></div>`;
     const after = $('#how') || $('#consoles');
     after ? after.after(sec) : $('#top').append(sec);
-    const io = new IntersectionObserver(es => es.forEach(e => {
-      e.target.classList.toggle('inview', e.isIntersecting);
-      const art = $('.art', e.target); if (e.isIntersecting && art.dataset.bg) { art.style.backgroundImage = `url(${art.dataset.bg})`; delete art.dataset.bg; }
-    }), { rootMargin: '200px 0px' });
-    $$('.hg-game', sec).forEach(b => { io.observe(b); b.onclick = () => gamePopup(GAMES.find(g => g.id === b.dataset.game)); });
+    sec.addEventListener('click', e => { const b = e.target.closest('[data-game]'); if (b) gamePopup(GAMES.find(g => g.id === b.dataset.game)); });
+    const ss = $$('.hg-spot-s', sec), ds = $$('[data-d]', sec); let cur = 0, timer;
+    const load = i => { const a = $('.art', ss[i]); if (a.dataset.bg) { a.style.backgroundImage = `url(${a.dataset.bg})`; delete a.dataset.bg; } };
+    const to = n => { n = (n + ss.length) % ss.length; if (n === cur) return; load(n); ss[cur].classList.remove('on'); ss[cur].classList.add('was'); const p = ss[cur]; setTimeout(() => p.classList.remove('was'), 900);
+      ss[n].classList.add('on'); ds[cur].classList.remove('on'); ds[n].classList.add('on'); cur = n; load((n + 1) % ss.length); };
+    const play = () => { clearInterval(timer); if (!reduce) timer = setInterval(() => { if (!document.hidden && vis) to(cur + 1); }, 5200); };
+    let vis = false; new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis) load(1); }).observe($('.hg-spot', sec));
+    ds.forEach(d => d.onclick = () => { to(+d.dataset.d); play(); });
+    let sx = null; const spot = $('.hg-spot', sec);
+    spot.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
+    spot.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) { to(cur + (dx < 0 ? 1 : -1)); play(); } sx = null; });
+    play();
   }
   function gamePopup(g) {
-    popup({ icon: `<img src="${I('p-' + g.id + '.webp')}" alt="" class="hg-pop-cut">`, title: g.name, text: `${g.blurb} PS5 ₹100 / PS4 ₹75 per player per hour.`,
-      actions: [{ label: 'See consoles', keep: true, run: () => document.querySelector('[data-hg-console]').click() }, { label: `Book this game${ARW}`, primary: true, keep: true, run: openBook }] });
+    window.HG_lastGame = g.name;
+    popup({ art: I('k-' + g.id + '.webp'), icon: g.soon ? IC.clock() : IC.pad(), title: g.name, text: g.soon ? `${g.blurb}` : `${g.blurb} PS5 ₹100 / PS4 ₹75 per player per hour.`,
+      extra: `<div class="hg-chips"><span>${g.tag.replace('Coming soon · ', '')}</span>${g.soon ? '<span class="y">Coming soon</span>' : '<span>Up to 4 players</span>'}</div>`,
+      actions: g.soon ? [{ label: 'Close' }, { label: `Live consoles${ARW}`, primary: true, run: () => $('#live').scrollIntoView({ behavior: 'smooth' }) }]
+        : [{ label: 'Live status', run: () => $('#live').scrollIntoView({ behavior: 'smooth' }) }, { label: `Book this game${ARW}`, primary: true, keep: true, run: openBook }] });
   }
 
   /* ---------- Bottom nav ---------- */
@@ -207,24 +243,24 @@
   const CONS = { ps5: { n: 'PS5', r: 100, img: 'card-06.webp', d: '4K graphics, DualSense haptics, fast loading.' }, ps4: { n: 'PS4', r: 75, img: 'card-02.webp', d: 'Huge library of classics. Best value for groups.' } };
   function consolePopup(id) {
     const c = CONS[id];
-    popup({ icon: id === 'ps5' ? IC.bolt() : IC.pad(), title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
-      extra: `<div class="hg-dl-art"><img src="${I('card-01.webp')}" alt=""><img src="${I(c.img)}" alt=""><img src="${I('card-05.webp')}" alt=""></div>`,
+    popup({ art: I(id === 'ps5' ? 'x-ps5pro.webp' : 'card-02.webp'), icon: id === 'ps5' ? IC.bolt() : IC.pad(), title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
+      extra: liveChips(id),
       actions: [{ label: 'Not now' }, { label: `Book ${c.n}${ARW}`, primary: true, keep: true, run: () => document.querySelector(`[data-pick="${id}"]`)._hgReal() }] });
   }
   function chooseConsole() {
-    popup({ icon: IC.joy(), title: 'Pick your console', text: 'Rates are per player, per hour. Up to 4 players.',
+    popup({ art: I('x-ps5duo.webp'), icon: IC.joy(), title: 'Pick your console', text: 'Rates are per player, per hour. Up to 4 players.', extra: liveChips(),
       actions: [{ label: 'PS4 · ₹75', keep: true, run: () => consolePopup('ps4') }, { label: 'PS5 · ₹100', primary: true, keep: true, run: () => consolePopup('ps5') }] });
   }
   function rentPopup(real) {
-    popup({ icon: IC.home(), title: 'Take a PS5 home', text: '₹1,000 for 12 hours with 2 controllers. Extra controller ₹200 (up to 4). ₹1,000 refundable deposit. Pick up and return at the shop.',
+    popup({ art: I('x-ps5.webp'), cls: 'contain', icon: IC.home(), title: 'Take a PS5 home', text: '₹1,000 for 12 hours with 2 controllers. Extra controller ₹200 (up to 4). ₹1,000 refundable deposit. Pick up and return at the shop.',
       actions: [{ label: 'Cancel' }, { label: `Rent a PS5${ARW}`, primary: true, keep: true, run: real }] });
   }
   function snackAdded(name, qty, price) {
-    popup({ icon: name.startsWith('Chips') ? IC.chips() : IC.drink(), title: `${name} added`, text: `${qty} in your booking · ₹${price} each. Pay together with your slot.`,
+    popup({ art: I('inline-4b8af9d3.webp'), icon: name.startsWith('Chips') ? IC.chips() : IC.drink(), title: `${name} added`, text: `${qty} in your booking · ₹${price} each. Pay together with your slot.`,
       actions: [{ label: 'Keep browsing' }, { label: `View booking${ARW}`, primary: true, keep: true, run: openBook }] });
   }
   function snacksPopup() {
-    popup({ icon: IC.snack(), title: 'Snacks & drinks', text: 'Add them to your booking and pay for everything together.',
+    popup({ art: I('inline-4b8af9d3.webp'), icon: IC.snack(), title: 'Snacks & drinks', text: 'Add them to your booking and pay for everything together.',
       actions: [{ label: '+ Chips ₹50', keep: true, run: () => $('[data-add="chips50"]').click() }, { label: '+ Cold drink ₹40', primary: true, keep: true, run: () => $('[data-add="drink"]').click() }] });
   }
   function wireActions() {
@@ -239,9 +275,10 @@
       clone.addEventListener('click', () => rentPopup(() => b.click()));
     });
     document.addEventListener('click', e => {
-      const t = e.target.closest('[data-hg-book],[data-hg-console],[data-hg-snacks],[data-hg-account],[data-hg-app]');
+      const t = e.target.closest('[data-hg-orders],[data-hg-book],[data-hg-console],[data-hg-snacks],[data-hg-account],[data-hg-app]');
       if (!t) return; e.preventDefault();
-      if (t.matches('[data-hg-book]')) { const g = document.querySelector('[data-go-book]'); g ? g.click() : openBook(); }
+      if (t.matches('[data-hg-orders]')) ordersPopup();
+      else if (t.matches('[data-hg-book]')) { const g = document.querySelector('[data-go-book]'); g ? g.click() : openBook(); }
       else if (t.matches('[data-hg-console]')) chooseConsole();
       else if (t.matches('[data-hg-snacks]')) snacksPopup();
       else if (t.matches('[data-hg-account]')) accountPopup();
@@ -301,8 +338,9 @@
   function accountPopup() {
     const u = store.get('user');
     if (!u) return openLogin();
-    popup({ icon: IC.user(), title: `Hi, ${u.name}`, text: `Bookings are filled with +91 ${u.phone}.`,
-      actions: [{ label: 'Log out', run: () => { localStorage.removeItem('hg.user'); fillUser(); } }, { label: 'Book a slot${ARW}', primary: true, keep: true, run: () => { fillUser(); openBook(); } }] });
+    popup({ art: I('k-got.webp'), icon: IC.user(), title: `Hi, ${u.name}`, text: `Bookings are filled with +91 ${u.phone}.`,
+      extra: `<button class="hg-linkrow" data-hg-orders>${IC.list(20)}<span><b>My bookings</b><small>${orders().length ? orders().length + ' saved on this phone' : 'Nothing yet'}</small></span>${IC.right()}</button>`,
+      actions: [{ label: 'Log out', run: () => { localStorage.removeItem('hg.user'); fillUser(); } }, { label: `Book a slot${ARW}`, primary: true, keep: true, run: () => { fillUser(); openBook(); } }] });
   }
 
   /* ---------- Cookies ---------- */
@@ -328,8 +366,8 @@
 
   /* ---------- App download ---------- */
   function appPopup() {
-    popup({ icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Game app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
-      extra: `<div class="hg-dl-art"><img src="${I('card-06.webp')}" alt=""><img src="${I('card-01.webp')}" alt=""><img src="${I('card-05.webp')}" alt=""></div><p style="font-size:12px">Android 7+ · about 6 MB · allow "install unknown apps" when asked.</p>`,
+    popup({ art: I('s-consoles.webp'), icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Game app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
+      extra: `<p style="font-size:12px">Android 7+ · about 6 MB · allow "install unknown apps" when asked.</p>`,
       actions: [{ label: 'Maybe later', run: () => store.set('appAsked', Date.now()) }, { label: `${IC.dl()} Download APK`, primary: true, run: () => { store.set('appAsked', Date.now()); location.href = '/downloads/hunter-game.apk'; } }] });
   }
   function maybeApp() {
@@ -347,12 +385,120 @@
 
   function afterLogin() { if (!store.get('consent')) setTimeout(() => cookieEl.classList.add('on'), 500); else setTimeout(maybeApp, 900); }
 
+  /* ---------- Live console status: 3 x PS5, 2 x PS4 ----------
+     Data layer: GET {API_URL}/api/status every 15 s once the booking server is live.
+     Expected JSON: { updated, consoles: [{ id, type: 'ps5'|'ps4', name, queue: [{ start, end, players }] }] } (ms timestamps).
+     Until then a clearly labelled DEMO schedule is generated on the device so the board can be seen working. */
+  const LIVE = { data: null, demo: true, subs: [] };
+  const RIG = [{ id: 'P1', type: 'ps5', name: 'PS5 · 1' }, { id: 'P2', type: 'ps5', name: 'PS5 · 2' }, { id: 'P3', type: 'ps5', name: 'PS5 · 3' }, { id: 'P4', type: 'ps4', name: 'PS4 · 1' }, { id: 'P5', type: 'ps4', name: 'PS4 · 2' }];
+  const OPEN_H = 10, CLOSE_H = 22;
+  function demoStatus() {
+    const d = new Date(); d.setHours(0, 0, 0, 0); const day = d.getTime(), seed = d.getDate() * 31 + d.getMonth();
+    const hash = (a, b) => { let x = (seed * 374761393 + a * 668265263 + b * 2246822519) >>> 0; x = (x ^ (x >>> 13)) * 1274126177 >>> 0; return ((x ^ (x >>> 16)) >>> 0) % 100; };
+    const consoles = RIG.map((c, k) => {
+      const q = []; const off = ((k * 17) % 4) * 10; // sessions start at :00, :10, :20 or :30
+      for (let h = OPEN_H; h < CLOSE_H; h++) {
+        if (hash(k, h) < (h >= 17 ? 62 : 38)) {
+          const len = hash(h, k) < 30 ? 2 : 1, s = day + (h * 60 + off) * 6e4, e = Math.min(s + len * 36e5, day + CLOSE_H * 36e5);
+          q.push({ start: s, end: e, players: 1 + hash(k + 9, h) % 4 }); h += len - 1;
+        }
+      }
+      return { ...c, queue: q };
+    });
+    return { updated: Date.now(), demo: true, consoles };
+  }
+  function derive(c, now) {
+    const q = c.queue.filter(b => b.end > now).sort((a, b) => a.start - b.start), cur = q.find(b => b.start <= now);
+    const nxt = q.filter(b => b !== cur);
+    let free = cur ? cur.end : now; for (const b of nxt) { if (b.start <= free + 6e4) free = Math.max(free, b.end); else break; }
+    const st = cur ? 'playing' : nxt[0] && nxt[0].start - now < 30 * 6e4 ? 'reserved' : 'free';
+    return { ...c, st, cur, nxt, free };
+  }
+  function feedSlots(data) {
+    const B = window.HG_BOOK; if (!B || B.API_READY) return; // the real server supplies its own availability
+    const today = B.dayDate(0), t0 = today.getTime(), used = { ps5: {}, ps4: {} };
+    data.consoles.forEach(c => c.queue.forEach(b => { for (let h = OPEN_H; h < CLOSE_H; h++) { const hs = t0 + h * 36e5; if (b.start < hs + 36e5 && b.end > hs) used[c.type][h] = (used[c.type][h] || 0) + 1; } }));
+    B.setAvail(B.dkey(today), { units: { ps5: 3, ps4: 2 }, used, demo: true });
+  }
+  async function pull() {
+    const B = window.HG_BOOK; let d = null;
+    if (B && B.API_READY) { try { const r = await fetch(B.API_URL + '/api/status', { cache: 'no-store' }); if (r.ok) d = await r.json(); } catch {} }
+    LIVE.demo = !d; LIVE.data = d || demoStatus(); feedSlots(LIVE.data); LIVE.subs.forEach(f => f());
+  }
+  const tfmt = t => new Date(t).toLocaleTimeString('en-IN', { hour: 'numeric', minute: '2-digit' }).toUpperCase();
+  const left = ms => { const m = Math.max(0, Math.ceil(ms / 6e4)); return m >= 60 ? `${Math.floor(m / 60)}h ${String(m % 60).padStart(2, '0')}m` : `${m} min`; };
+  function liveChips(type) {
+    if (!LIVE.data) return '';
+    const now = Date.now(), cs = LIVE.data.consoles.filter(c => !type || c.type === type).map(c => derive(c, now)), f = cs.filter(c => c.st === 'free').length;
+    const nf = Math.min(...cs.map(c => c.free));
+    return `<div class="hg-chips"><span class="g"><i></i>${f} of ${cs.length} free now</span><span>Next free ${nf <= now ? 'now' : tfmt(nf)}</span>${LIVE.demo ? '<span class="d">Demo data</span>' : ''}</div>`;
+  }
+  function buildLive() {
+    const sec = document.createElement('section'); sec.className = 'section hg-live'; sec.id = 'live'; sec.setAttribute('aria-labelledby', 'live-title');
+    sec.innerHTML = `<div class="hg-games-in"><p class="hg-eyebrow rv">${IC.live(14)} Live at the shop</p><h2 id="live-title" class="rv">Console status</h2>
+      <p class="hg-games-sub rv">3 PS5 and 2 PS4. See who is playing, how long is left and the line-up for today. <span class="hg-demo" hidden>Demo data: the live feed switches on with the booking server.</span></p>
+      <div class="hg-live-grid"></div><p class="hg-live-upd"></p></div>`;
+    const anchor = $('#games') || $('#consoles'); anchor.after(sec);
+    const grid = $('.hg-live-grid', sec), C = 2 * Math.PI * 26;
+    function draw() {
+      if (!LIVE.data) return; const now = Date.now();
+      $('.hg-demo', sec).hidden = !LIVE.demo;
+      $('.hg-live-upd', sec).textContent = `Updated ${tfmt(LIVE.data.updated || now)} · refreshes every 15 s`;
+      const cs = LIVE.data.consoles.map(c => derive(c, now));
+      if (grid.children.length !== cs.length) grid.innerHTML = cs.map(c => `<article class="hg-con rv" data-id="${c.id}"><div class="top"><svg class="ring" viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="26"/><circle class="p" cx="30" cy="30" r="26" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
+        ${c.type === 'ps5' ? `<img src="${I('x-ps5.webp')}" alt="" class="ps5">` : `<span class="ps4i">${IC.pad(24)}</span>`}<div><b>${c.name}</b><span class="pill"></span></div></div><p class="cd"></p><ol class="q"></ol><p class="nf"></p></article>`).join('');
+      cs.forEach(c => {
+        const el = $(`[data-id="${c.id}"]`, grid); el.dataset.st = c.st;
+        $('.pill', el).textContent = { free: 'Free', playing: 'Playing', reserved: 'Reserved' }[c.st];
+        const pct = c.cur ? (now - c.cur.start) / (c.cur.end - c.cur.start) : 0;
+        $('.ring .p', el).style.strokeDashoffset = C * (1 - pct);
+        $('.cd', el).innerHTML = c.st === 'playing' ? `<b>${left(c.cur.end - now)}</b> left · ${c.cur.players} ${c.cur.players > 1 ? 'players' : 'player'}` : c.st === 'reserved' ? `Booked from <b>${tfmt(c.nxt[0].start)}</b>` : '<b>Walk in and play</b>';
+        $('.q', el).innerHTML = c.nxt.slice(0, 3).map(b => `<li><span>${tfmt(b.start)} – ${tfmt(b.end)}</span><small>${b.players} ${b.players > 1 ? 'players' : 'player'}</small></li>`).join('') || '<li class="e">No more bookings today</li>';
+        $('.nf', el).innerHTML = `Next free slot <b>${c.free <= now ? 'now' : tfmt(c.free)}</b>`;
+      });
+    }
+    LIVE.subs.push(draw);
+    pull(); setInterval(() => { if (!document.hidden) pull(); }, 15000);
+    setInterval(() => { if (!document.hidden) draw(); }, 1000);
+  }
+
+  /* ---------- Official PS5 hardware strip (Sony Interactive press images) ---------- */
+  function buildHardware() {
+    const c = $('#consoles'); if (!c) return;
+    const d = document.createElement('div'); d.className = 'hg-hw';
+    d.innerHTML = [['x-ps5pro.webp', 'PS5 Pro', 'Sharper 4K and higher frame rates on Pro-enhanced games.'], ['x-ps5.webp', 'PS5', 'Ultra-fast SSD loading and 3D audio.', 'cut'], ['x-dualsense.webp', 'DualSense', 'Haptic feedback and adaptive triggers you feel.', 'cut']]
+      .map(([img, t, p, cut]) => `<figure class="rv${cut ? ' cut' : ''}"><img loading="lazy" decoding="async" src="${I(img)}" alt="${t}"><figcaption><b>${t}</b><span>${p}</span></figcaption></figure>`).join('');
+    ($('.wrap', c) || c).append(d);
+  }
+
+  /* ---------- Order history (stored on this phone until the booking server keeps accounts) ---------- */
+  const orders = () => store.get('orders') || [];
+  window.HG_saveOrder = o => { const a = orders(); a.unshift(o); store.set('orders', a.slice(0, 50)); };
+  function ordersPopup() {
+    const a = orders(), CN = { ps5: 'PS5', ps4: 'PS4' };
+    const fmtD = (k, h) => { const [y, m, d] = k.split('-').map(Number); const t = new Date(y, m - 1, d, h || 0); return t.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' }) + ' · ' + tfmt(t); };
+    const list = a.length ? `<ul class="hg-orders">${a.map(o => `<li><div class="l"><b>${o.game || (o.kind === 'rental' ? 'PS5 home rental' : 'Gaming session')}</b><small>${CN[o.console] || ''} · ${o.hours} h · ${fmtD(o.date, o.start)}</small><small class="c">#${o.code || ''}</small></div><div class="r"><b>₹${Number(o.amount || 0).toLocaleString('en-IN')}</b><span class="s ${(o.status || '').toLowerCase()}">${o.status}</span></div></li>`).join('')}</ul>`
+      : `<div class="hg-empty">${IC.pad(40)}<b>No bookings yet</b><span>Your slots will show up here with game, console, time and amount.</span></div>`;
+    popup({ art: I('s-book.webp'), icon: IC.list(), title: 'My bookings', text: 'Saved on this phone.', extra: list,
+      actions: [{ label: 'Close' }, { label: `Book a slot${ARW}`, primary: true, keep: true, run: openBook }] });
+  }
+
+  /* ---------- Scroll reveal (transform + opacity only) ---------- */
+  function buildReveal() {
+    if (reduce || !('IntersectionObserver' in window)) return;
+    $$('main .section:not(.book) .wrap > *, .steps .wrap > *, .hg-games-in > *:not(.hg-live-grid), .hg-con, .hg-hw figure').forEach(el => el.classList.add('rv'));
+    document.documentElement.classList.add('hg-rv');
+    const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { rootMargin: '0px 0px -8% 0px', threshold: .05 });
+    const watch = () => $$('.rv:not(.in)').forEach((el, i) => { if (!el._rv) { el._rv = 1; el.style.transitionDelay = (i % 4) * 60 + 'ms'; io.observe(el); } });
+    watch(); new MutationObserver(watch).observe(document.body, { childList: true, subtree: true });
+  }
+
   let cookieEl;
   /* ---------- In-app update (Android app only; native side calls HGUpdate when /version.json is newer) ---------- */
   IC.update = () => sv('<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/><path d="M12 8v5l3 2"/>', 30);
   window.HGUpdate = (ver, notes) => {
     if ($('.hg-upd')) return;
-    const el = popup({ icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
+    const el = popup({ art: I('wolverine-key-sm.webp'), cls: 'upd', icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
       extra: '<div class="hg-upd"><div class="hg-upd-bar"><i></i></div><small class="hg-upd-st">Takes a few seconds. Your bookings stay saved.</small></div>',
       actions: [{ label: 'Later', run: () => window.HGApp && HGApp.later() },
         { label: `Update now${ARW}`, primary: true, keep: true, run: () => { el.classList.add('upd-busy'); window.HGApp && HGApp.startUpdate(); HGUpdateProgress(0, 'downloading'); } }] });
@@ -366,10 +512,10 @@
     if (pct < 0) sh.classList.remove('upd-busy');
   };
 
-  buildHero(); buildGames(); buildNav(); wireActions(); addAppLinks();
+  buildHero(); buildGames(); buildHardware(); buildLive(); buildReveal(); buildNav(); wireActions(); addAppLinks();
   loginEl = buildLogin(); cookieEl = buildCookie(); fillUser();
   if (IN_APP) document.documentElement.classList.add('in-app');
   if (!store.get('user') && !store.get('guest')) openLogin(); else afterLogin();
 
-  window.HG = { openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, cookie: () => cookieEl.classList.add('on'), hide };
+  window.HG = { ordersPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, cookie: () => cookieEl.classList.add('on'), hide };
 })();

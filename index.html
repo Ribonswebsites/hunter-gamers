@@ -480,7 +480,7 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
 </header>
 
 <main id="top">
-  <section class="hgx" aria-label="Featured games"><div class="hgx-slide on"><div class="hgx-bg"></div></div></section>
+  <section class="hgx" aria-label="Featured games"><div class="hgx-layer hgx-bgs"><div class="hgx-bg clear on"></div></div></section>
   <section class="hero" aria-labelledby="hero-title">
     <div class="wrap hero-grid">
       <div class="hero-copy">
@@ -1303,6 +1303,7 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
     $('#cPayNote').hidden = !notes.length;
     $('#cPayNote').textContent = notes.join(' ');
 
+    window.HG_saveOrder && HG_saveOrder({ code: data.code, kind: rental ? 'rental' : 'session', console: rental ? 'ps5' : state.console, game: window.HG_lastGame || '', date: dkey(dayDate(state.day)), start: state.start, hours: rental ? RENTAL.hours : state.hours, players: rental ? state.ctrls : state.players, amount: data.payable ?? totals().total, status: paidOnline ? 'Paid' : 'Confirmed', at: Date.now() });
     form.hidden = true; confirmEl.hidden = false;
     goBook();
     $('#confirmTitle').focus({ preventScroll: true });
@@ -1311,6 +1312,8 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
 
   $('#again').addEventListener('click', () => { resetBooking(); goBook(); });
 
+  // Hooks for the live console board (hg.js): it can feed availability and record finished bookings
+  window.HG_BOOK = { API_URL, API_READY, dkey, dayDate, setAvail: (k, d) => { avail[k] = d; render(); } };
   render();
   loadAvail(state.day);
   setInterval(() => { if (!form.hidden && !document.hidden) { render(); loadAvail(state.day); } }, 30000);
