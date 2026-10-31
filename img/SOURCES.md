@@ -83,7 +83,6 @@ All Steam art is publisher-uploaded store art fetched via IStoreBrowseService/Ge
 ## Round 7 (31 Oct 2026)
 | File | Subject | Official source | Notes |
 |---|---|---|---|
-| c-peter-sm.webp, c-peter-md.webp | Marvel's Spider-Man 2 (Peter Parker, single cutout) | https://cdn.craft.cloud/eceafce0-560a-4eac-b843-eba40951739b/assets/timeline/MSM2_Story_Duo_4k_Legal_2025.jpg (Insomniac Games official 4K art) | Full-body Peter (mid-leap, no clipped limbs) cut with BiRefNet |
 | f-wolverine.webp | Marvel's Wolverine (poster frame) | https://sonyinteractive.com/tachyon/2026/09/Marvels-Wolverine.jpg | 560x760 |
 | x-ps5.webp | PS5 (slim) | https://sonyinteractive.com/tachyon/2025/09/sony-interactive-our-company-products-ps5-slim-fg.png | transparent, 560w |
 | x-ps5duo.webp, x-dualsense.webp | PS5 consoles + DualSense | https://sonyinteractive.com/tachyon/2025/09/sie-our-company-fast-facts-04-playstation-5-ps5-slim-disc.png | DualSense cut out of the right controller |
@@ -108,3 +107,19 @@ All Steam art is publisher-uploaded store art fetched via IStoreBrowseService/Ge
 | k-re9, k-ds2, k-fc26, k-bo7 | RE Requiem, Death Stranding 2, FC 26, Black Ops 7 | official Steam titled capsule over darkened official library hero / page background |
 | p-er, p-cp, p-rdr2, p-dg, p-re4 | Elden Ring, Cyberpunk 2077, RDR2, Days Gone, RE4 | Steam library_600x900_2x.jpg (appids 1245620, 1091500, 1174180, 1259420, 2050650) |
 | r-bookings, r-app, r-ps4 | Gran Turismo 7, Astro Bot, God of War (PS4) | sonyinteractive.com/tachyon Games_Gran-Turismo-7.jpg (2026/09), Games_Astro-Bot.jpg, Games_God-of-War.jpg (2025/02) |
+
+
+## Round 9 (31 Oct 2026)
+
+| File | Game | Source | Notes |
+|---|---|---|---|
+| c-peter-sm.webp, c-peter-md.webp | Marvel's Spider-Man 2 (red/blue suit, mid-swing) | Extracted from the owner's phone screenshot (01M694REDB797JTHP3V1PFD2FE.png); official original file not located | 2x Lanczos + unsharp, BiRefNet cutout; flat-cropped head top rounded with an alpha mask |
+| c-spidey-feature.webp | Marvel's Spider-Man 2 (symbiote spider-arms) | Earlier site asset img/spidey2-cutout.webp (git 86350cb^) | Alpha thresholded, side edges feathered |
+| r-account | Ghost of Yotei | sonyinteractive.com/tachyon/2025/05/Games_Ghost-of-Yotei-2.jpg | |
+| r-choose | Destiny 2 | sonyinteractive.com/tachyon/2026/09/Games_Destiny2-1.jpg | |
+| r-ps5 | God of War (Laufey) | sonyinteractive.com/tachyon/2026/09/Games_God-of-War-Laufey.jpg | |
+| r-rent | Marvel's Spider-Man: Miles Morales | insomniac.games cdn.craft.cloud .../home-vision-mission/MSMMM_Hero_CenterLegal_2025.jpg | |
+| r-snack | Marvel's Spider-Man Remastered | insomniac.games cdn.craft.cloud .../timeline/MSMR_Heroic_Legal_2025.jpg | |
+| r-snacks | Grand Theft Auto VI | rockstargames.com/VI Jason_Lucia_Lock_And_Load_With_Logos | |
+| r-ctl | Marvel's Spider-Man 2 | https://cdn.craft.cloud/eceafce0-560a-4eac-b843-eba40951739b/assets/games/MSM2_Reveal_Attack_4k_Legal_2025.jpg | Control room page header |
+| p-sek | Sekiro: Shadows Die Twice | Steam app 814380 library_600x900_2x | replaces Black Ops 7 (no capsule available) |

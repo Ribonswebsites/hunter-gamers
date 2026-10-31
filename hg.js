@@ -6,8 +6,8 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n;
-  const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}-sm.webp`));
+  const I = n => '/img/' + n + '?v=9';
+  const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
   const IC = {
@@ -92,9 +92,9 @@
     hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
     // Separate layers (not per-slide wrappers) so fading never creates a stacking context that lets the ring pass in front.
     hx.innerHTML = `<div class="hgx-layer hgx-bgs">${SLIDES.map((s, i) => `<div class="hgx-bg${s.clear ? ' clear' : ''}${i ? '' : ' on'}"${i ? '' : ` style="background-image:url(${bgSrc(s)})"`}></div>`).join('')}</div>
-      <div class="hgx-ring r2"></div><div class="hgx-ring r1"></div>
+      <div class="hgx-ring r1"></div>
       <div class="hgx-layer hgx-subs">${SLIDES.map((s, i) => s.pop
-        ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}"><span class="frame" style="background-image:url(${I(s.pop + '.webp')})"></span><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
+        ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}"><span class="tear"><i class="lip"></i><i class="hole"></i></span><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
         : `<img class="hgx-subject hgx-subject-w${i ? '' : ' on'}" ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async">`).join('')}</div>
       ${SLIDES.map((s, i) => `<div class="hgx-copy${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
@@ -110,30 +110,30 @@
       const im = subs[i].tagName === 'IMG' ? subs[i] : $('img', subs[i]); if (im.dataset.src) { im.src = im.dataset.src; delete im.dataset.src; }
     }));
     function mkRing(el, ids, n) { const cs = []; for (let i = 0; i < n; i++) { const c = document.createElement('div'); c.className = 'hgx-card'; if (ids) c.style.backgroundImage = `url(${I(ids[i] + '.webp')})`; el.append(c); cs.push(c); } return cs; }
-    const ring1 = $('.hgx-ring.r1', hx), ring2 = $('.hgx-ring.r2', hx);
-    const N = 9, cards = mkRing(ring1, null, N), cards2 = mkRing(ring2, PIDS2.map(p => 'q-' + p), PIDS2.length);
+    const ring1 = $('.hgx-ring.r1', hx);
+    const N = 9, cards = mkRing(ring1, null, N);
     let auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, R2 = 0, step = 0, step2 = 0, busy = false;
     const DUR = 6500;
-    function fillRing() { const HERO = SLIDES.map(x => x.id), others = PIDS.concat(['er', 'cp', 'rdr2', 'dg', 're4']).filter(p => !HERO.includes(p)); cards.forEach((c, i) => { c.style.backgroundImage = `url(${I('p-' + others[(i + cur) % others.length] + '.webp')})`; }); }
+    function fillRing() { const HERO = SLIDES.map(x => x.id), others = ['re9', 'got', 'ds2', 'er', 'cp', 'rdr2', 'dg', 'sek', 're4'].filter(p => !HERO.includes(p)); cards.forEach((c, i) => { c.style.backgroundImage = `url(${I('p-' + others[(i + cur) % others.length] + '.webp')})`; }); }
     function measure() {
-      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); R2 = Math.min(w * 0.36, 520); step = Math.PI * 2 / N; step2 = Math.PI * 2 / cards2.length;
-      const cw = Math.max(84, Math.min(160, w * 0.12));
-      ring1.style.setProperty('--cw', cw + 'px'); ring2.style.setProperty('--cw', cw * 0.68 + 'px');
+      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / N;
+      const cw = Math.max(96, Math.min(170, w * 0.12));
+      ring1.style.setProperty('--cw', cw + 'px');
     }
     function place(cs, rot, st, rad) {
       for (let i = 0; i < cs.length; i++) {
         const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
         cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,${(c * rad * 0.55).toFixed(1)}px) rotateY(${(s * -38).toFixed(1)}deg) scale(${(0.72 + d * 0.38).toFixed(3)})`;
-        cs[i].style.opacity = (0.2 + d * 0.8).toFixed(2);
+        cs[i].style.zIndex = Math.round(d * 100); cs[i].style.filter = d < 0.3 ? `brightness(${(0.55 + d * 1.5).toFixed(2)})` : '';
       }
     }
-    function layout() { place(cards, auto + drag, step, R); place(cards2, -auto * 0.8 - drag * 0.6 + 0.35, step2, R2); }
+    function layout() { place(cards, auto + drag, step, R); }
     function go(i) {
       const next = (i + SLIDES.length) % SLIDES.length; if (next === cur || busy) { t0 = performance.now(); return; }
       busy = true; t0 = performance.now(); lastP = 0;
       ensure(next).then(() => requestAnimationFrame(() => {
         const prev = cur; cur = next; fillRing();
-        bgs.forEach((b, j) => b.classList.toggle('on', j === cur));
+        bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear);
         subs[prev].classList.remove('on'); subs[prev].classList.add('out');
         setTimeout(() => subs[prev].classList.remove('out'), 700);
         subs[cur].classList.remove('out'); subs[cur].classList.add('on');
@@ -142,7 +142,7 @@
         ensure((cur + 1) % SLIDES.length); // preload the next slide while this one plays
       }));
     }
-    measure(); fillRing(); layout();
+    hx.classList.toggle('clr', !!SLIDES[0].clear); measure(); fillRing(); layout();
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
     addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; }, { passive: true });
@@ -153,8 +153,8 @@
     let running = false, lastP = 0;
     function loop() { if (!running) { running = true; requestAnimationFrame(tick); } }
     function tick(now) {
-      if (!visible || document.hidden) { running = false; return; }
-      if (!reduce) auto += 0.0033; layout();
+      if (!visible || document.hidden) { running = false; tick.l = 0; return; }
+      const dt = Math.min(50, now - (tick.l || now)); tick.l = now; if (!reduce) auto += dt * 0.00018; layout();
       lastP = Math.min(1, (now - t0) / DUR); prog.style.transform = `scaleX(${lastP.toFixed(4)})`;
       if (lastP >= 1 && !reduce) go(cur + 1);
       requestAnimationFrame(tick);
@@ -186,27 +186,50 @@
     const sp = SPOT.map(id => GAMES.find(g => g.id === id));
     sec.innerHTML = `<div class="hg-games-in"><p class="hg-eyebrow rv">On our consoles</p><h2 id="games-title" class="rv">Games available to play</h2>
       <p class="hg-games-sub rv">Featured this week. Swipe the shelf for everything else.</p>
-      <div class="hg-spot rv" aria-roledescription="carousel">
-        ${sp.map((g, i) => `<div class="hg-spot-s${i ? '' : ' on'}" data-i="${i}"><span class="art" ${i ? 'data-bg' : 'style="background-image:url(' + I('k-' + g.id + '.webp') + ')" data-x'}="${I('k-' + g.id + '.webp')}"></span>
-          <div class="txt"><small>${g.soon ? '<i class="soon">Coming soon</i>' : ''}${g.tag}</small><h3>${g.name}</h3><p>${g.blurb}</p>
-          <button class="hg-btn ${g.soon ? 's' : 'p'}" data-game="${g.id}">${g.soon ? 'Ask about launch day' : 'Book this game'}${ARW}</button></div></div>`).join('')}
-        <div class="hg-spot-dots">${sp.map((_, i) => `<button aria-label="Show ${sp[i].name}" data-d="${i}"${i ? '' : ' class="on"'}><i></i></button>`).join('')}</div>
+      <div class="hg-cf rv" aria-roledescription="carousel" aria-label="Featured games">
+        <div class="hg-cf-bg">${sp.map((g, i) => `<span data-bg="${I('k-' + g.id + '.webp')}"${i ? '' : ' class="on" style="background-image:url(' + I('k-' + g.id + '.webp') + ')"'}></span>`).join('')}</div>
+        <div class="hg-cf-stage">${sp.map((g, i) => `<button class="hg-cf-card" data-i="${i}" aria-label="${g.name}"><img src="${I('p-' + g.id + '.webp')}" alt="" decoding="async"${i < 3 ? '' : ' loading="lazy"'}><i class="sh"></i></button>`).join('')}</div>
+        <div class="hg-cf-info">${sp.map((g, i) => `<div class="hg-cf-t${i ? '' : ' on'}"><div class="hg-cf-chips"><span>${g.tag}</span>${g.soon ? '<span class="y">Coming soon</span>' : '<span>Up to 4 players</span><span>From ₹${/PS4/.test(g.tag) ? 75 : 100} / hr</span>'}</div><h3>${g.name}</h3><p>${g.blurb}</p></div>`).join('')}
+          <div class="hg-cf-row"><button class="hg-btn p hg-cf-go" data-game="${sp[0].id}">Book this game${ARW}</button>
+          <div class="hg-cf-dial" aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="p" cx="22" cy="22" r="19" pathLength="1"/></svg><b>01</b><small>/${String(sp.length).padStart(2, '0')}</small></div></div></div>
       </div>
       <div class="hg-shelf rv" tabindex="0" aria-label="All games">${GAMES.map(g => `<button class="hg-post" data-game="${g.id}" aria-label="${g.name}"><span class="pi"><img loading="lazy" decoding="async" src="${I('p-' + g.id + '.webp')}" alt="">${g.soon ? '<span class="soon">Coming soon</span>' : ''}</span><b>${g.name}</b><small>${g.tag}</small></button>`).join('')}</div></div>`;
     const after = $('#how') || $('#consoles');
     after ? after.after(sec) : $('#top').append(sec);
     sec.addEventListener('click', e => { const b = e.target.closest('[data-game]'); if (b) gamePopup(GAMES.find(g => g.id === b.dataset.game)); });
-    const ss = $$('.hg-spot-s', sec), ds = $$('[data-d]', sec); let cur = 0, timer;
-    const load = i => { const a = $('.art', ss[i]); if (a.dataset.bg) { a.style.backgroundImage = `url(${a.dataset.bg})`; delete a.dataset.bg; } };
-    const to = n => { n = (n + ss.length) % ss.length; if (n === cur) return; load(n); ss[cur].classList.remove('on'); ss[cur].classList.add('was'); const p = ss[cur]; setTimeout(() => p.classList.remove('was'), 900);
-      ss[n].classList.add('on'); ds[cur].classList.remove('on'); ds[n].classList.add('on'); cur = n; load((n + 1) % ss.length); };
-    const play = () => { clearInterval(timer); if (!reduce) timer = setInterval(() => { if (!document.hidden && vis) to(cur + 1); }, 5200); };
-    let vis = false; new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis) load(1); }).observe($('.hg-spot', sec));
-    ds.forEach(d => d.onclick = () => { to(+d.dataset.d); play(); });
-    let sx = null; const spot = $('.hg-spot', sec);
-    spot.addEventListener('touchstart', e => sx = e.touches[0].clientX, { passive: true });
-    spot.addEventListener('touchend', e => { if (sx == null) return; const dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) { to(cur + (dx < 0 ? 1 : -1)); play(); } sx = null; });
-    play();
+    const cf = $('.hg-cf', sec), cs = $$('.hg-cf-card', cf), bgs = $$('.hg-cf-bg span', cf), ts = $$('.hg-cf-t', cf), go = $('.hg-cf-go', cf), dial = $('.hg-cf-dial', cf), n = cs.length;
+    let pos = 0, vel = 0, target = 0, cur = 0, drag = null, last = 0, t0 = performance.now(), vis = false, raf = 0;
+    const wrap = x => ((x % n) + n) % n;
+    const setCur = i => { if (i === cur) return; cur = i;
+      bgs.forEach((b, j) => { if (j === i && b.dataset.bg) { b.style.backgroundImage = `url(${b.dataset.bg})`; delete b.dataset.bg; } b.classList.toggle('on', j === i); });
+      ts.forEach((t, j) => t.classList.toggle('on', j === i)); go.dataset.game = SPOT[i]; const g = GAMES.find(x => x.id === SPOT[i]);
+      go.className = 'hg-btn ' + (g.soon ? 's' : 'p') + ' hg-cf-go'; go.innerHTML = (g.soon ? 'Ask about launch day' : 'Book this game') + ARW; $('b', dial).textContent = String(i + 1).padStart(2, '0'); };
+    function render() {
+      const W = cf.clientWidth, cw = Math.min(W * 0.5, 260);
+      cs.forEach((c, i) => { let o = i - pos; o -= Math.round(o / n) * n; const a = Math.abs(o);
+        c.style.transform = `translate3d(${(Math.sign(o) * Math.min(a, 1) * cw * 0.62 + o * cw * 0.2).toFixed(1)}px,0,${(-a * 160).toFixed(0)}px) rotateY(${(-Math.max(-1, Math.min(1, o)) * 52).toFixed(1)}deg) scale(${(1 - Math.min(a, 2.5) * 0.06).toFixed(3)})`;
+        c.style.zIndex = 100 - Math.round(a * 10); c.style.visibility = a > 3.2 ? 'hidden' : ''; c.classList.toggle('on', a < 0.5); $('.sh', c).style.opacity = Math.min(1, a * 0.55).toFixed(2); });
+      setCur(wrap(Math.round(pos)));
+    }
+    function tick(now) {
+      raf = 0; const dt = Math.min(48, now - (last || now)); last = now;
+      if (drag == null) { const k = 1 - Math.pow(0.0009, dt / 1000 * 4); pos += (target - pos) * k; }
+      render();
+      const p = reduce ? 0 : Math.min(1, (now - t0) / 5600); $('.p', dial).style.strokeDashoffset = (1 - p).toFixed(4);
+      if (p >= 1 && drag == null && vis) { target = Math.round(target) + 1; t0 = now; }
+      if (vis && !document.hidden) raf = requestAnimationFrame(tick); else last = 0;
+    }
+    const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis) { t0 = performance.now(); kick(); } }).observe(cf);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && vis) kick(); });
+    let sx = 0, lx = 0, lt = 0, moved = 0;
+    cf.addEventListener('pointerdown', e => { if (e.target.closest('.hg-cf-info')) return; drag = pos; sx = lx = e.clientX; lt = performance.now(); vel = 0; moved = 0; kick(); });
+    addEventListener('pointermove', e => { if (drag == null) return; const now = performance.now(), dx = e.clientX - lx; vel = dx / Math.max(1, now - lt); lx = e.clientX; lt = now; moved = e.clientX - sx;
+      pos = drag - moved / (cf.clientWidth * 0.42); kick(); }, { passive: true });
+    addEventListener('pointerup', () => { if (drag == null) return; drag = null; target = Math.round(pos - vel * 2.2); t0 = performance.now(); kick(); });
+    cs.forEach((c, i) => c.addEventListener('click', e => { e.stopPropagation(); if (Math.abs(moved) > 8) return; let o = i - pos; o -= Math.round(o / n) * n;
+      if (Math.abs(o) < 0.5) gamePopup(GAMES.find(g => g.id === SPOT[i])); else { target = Math.round(pos + o); t0 = performance.now(); kick(); } }));
+    render();
   }
   function gamePopup(g) {
     window.HG_lastGame = g.name;
@@ -230,37 +253,37 @@
   function buildNav() {
     const n = document.createElement('nav'); n.className = 'hg-nav'; n.setAttribute('aria-label', 'App');
     n.innerHTML = `<a href="#top" data-sec="top" class="on">${svg(ico.home)}Home</a>
-      <button data-hg-console data-sec="consoles">${svg(ico.pad)}Consoles</button>
+      <a href="#control" data-route="control" data-sec="live">${IC.live(22)}Live</a>
       <button class="fab" data-hg-book aria-label="Book a slot"><span class="b">${svg(ico.plus)}</span>Book</button>
       <button data-hg-snacks data-sec="snacks">${svg(ico.snack)}Snacks</button>
       <button data-hg-account>${svg(ico.user)}<span data-acct-label>Login</span></button>`;
     document.body.append(n);
     const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) $$('[data-sec]', n).forEach(a => a.classList.toggle('on', a.dataset.sec === e.target.id)); }), { rootMargin: '-45% 0px -50% 0px' });
-    ['top', 'consoles', 'rent', 'snacks', 'visit'].forEach(id => { const s = document.getElementById(id); s && io.observe(s); });
+    ['top', 'live', 'rent', 'snacks', 'visit'].forEach(id => { const s = document.getElementById(id); s && io.observe(s); });
   }
 
   /* ---------- Popups for every action ---------- */
   const CONS = { ps5: { n: 'PS5', r: 100, img: 'card-06.webp', d: '4K graphics, DualSense haptics, fast loading.' }, ps4: { n: 'PS4', r: 75, img: 'card-02.webp', d: 'Huge library of classics. Best value for groups.' } };
   function consolePopup(id) {
     const c = CONS[id];
-    popup({ art: I(id === 'ps5' ? 'x-ps5duo.webp' : 'r-ps4.webp'), icon: id === 'ps5' ? IC.bolt() : IC.pad(), title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
+    popup({ art: I(id === 'ps5' ? 'r-ps5.webp' : 'r-ps4.webp'), icon: id === 'ps5' ? IC.bolt() : IC.pad(), title: `${c.n} · ₹${c.r} per player / hour`, text: c.d,
       extra: liveChips(id),
       actions: [{ label: 'Not now' }, { label: `Book ${c.n}${ARW}`, primary: true, keep: true, run: () => document.querySelector(`[data-pick="${id}"]`)._hgReal() }] });
   }
   function chooseConsole() {
-    popup({ art: I('x-ps5duo.webp'), icon: IC.joy(), title: 'Pick your console', text: 'Rates are per player, per hour. Up to 4 players.', extra: liveChips(),
+    popup({ art: I('r-choose.webp'), icon: IC.joy(), title: 'Pick your console', text: 'Rates are per player, per hour. Up to 4 players.', extra: liveChips(),
       actions: [{ label: 'PS4 · ₹75', keep: true, run: () => consolePopup('ps4') }, { label: 'PS5 · ₹100', primary: true, keep: true, run: () => consolePopup('ps5') }] });
   }
   function rentPopup(real) {
-    popup({ art: I('x-ps5.webp'), cls: 'contain', icon: IC.home(), title: 'Take a PS5 home', text: '₹1,000 for 12 hours with 2 controllers. Extra controller ₹200 (up to 4). ₹1,000 refundable deposit. Pick up and return at the shop.',
+    popup({ art: I('r-rent.webp'), icon: IC.home(), title: 'Take a PS5 home', text: '₹1,000 for 12 hours with 2 controllers. Extra controller ₹200 (up to 4). ₹1,000 refundable deposit. Pick up and return at the shop.',
       actions: [{ label: 'Cancel' }, { label: `Rent a PS5${ARW}`, primary: true, keep: true, run: real }] });
   }
   function snackAdded(name, qty, price) {
-    popup({ art: I('inline-4b8af9d3.webp'), icon: name.startsWith('Chips') ? IC.chips() : IC.drink(), title: `${name} added`, text: `${qty} in your booking · ₹${price} each. Pay together with your slot.`,
+    popup({ art: I('r-snack.webp'), icon: name.startsWith('Chips') ? IC.chips() : IC.drink(), title: `${name} added`, text: `${qty} in your booking · ₹${price} each. Pay together with your slot.`,
       actions: [{ label: 'Keep browsing' }, { label: `View booking${ARW}`, primary: true, keep: true, run: openBook }] });
   }
   function snacksPopup() {
-    popup({ art: I('inline-4b8af9d3.webp'), icon: IC.snack(), title: 'Snacks & drinks', text: 'Add them to your booking and pay for everything together.',
+    popup({ art: I('r-snacks.webp'), icon: IC.snack(), title: 'Snacks & drinks', text: 'Add them to your booking and pay for everything together.',
       actions: [{ label: '+ Chips ₹50', keep: true, run: () => $('[data-add="chips50"]').click() }, { label: '+ Cold drink ₹40', primary: true, keep: true, run: () => $('[data-add="drink"]').click() }] });
   }
   function wireActions() {
@@ -277,7 +300,7 @@
     document.addEventListener('click', e => {
       const t = e.target.closest('[data-hg-orders],[data-hg-book],[data-hg-console],[data-hg-snacks],[data-hg-account],[data-hg-app]');
       if (!t) return; e.preventDefault();
-      if (t.matches('[data-hg-orders]')) ordersPopup();
+      if (t.matches('[data-hg-orders]')) { HG.hide && HG.hide(); location.hash = 'orders'; }
       else if (t.matches('[data-hg-book]')) { const g = document.querySelector('[data-go-book]'); g ? g.click() : openBook(); }
       else if (t.matches('[data-hg-console]')) chooseConsole();
       else if (t.matches('[data-hg-snacks]')) snacksPopup();
@@ -338,7 +361,7 @@
   function accountPopup() {
     const u = store.get('user');
     if (!u) return openLogin();
-    popup({ art: I('k-got.webp'), icon: IC.user(), title: `Hi, ${u.name}`, text: `Bookings are filled with +91 ${u.phone}.`,
+    popup({ art: I('r-account.webp'), icon: IC.user(), title: `Hi, ${u.name}`, text: `Bookings are filled with +91 ${u.phone}.`,
       extra: `<button class="hg-linkrow" data-hg-orders>${IC.list(20)}<span><b>My bookings</b><small>${orders().length ? orders().length + ' saved on this phone' : 'Nothing yet'}</small></span>${IC.right()}</button>`,
       actions: [{ label: 'Log out', run: () => { localStorage.removeItem('hg.user'); fillUser(); } }, { label: `Book a slot${ARW}`, primary: true, keep: true, run: () => { fillUser(); openBook(); } }] });
   }
@@ -434,39 +457,111 @@
     return `<div class="hg-chips"><span class="g"><i></i>${f} of ${cs.length} free now</span><span>Next free ${nf <= now ? 'now' : tfmt(nf)}</span>${LIVE.demo ? '<span class="d">Demo data</span>' : ''}</div>`;
   }
   function buildLive() {
-    const sec = document.createElement('section'); sec.className = 'section hg-live'; sec.id = 'live'; sec.setAttribute('aria-labelledby', 'live-title');
-    sec.innerHTML = `<div class="hg-games-in"><p class="hg-eyebrow rv">${IC.live(14)} Live at the shop</p><h2 id="live-title" class="rv">Console status</h2>
-      <p class="hg-games-sub rv">3 PS5 and 2 PS4. See who is playing, how long is left and the line-up for today. <span class="hg-demo" hidden>Demo data: the live feed switches on with the booking server.</span></p>
-      <div class="hg-live-grid"></div><p class="hg-live-upd"></p></div>`;
+    const sec = document.createElement('section'); sec.className = 'section hg-live hg-live-teaser'; sec.id = 'live'; sec.setAttribute('aria-labelledby', 'live-title');
+    sec.innerHTML = `<div class="hg-games-in"><button class="hg-lt" data-route="control" aria-label="Open the live control room">
+      <span class="hg-lt-top"><span class="hg-eyebrow">${IC.live(14)} Live at the shop</span><span class="hg-lt-demo" hidden>Demo</span></span>
+      <h2 id="live-title">Console status</h2>
+      <span class="hg-lt-st">${RIG.map(r => `<i data-id="${r.id}"><em></em><small>${r.name.replace(' · ', ' ')}</small></i>`).join('')}</span>
+      <span class="hg-lt-sum"></span><span class="hg-lt-go">Open control room${ARW}</span></button></div>`;
     const anchor = $('#games') || $('#consoles'); anchor.after(sec);
-    const grid = $('.hg-live-grid', sec), C = 2 * Math.PI * 26;
     function draw() {
-      if (!LIVE.data) return; const now = Date.now();
-      $('.hg-demo', sec).hidden = !LIVE.demo;
-      $('.hg-live-upd', sec).textContent = `Updated ${tfmt(LIVE.data.updated || now)} · refreshes every 15 s`;
-      const cs = LIVE.data.consoles.map(c => derive(c, now));
-      if (grid.children.length !== cs.length) grid.innerHTML = cs.map(c => `<article class="hg-con rv" data-id="${c.id}"><div class="top"><svg class="ring" viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="26"/><circle class="p" cx="30" cy="30" r="26" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
-        ${c.type === 'ps5' ? `<img src="${I('x-ps5.webp')}" alt="" class="ps5">` : `<span class="ps4i">${IC.pad(24)}</span>`}<div><b>${c.name}</b><span class="pill"></span></div></div><p class="cd"></p><ol class="q"></ol><p class="nf"></p></article>`).join('');
-      cs.forEach(c => {
-        const el = $(`[data-id="${c.id}"]`, grid); el.dataset.st = c.st;
-        $('.pill', el).textContent = { free: 'Free', playing: 'Playing', reserved: 'Reserved' }[c.st];
-        const pct = c.cur ? (now - c.cur.start) / (c.cur.end - c.cur.start) : 0;
-        $('.ring .p', el).style.strokeDashoffset = C * (1 - pct);
-        $('.cd', el).innerHTML = c.st === 'playing' ? `<b>${left(c.cur.end - now)}</b> left · ${c.cur.players} ${c.cur.players > 1 ? 'players' : 'player'}` : c.st === 'reserved' ? `Booked from <b>${tfmt(c.nxt[0].start)}</b>` : '<b>Walk in and play</b>';
-        $('.q', el).innerHTML = c.nxt.slice(0, 3).map(b => `<li><span>${tfmt(b.start)} – ${tfmt(b.end)}</span><small>${b.players} ${b.players > 1 ? 'players' : 'player'}</small></li>`).join('') || '<li class="e">No more bookings today</li>';
-        $('.nf', el).innerHTML = `Next free slot <b>${c.free <= now ? 'now' : tfmt(c.free)}</b>`;
-      });
+      if (!LIVE.data) return; const now = Date.now(), cs = LIVE.data.consoles.map(c => derive(c, now));
+      $('.hg-lt-demo', sec).hidden = !LIVE.demo;
+      cs.forEach(c => { const el = $(`[data-id="${c.id}"]`, sec); if (el) el.dataset.st = c.st; });
+      const fr = cs.filter(c => c.st === 'free').length, nf = Math.min(...cs.map(c => c.free));
+      $('.hg-lt-sum', sec).innerHTML = `<b>${fr}</b> free now<span></span>${fr ? 'Walk in and play' : `Next free <b>${tfmt(nf)}</b>`}`;
+      CTRL.draw && CTRL.draw();
     }
     LIVE.subs.push(draw);
     pull(); setInterval(() => { if (!document.hidden) pull(); }, 15000);
     setInterval(() => { if (!document.hidden) draw(); }, 1000);
   }
 
+  /* ---------- Pages (hash routes: #control, #orders) ---------- */
+  const CTRL = {};
+  const page = (() => { const p = document.createElement('div'); p.className = 'hg-page'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-modal', 'true'); document.body.append(p); return p; })();
+  const ROUTES = { control: renderControl, orders: renderOrders };
+  function route() {
+    const r = location.hash.slice(1);
+    if (ROUTES[r]) { ROUTES[r](); page.scrollTop = 0; page.classList.add('on'); document.documentElement.classList.add('hg-paged'); }
+    else { page.classList.remove('on'); document.documentElement.classList.remove('hg-paged'); CTRL.draw = null; }
+  }
+  addEventListener('hashchange', route);
+  document.addEventListener('click', e => { const r = e.target.closest('[data-route]'); if (r) { e.preventDefault(); HG.hide && HG.hide(); location.hash = r.dataset.route; } });
+  page.addEventListener('click', e => { if (e.target.closest('[data-back]')) { history.length > 1 && /#(control|orders)/.test(location.hash) ? history.back() : (location.hash = ''); } });
+  const pageHead = (art, icon, title, text) => `<header class="hg-ph"><div class="hg-art" style="background-image:url(${art})"></div>
+    <button class="hg-ph-back" data-back aria-label="Back">${IC.left()}</button><div class="hg-ph-t"><span class="hg-ic">${icon}</span><h1>${title}</h1><p>${text}</p></div></header>`;
+
+  function renderControl() {
+    const C = 2 * Math.PI * 34;
+    page.innerHTML = `<div class="hg-pg hg-ctl">${pageHead(I('r-ctl.webp'), IC.live(26), 'Control room', '3 PS5 and 2 PS4 at Hunter Gamers, Indora. Live status, countdowns and today\'s line-up.')}
+      <div class="hg-pg-in"><p class="hg-demo hg-ctl-demo" hidden>Demo data: the live feed switches on with the booking server.</p>
+      <div class="hg-ctl-sum"></div>
+      <div class="hg-floor"><div class="hg-floor-lbl">Shop floor</div>
+        ${RIG.map(r => `<button class="hg-stn" data-id="${r.id}" data-type="${r.type}"><span class="pulse"></span>
+          <svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><circle class="p" cx="40" cy="40" r="34" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
+          <span class="ico">${r.type === 'ps5' ? `<img src="${I('x-ps5.webp')}" alt="">` : IC.pad(26)}</span><b>${r.name}</b><small class="st"></small><small class="cd"></small></button>`).join('')}
+        <div class="hg-floor-desk">Counter</div></div>
+      <h2 class="hg-pg-h">Today's line-up</h2>
+      <div class="hg-gantt"><div class="hg-g-axis"></div>${RIG.map(r => `<div class="hg-g-row" data-id="${r.id}"><span class="n">${r.name.replace(' · ', ' ')}</span><div class="tr"></div></div>`).join('')}<div class="hg-g-now"><i></i></div></div>
+      <p class="hg-live-upd"></p>
+      <button class="hg-btn p hg-pg-cta" data-hg-book>Book a slot${ARW}</button></div></div>`;
+    let built = false;
+    CTRL.draw = () => {
+      if (!LIVE.data) return; const now = Date.now(), cs = LIVE.data.consoles.map(c => derive(c, now));
+      $('.hg-ctl-demo', page).hidden = !LIVE.demo;
+      const n = s => cs.filter(c => c.st === s).length, nf = Math.min(...cs.map(c => c.free));
+      $('.hg-ctl-sum', page).innerHTML = `<span class="g"><b>${n('free')}</b>Free now</span><span class="r"><b>${n('playing')}</b>Playing</span><span class="y"><b>${n('reserved')}</b>Reserved</span><span><b>${nf <= now ? 'Now' : tfmt(nf)}</b>Next free</span>`;
+      cs.forEach(c => { const el = $(`.hg-stn[data-id="${c.id}"]`, page); el.dataset.st = c.st;
+        const pct = c.cur ? (now - c.cur.start) / (c.cur.end - c.cur.start) : c.st === 'free' ? 1 : 0;
+        $('.p', el).style.strokeDashoffset = (C * (1 - pct)).toFixed(1);
+        $('.st', el).textContent = { free: 'Free', playing: 'Playing', reserved: 'Reserved' }[c.st];
+        $('.cd', el).innerHTML = c.st === 'playing' ? `${left(c.cur.end - now)} left` : c.st === 'reserved' ? `from ${tfmt(c.nxt[0].start)}` : 'Walk in'; });
+      const t0 = now - 36e5, t1 = now + 10 * 36e5, X = t => ((t - t0) / (t1 - t0) * 100).toFixed(2) + '%';
+      if (!built) { built = true; const ax = []; for (let h = Math.ceil(t0 / 36e5) * 36e5; h < t1; h += 2 * 36e5) ax.push(`<span style="left:${X(h)}">${tfmt(h).replace(':00', '')}</span>`); $('.hg-g-axis', page).innerHTML = ax.join(''); }
+      cs.forEach(c => { const tr = $(`.hg-g-row[data-id="${c.id}"] .tr`, page);
+        tr.innerHTML = c.queue.filter(b => b.end > t0 && b.start < t1).map(b => `<i class="${b.start <= now && b.end > now ? 'on' : b.end <= now ? 'past' : ''}" style="left:${X(Math.max(b.start, t0))};width:calc(${X(Math.min(b.end, t1))} - ${X(Math.max(b.start, t0))})"><small>${b.players}P</small></i>`).join(''); });
+      $('.hg-g-now', page).style.left = `calc(64px + (100% - 64px) * ${((now - t0) / (t1 - t0)).toFixed(4)})`;
+      $('.hg-live-upd', page).textContent = `Updated ${tfmt(LIVE.data.updated || now)} · refreshes every 15 s`;
+    };
+    CTRL.draw();
+  }
+
+  function renderOrders(filter = 'all') {
+    const now = Date.now(), CN = { ps5: 'PS5', ps4: 'PS4' };
+    const when = o => { const [y, m, d] = (o.date || '1970-01-01').split('-').map(Number); return new Date(y, m - 1, d, o.start || 0).getTime(); };
+    const cat = o => /cancel/i.test(o.status || '') ? 'cancelled' : when(o) + (o.hours || 1) * 36e5 > now ? 'upcoming' : 'completed';
+    const all = orders(), list = all.filter(o => filter === 'all' || cat(o) === filter);
+    const poster = o => { const g = GAMES.find(g => g.name === o.game); return g ? I('p-' + g.id + '.webp') : null; };
+    const live = all.filter(o => cat(o) !== 'cancelled'), spent = live.reduce((s, o) => s + Number(o.amount || 0), 0), hrs = live.reduce((s, o) => s + Number(o.hours || 0), 0);
+    page.innerHTML = `<div class="hg-pg hg-oh">${pageHead(I('r-bookings.webp'), IC.list(26), 'Order history', 'Every booking made on this phone, with codes for the counter.')}
+      <div class="hg-pg-in"><div class="hg-ctl-sum"><span><b>${all.length}</b>Bookings</span><span><b>${hrs}</b>Hours</span><span class="r"><b>₹${spent.toLocaleString('en-IN')}</b>Spent</span></div>
+      <div class="hg-filt" role="tablist">${[['all', 'All'], ['upcoming', 'Upcoming'], ['completed', 'Completed'], ['cancelled', 'Cancelled']].map(([k, l]) => `<button role="tab" data-f="${k}" class="${k === filter ? 'on' : ''}" aria-selected="${k === filter}">${l}<em>${k === 'all' ? all.length : all.filter(o => cat(o) === k).length}</em></button>`).join('')}</div>
+      ${list.length ? `<ul class="hg-oc">${list.map(o => { const c = cat(o), p = poster(o), d = new Date(when(o));
+        return `<li data-c="${c}"><span class="th"${p ? ` style="background-image:url(${p})"` : ''}>${p ? '' : IC.pad(26)}</span><div class="bd">
+          <div class="r1"><b>${o.game || (o.kind === 'rental' ? 'PS5 home rental' : 'Gaming session')}</b><span class="s ${c}">${c === 'upcoming' ? 'Upcoming' : c === 'cancelled' ? 'Cancelled' : 'Completed'}</span></div>
+          <small>${CN[o.console] || ''} · ${o.hours} h · ${o.players ? o.players + ' players · ' : ''}${d.toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' })} · ${tfmt(d)}</small>
+          <div class="r2"><code>#${o.code || '—'}</code><b>₹${Number(o.amount || 0).toLocaleString('en-IN')}</b><button class="hg-btn s" data-hg-book>Rebook</button></div></div></li>`; }).join('')}</ul>`
+      : `<div class="hg-empty hg-oh-empty">${IC.pad(46)}<b>${filter === 'all' ? 'No bookings yet' : 'Nothing here'}</b><span>${filter === 'all' ? 'Book your first slot and it will show up here with game, console, time and amount.' : 'No ' + filter + ' bookings on this phone.'}</span><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button></div>`}
+      </div></div>`;
+    $$('[data-f]', page).forEach(b => b.onclick = () => renderOrders(b.dataset.f));
+  }
+
+
   /* ---------- Official PS5 hardware strip (Sony Interactive press images) ---------- */
+  function buildFeature() {
+    const g = $('#games'); if (!g) return;
+    const d = document.createElement('section'); d.className = 'hg-feat'; d.setAttribute('aria-label', "Marvel's Spider-Man 2");
+    d.innerHTML = `<div class="hg-feat-in"><img class="hg-feat-cut rv" src="${I('c-spidey-feature.webp')}" alt="Spider-Man" loading="lazy" decoding="async">
+      <div class="hg-feat-txt rv"><p class="hg-eyebrow">Marvel's Spider-Man 2 · PS5</p><h2>Suit up. <span>Swing in.</span></h2>
+      <p>Play the full campaign on our PS5s, at the shop, by the hour.</p><button class="hg-btn p" data-game="sm2">Book this game${ARW}</button></div></div>`;
+    g.after(d);
+    d.addEventListener('click', e => { if (e.target.closest('[data-game]')) gamePopup(GAMES.find(x => x.id === 'sm2')); });
+  }
   function buildHardware() {
     const c = $('#consoles'); if (!c) return;
     const d = document.createElement('div'); d.className = 'hg-hw';
-    d.innerHTML = [['x-ps5.webp', 'PS5', 'Ultra-fast SSD loading and 3D audio.', 'cut'], ['x-dualsense.webp', 'DualSense', 'Haptic feedback and adaptive triggers you feel.', 'cut']]
+    d.innerHTML = [['x-ps5.webp', 'PS5', 'Fast SSD loading, 3D audio.', 'cut'], ['x-dualsense.webp', 'DualSense', 'Haptics you can feel.', 'cut']]
       .map(([img, t, p, cut]) => `<figure class="rv${cut ? ' cut' : ''}"><img loading="lazy" decoding="async" src="${I(img)}" alt="${t}"><figcaption><b>${t}</b><span>${p}</span></figcaption></figure>`).join('');
     ($('.wrap', c) || c).append(d);
   }
@@ -480,7 +575,7 @@
     const list = a.length ? `<ul class="hg-orders">${a.map(o => `<li><div class="l"><b>${o.game || (o.kind === 'rental' ? 'PS5 home rental' : 'Gaming session')}</b><small>${CN[o.console] || ''} · ${o.hours} h · ${fmtD(o.date, o.start)}</small><small class="c">#${o.code || ''}</small></div><div class="r"><b>₹${Number(o.amount || 0).toLocaleString('en-IN')}</b><span class="s ${(o.status || '').toLowerCase()}">${o.status}</span></div></li>`).join('')}</ul>`
       : `<div class="hg-empty">${IC.pad(40)}<b>No bookings yet</b><span>Your slots will show up here with game, console, time and amount.</span></div>`;
     popup({ art: I('r-bookings.webp'), icon: IC.list(), title: 'My bookings', text: 'Saved on this phone.', extra: list,
-      actions: [{ label: 'Close' }, { label: `Book a slot${ARW}`, primary: true, keep: true, run: openBook }] });
+      actions: [{ label: 'Full history', run: () => { location.hash = 'orders'; } }, { label: `Book a slot${ARW}`, primary: true, keep: true, run: openBook }] });
   }
 
   /* ---------- Scroll reveal (transform + opacity only) ---------- */
@@ -512,7 +607,7 @@
     if (pct < 0) sh.classList.remove('upd-busy');
   };
 
-  buildHero(); buildGames(); buildHardware(); buildLive(); buildReveal(); buildNav(); wireActions(); addAppLinks();
+  buildHero(); buildGames(); buildFeature(); buildHardware(); buildLive(); buildReveal(); route(); buildNav(); wireActions(); addAppLinks();
   loginEl = buildLogin(); cookieEl = buildCookie(); fillUser();
   if (IN_APP) document.documentElement.classList.add('in-app');
   if (!store.get('user') && !store.get('guest')) openLogin(); else afterLogin();
