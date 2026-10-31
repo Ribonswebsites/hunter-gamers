@@ -6,7 +6,7 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=10';
+  const I = n => '/img/' + n + '?v=12';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -549,7 +549,8 @@
     FEATS.forEach((f, i) => {
       const d = document.createElement('section'); d.className = 'hg-feat fx-' + f.lay; d.style.setProperty('--glow', f.glow); d.setAttribute('aria-label', f.alt);
       const pics = f.bg.map((b, k) => `<div class="fx-p fx-p${k}"><img src="${I(b + '.webp')}" alt="" loading="lazy" decoding="async"></div>`).join('');
-      d.innerHTML = `<div class="fx-art">${pics}<img class="hg-feat-cut" src="${I(f.img)}" alt="${f.alt}" loading="lazy" decoding="async"></div>
+      if (f.lay === 'plain') { d.className = 'hg-feat'; d.innerHTML = `<div class="hg-feat-in"><img class="hg-feat-cut" src="${I(f.img)}" alt="${f.alt}" loading="lazy" decoding="async"><div class="hg-feat-txt"><p class="hg-eyebrow">${f.kick}</p><h2>${f.h}</h2><p>${f.p}</p><button class="hg-btn p" data-feat="${f.id}">Book this game${ARW}</button></div></div>`; }
+      else d.innerHTML = `<div class="fx-art">${pics}<img class="hg-feat-cut" src="${I(f.img)}" alt="${f.alt}" loading="lazy" decoding="async"></div>
         <div class="hg-feat-txt"><p class="hg-eyebrow">${f.kick}</p><h2>${f.h}</h2>
         <p>${f.p}</p><button class="hg-btn p" data-feat="${f.id}">Book this game${ARW}</button></div>`;
       at.after(d); at = d;
@@ -626,5 +627,5 @@
   if (!store.get('user') && !store.get('guest')) openLogin(); else afterLogin();
   selfUpdateCheck();
 
-  window.HG = { ordersPopup, gamePopup, games: () => GAMES, snacksPopup, accountPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, cookie: () => cookieEl.classList.add('on'), hide };
+  window.HG = { ordersPopup, gamePopup, games: () => GAMES, snacksPopup, accountPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, rentPopup, cookie: () => cookieEl.classList.add('on'), hide };
 })();

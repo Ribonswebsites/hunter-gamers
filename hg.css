@@ -516,14 +516,14 @@ html.hg-paged body{overflow:hidden}html.hg-paged .hg-nav{z-index:95}
 .hgx-pop{top:auto!important;bottom:calc(330px + env(safe-area-inset-bottom));width:min(88vw,520px)!important}
 @media (min-width:900px){.hgx-pop{bottom:18%}}
 /* --- Round 13: feature layouts (2D only, WebView-safe) --- */
-.hg-feat{padding:0 0 44px!important;background:#0B0809!important}
+.hg-feat[class*=fx-]{padding:0 0 44px!important;background:#0B0809!important}
 .hg-feat .fx-art{position:relative;height:440px;margin:0 0 6px}
 .hg-feat .fx-p{position:absolute;overflow:hidden;background:#111}
 .hg-feat .fx-p img{width:100%;height:100%;object-fit:cover;display:block}
-.hg-feat .hg-feat-cut{position:absolute;z-index:4;margin:0!important;filter:drop-shadow(0 24px 30px rgba(0,0,0,.75))}
-.hg-feat .hg-feat-txt{position:relative;z-index:5;padding:0 18px;max-width:640px;margin:0 auto;text-align:left!important}
-.hg-feat .hg-feat-txt h2{text-transform:uppercase;letter-spacing:.01em;font-size:clamp(32px,8.6vw,58px);line-height:.96}
-.hg-feat .hg-eyebrow{font:700 11px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase}
+.hg-feat[class*=fx-] .hg-feat-cut{position:absolute;z-index:4;margin:0!important;filter:drop-shadow(0 24px 30px rgba(0,0,0,.75))}
+.hg-feat[class*=fx-] .hg-feat-txt{position:relative;z-index:5;padding:0 18px;max-width:640px;margin:0 auto;text-align:left!important}
+.hg-feat[class*=fx-] .hg-feat-txt h2{text-transform:uppercase;letter-spacing:.01em;font-size:clamp(32px,8.6vw,58px);line-height:.96}
+.hg-feat[class*=fx-] .hg-eyebrow{font:700 11px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase}
 /* 1 bleed: full-bleed backdrop, two framed panels, cutout breaks the frame */
 .fx-bleed .fx-p0{inset:0 0 40px 0;clip-path:polygon(0 0,100% 0,100% 86%,0 100%)}
 .fx-bleed .fx-p0::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,8,9,.15),rgba(11,8,9,.35) 60%,#0B0809)}
@@ -576,3 +576,9 @@ section[id],footer[id]{scroll-margin-top:78px}
 .hgf-head h2,.hgf-hrs{text-shadow:0 2px 14px rgba(0,0,0,.9)}
 .hgf-map{grid-column:1/-1;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.1);height:190px;background:#151012}
 .hgf-map iframe{width:100%;height:100%;border:0;display:block;filter:grayscale(.2) contrast(1.05)}
+/* r14: no horizontal overflow (content-visibility override removed implicit clipping) */
+html,body{overflow-x:clip;max-width:100%}
+.hg-games,.hg-feat,.hgf{overflow-x:hidden}
+main>section,.section,.hg-games,.hg-feat,.hgx,.hgf,section{overflow-x:clip}
+.fx-bleed .hg-feat-cut{width:116%!important;max-width:none!important;-webkit-mask:none!important;mask:none!important}
+.hg-feat-cut{-webkit-mask:none!important;mask:none!important;opacity:1!important}
