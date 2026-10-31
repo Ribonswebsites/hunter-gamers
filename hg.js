@@ -86,7 +86,7 @@
 
   /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
   const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = '-md';
-  const HIBG = ['gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
+  const HIBG = ['wolverine', 'gta6', 'gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
   const bgSrc = s => HIBG.includes(s.id) ? I((MOB ? 't-' : 'w-') + s.id + '.webp') : I(s.bg + (s.id === 'wolverine' || s.id === 'gta6' ? '-md' : (MOB ? '-sm' : BIG)) + '.webp');
   const cutSrc = s => I('c-' + (s.cut || s.id) + CUT + '.webp');
   function buildHero() {
@@ -539,18 +539,19 @@
 
   /* ---------- Official PS5 hardware strip (Sony Interactive press images) ---------- */
   const FEATS = [
-    { id: 'sm2', img: 'c-spidey-feature.webp', alt: 'Spider-Man', kick: "Marvel's Spider-Man 2 · PS5", h: 'Suit up. <span>Swing in.</span>', p: 'Play the full campaign on our PS5s, at the shop, by the hour.', glow: '251,36,28' },
-    { id: 'gow', img: 'f-kratos.webp', alt: 'Kratos and Atreus', kick: 'God of War · PS5 · PS4', h: 'Father. <span>Son. War.</span>', p: 'Kratos and Atreus take on the Norse realms. Big screen, surround sound, controller in hand.', glow: '64,156,255' },
-    { id: 'got', img: 'f-jin.webp', alt: 'Jin Sakai', kick: "Ghost of Tsushima Director's Cut · PS5 · PS4", h: 'Become <span>the Ghost.</span>', p: 'Draw your blade as Jin Sakai in feudal Japan. Stunning on our PS5s.', glow: '232,176,74' },
-    { id: 'smm', img: 'f-miles.webp', alt: 'Miles Morales', kick: "Marvel's Spider-Man: Miles Morales · PS5", h: 'Be yourself. <span>Be Spider-Man.</span>', p: 'Venom blasts, camouflage and Harlem at Christmas. Swing by for a session.', glow: '160,82,255' },
+    { id: 'sm2', lay: 'bleed', img: 'c-spidey-feature.webp', alt: 'Spider-Man', bg: ['fx-sm2-bg', 'fx-sm2-a', 'fx-sm2-b'], kick: "Marvel's Spider-Man 2 · PS5", h: 'Suit up. <span>Swing in.</span>', p: 'Play the full campaign on our PS5s, at the shop, by the hour.', glow: '251,36,28' },
+    { id: 'gow', lay: 'collage', img: 'f-kratos.webp', alt: 'Kratos and Atreus', bg: ['fx-gow-a', 'fx-gow-b', 'fx-gow-c'], kick: 'God of War · PS5 · PS4', h: 'Father. <span>Son. War.</span>', p: 'Kratos and Atreus take on the Norse realms. Big screen, surround sound, controller in hand.', glow: '64,156,255' },
+    { id: 'got', lay: 'split', img: 'f-jin.webp', alt: 'Jin Sakai', bg: ['fx-got-a', 'fx-got-b', 'fx-got-c'], kick: "Ghost of Tsushima Director's Cut · PS5 · PS4", h: 'Become <span>the Ghost.</span>', p: 'Draw your blade as Jin Sakai in feudal Japan. Stunning on our PS5s.', glow: '232,176,74' },
+    { id: 'smm', lay: 'stack', img: 'f-miles.webp', alt: 'Miles Morales', bg: ['fx-smm-a', 'fx-smm-b', 'fx-smm-c'], kick: "Marvel's Spider-Man: Miles Morales · PS5", h: 'Be yourself. <span>Be Spider-Man.</span>', p: 'Venom blasts, camouflage and Harlem at Christmas. Swing by for a session.', glow: '160,82,255' },
   ];
   function buildFeature() {
     let at = $('#games'); if (!at) return;
     FEATS.forEach((f, i) => {
-      const d = document.createElement('section'); d.className = 'hg-feat' + (i % 2 ? ' alt' : ''); d.style.setProperty('--glow', f.glow); d.setAttribute('aria-label', f.alt);
-      d.innerHTML = `<div class="hg-feat-in"><img class="hg-feat-cut" src="${I(f.img)}" alt="${f.alt}" loading="lazy" decoding="async">
+      const d = document.createElement('section'); d.className = 'hg-feat fx-' + f.lay; d.style.setProperty('--glow', f.glow); d.setAttribute('aria-label', f.alt);
+      const pics = f.bg.map((b, k) => `<div class="fx-p fx-p${k}"><img src="${I(b + '.webp')}" alt="" loading="lazy" decoding="async"></div>`).join('');
+      d.innerHTML = `<div class="fx-art">${pics}<img class="hg-feat-cut" src="${I(f.img)}" alt="${f.alt}" loading="lazy" decoding="async"></div>
         <div class="hg-feat-txt"><p class="hg-eyebrow">${f.kick}</p><h2>${f.h}</h2>
-        <p>${f.p}</p><button class="hg-btn p" data-feat="${f.id}">Book this game${ARW}</button></div></div>`;
+        <p>${f.p}</p><button class="hg-btn p" data-feat="${f.id}">Book this game${ARW}</button></div>`;
       at.after(d); at = d;
       d.addEventListener('click', e => { if (!e.target.closest('[data-feat]')) return; const g = GAMES.find(x => x.id === f.id); g ? gamePopup(g) : openBook(); });
     });

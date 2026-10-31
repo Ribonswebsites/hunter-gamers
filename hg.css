@@ -504,3 +504,75 @@ html.hg-paged body{overflow:hidden}html.hg-paged .hg-nav{z-index:95}
 .hgl-col img{box-shadow:none!important}
 .hg-cf-card:not(.on) .rf{opacity:0}.hg-cf-card.on .rf{opacity:.22}
 .hgf-tx b.em{overflow-wrap:normal;word-break:normal;font-size:13px}
+/* ===== Round 13 ===== */
+.hgx-ring,.hgx-ring.r1{top:61%!important;z-index:1!important}
+.hgx-card{-webkit-box-reflect:none!important}
+.hgx-subs{z-index:6!important;isolation:isolate;transform:translate3d(0,0,1px)}
+.hgx-copy{z-index:8}
+.site-header{-webkit-backdrop-filter:none!important;backdrop-filter:none!important;background:#0b0809!important}
+.hg-games{content-visibility:visible!important;contain-intrinsic-size:none!important}
+@media (min-width:900px){.hgx-ring,.hgx-ring.r1{top:66%!important}}
+.hgx-ring,.hgx-ring.r1{top:58%!important}
+.hgx-pop{top:auto!important;bottom:calc(330px + env(safe-area-inset-bottom));width:min(88vw,520px)!important}
+@media (min-width:900px){.hgx-pop{bottom:18%}}
+/* --- Round 13: feature layouts (2D only, WebView-safe) --- */
+.hg-feat{padding:0 0 44px!important;background:#0B0809!important}
+.hg-feat .fx-art{position:relative;height:440px;margin:0 0 6px}
+.hg-feat .fx-p{position:absolute;overflow:hidden;background:#111}
+.hg-feat .fx-p img{width:100%;height:100%;object-fit:cover;display:block}
+.hg-feat .hg-feat-cut{position:absolute;z-index:4;margin:0!important;filter:drop-shadow(0 24px 30px rgba(0,0,0,.75))}
+.hg-feat .hg-feat-txt{position:relative;z-index:5;padding:0 18px;max-width:640px;margin:0 auto;text-align:left!important}
+.hg-feat .hg-feat-txt h2{text-transform:uppercase;letter-spacing:.01em;font-size:clamp(32px,8.6vw,58px);line-height:.96}
+.hg-feat .hg-eyebrow{font:700 11px ui-monospace,monospace;letter-spacing:.18em;text-transform:uppercase}
+/* 1 bleed: full-bleed backdrop, two framed panels, cutout breaks the frame */
+.fx-bleed .fx-p0{inset:0 0 40px 0;clip-path:polygon(0 0,100% 0,100% 86%,0 100%)}
+.fx-bleed .fx-p0::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(11,8,9,.15),rgba(11,8,9,.35) 60%,#0B0809)}
+.fx-bleed .fx-p1,.fx-bleed .fx-p2{width:34%;aspect-ratio:16/10;bottom:40px;border:2px solid #fff;border-radius:10px;box-shadow:0 18px 30px rgba(0,0,0,.6);z-index:2}
+.fx-bleed .fx-p1{left:4%;transform:rotate(-5deg)}.fx-bleed .fx-p2{right:4%;transform:rotate(4deg)}
+.fx-bleed .hg-feat-cut{left:50%;top:-6px;width:min(92%,480px);transform:translateX(-50%)!important}
+/* 2 collage: angled official panels, cutout in front */
+.fx-collage .fx-art{background:linear-gradient(160deg,rgba(var(--glow),.18),transparent 60%)}
+.fx-collage .fx-p{border-radius:14px;border:1px solid rgba(255,255,255,.18);box-shadow:0 20px 40px rgba(0,0,0,.6)}
+.fx-collage .fx-p0{left:-6%;top:24px;width:74%;height:58%;transform:rotate(-6deg)}
+.fx-collage .fx-p1{right:-4%;top:70px;width:52%;height:40%;transform:rotate(5deg)}
+.fx-collage .fx-p2{right:8%;bottom:20px;width:46%;height:32%;transform:rotate(-3deg)}
+.fx-collage .fx-p::after{content:"";position:absolute;inset:0;background:rgba(5,8,14,.28)}
+.fx-collage .hg-feat-cut{left:2%;bottom:0;width:96%}
+.fx-collage .hg-feat-txt{text-align:right!important}
+/* 3 split: diagonal key-art panel + two insets, cutout on the seam */
+.fx-split .fx-p0{left:0;right:0;top:0;height:78%;clip-path:polygon(0 0,100% 0,100% 70%,0 100%)}
+.fx-split .fx-p0::after{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(11,8,9,.55),transparent 60%)}
+.fx-split .fx-p1,.fx-split .fx-p2{width:30%;aspect-ratio:1;border-radius:50%;border:3px solid rgb(var(--glow));z-index:2;box-shadow:0 0 30px rgba(var(--glow),.45)}
+.fx-split .fx-p1{right:5%;bottom:68px}.fx-split .fx-p2{right:26%;bottom:6px;width:22%}
+.fx-split .hg-feat-cut{left:-4%;bottom:0;width:80%}
+/* 4 stack: poster-stack of official shots, cutout leaping out */
+.fx-stack .fx-p{left:50%;width:62%;aspect-ratio:3/4;border-radius:16px;border:2px solid rgba(255,255,255,.85);box-shadow:0 24px 44px rgba(0,0,0,.65)}
+.fx-stack .fx-p0{top:30px;transform:translateX(-50%) rotate(0deg);z-index:3}
+.fx-stack .fx-p1{top:44px;transform:translateX(-92%) rotate(-10deg);z-index:2}
+.fx-stack .fx-p2{top:44px;transform:translateX(-8%) rotate(10deg);z-index:2}
+.fx-stack .hg-feat-cut{left:50%;top:40px;width:min(100%,520px);transform:translateX(-50%)!important}
+.fx-stack .hg-feat-txt{text-align:center!important}
+@media (min-width:900px){.hg-feat .fx-art{height:560px;max-width:1100px;margin:0 auto}}
+/* --- Section backdrops: each section its own official image + composition --- */
+#how,#book,#consoles,#rent,#snacks,.hg-games{position:relative;isolation:isolate}
+#how::before,#book::before,#consoles::before,#rent::before,#snacks::before,.hg-games::before{content:"";position:absolute;z-index:-1;pointer-events:none;background-size:cover;background-position:center}
+#how{padding-top:210px!important}
+#how::before{left:0;right:0;top:0;height:250px;background-image:url(/img/sx-steps.webp?v=10);clip-path:polygon(0 0,100% 0,100% 72%,0 100%);-webkit-mask:linear-gradient(#000 60%,transparent);mask:linear-gradient(#000 60%,transparent)}
+#book::before{right:-10%;top:18px;width:78%;height:220px;border-radius:22px;background-image:url(/img/sx-book.webp?v=10);transform:rotate(4deg);opacity:.55;-webkit-mask:linear-gradient(90deg,transparent,#000 40%);mask:linear-gradient(90deg,transparent,#000 40%)}
+.hg-games::before{inset:0;background-image:linear-gradient(180deg,#0B0809,rgba(11,8,9,.78) 30%,rgba(11,8,9,.9) 70%,#0B0809),url(/img/sx-live.webp?v=10)}
+#consoles{padding-top:200px!important}
+#consoles::before{left:16px;right:16px;top:24px;height:170px;border-radius:20px;background-image:linear-gradient(90deg,rgba(251,36,28,.55),transparent 55%),url(/img/sx-consoles.webp?v=10);box-shadow:0 20px 40px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.12)}
+#rent::before{left:0;top:0;bottom:0;width:100%;background-image:linear-gradient(90deg,rgba(11,8,9,.96) 30%,rgba(11,8,9,.7)),url(/img/sx-rent.webp?v=10);background-position:70% center}
+#snacks{padding-top:220px!important}
+#snacks::before{left:50%;top:20px;width:min(92%,640px);height:190px;transform:translateX(-50%);border-radius:200px 200px 22px 22px;background-image:linear-gradient(180deg,transparent 50%,rgba(11,8,9,.7)),url(/img/sx-snacks.webp?v=10);border:1px solid rgba(251,36,28,.35);box-shadow:0 0 40px rgba(251,36,28,.2)}
+main .section-head h2,#how h2{text-transform:uppercase}
+/* --- Footer: poster wall behind brand head, map card --- */
+.hgf{position:relative;isolation:isolate;scroll-margin-top:78px;overflow:hidden}
+section[id],footer[id]{scroll-margin-top:78px}
+.hgf-wall{position:absolute;left:-10%;right:-10%;top:-30px;height:430px;z-index:-1;display:grid;grid-template-columns:repeat(5,1fr);gap:10px;transform:rotate(-8deg);opacity:.5;-webkit-mask:linear-gradient(180deg,#000 20%,transparent 92%);mask:linear-gradient(180deg,#000 20%,transparent 92%)}
+.hgf-wall img{width:100%;aspect-ratio:2/3;object-fit:cover;border-radius:10px;display:block}
+.hgf-wall img:nth-child(odd){transform:translateY(40px)}
+.hgf::before{content:"";position:absolute;left:0;right:0;top:0;height:460px;z-index:-1;background:linear-gradient(180deg,rgba(11,8,9,.35),rgba(26,6,8,.75) 55%,#120608)}
+.hgf-head h2,.hgf-hrs{text-shadow:0 2px 14px rgba(0,0,0,.9)}
+.hgf-map{grid-column:1/-1;border-radius:20px;overflow:hidden;border:1px solid rgba(255,255,255,.1);height:190px;background:#151012}
+.hgf-map iframe{width:100%;height:100%;border:0;display:block;filter:grayscale(.2) contrast(1.05)}
