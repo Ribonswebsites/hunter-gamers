@@ -466,7 +466,7 @@
     const anchor = $('#games') || $('#consoles'); anchor.after(sec);
     function draw() {
       if (!LIVE.data) return; const now = Date.now(), cs = LIVE.data.consoles.map(c => derive(c, now));
-      $('.hg-lt-demo', sec).hidden = !LIVE.demo;
+      { const d = $('.hg-lt-demo', sec); if (d) d.hidden = !LIVE.demo; }
       cs.forEach(c => { const el = $(`[data-id="${c.id}"]`, sec); if (el) el.dataset.st = c.st; });
       const fr = cs.filter(c => c.st === 'free').length, nf = Math.min(...cs.map(c => c.free));
       $('.hg-lt-sum', sec).innerHTML = `<b>${fr}</b> free now<span></span>${fr ? 'Walk in and play' : `Next free <b>${tfmt(nf)}</b>`}`;
@@ -504,7 +504,7 @@
       <button class="hg-btn p hg-pg-cta" data-hg-book>Book a slot${ARW}</button></div></div>`;
     CTRL.draw = () => {
       if (!LIVE.data) return; const now = Date.now(), cs = LIVE.data.consoles.map(c => derive(c, now));
-      $('.hg-ctl-demo', page).hidden = !LIVE.demo;
+      { const d = $('.hg-ctl-demo', page); if (d) d.hidden = !LIVE.demo; }
       const fr = cs.filter(c => c.st === 'free').length;
       $('.hg-cs-sum', page).innerHTML = `<b>${fr} of ${cs.length}</b> consoles free right now`;
       cs.forEach(c => { const el = $(`.hg-cs-c[data-id="${c.id}"]`, page); el.dataset.st = c.st;
@@ -586,10 +586,25 @@
     if ($('.hg-upd')) return;
     const el = popup({ art: I('wolverine-key-sm.webp'), cls: 'upd', icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
       extra: '<div class="hg-upd"><div class="hg-upd-bar"><i></i></div><small class="hg-upd-st">Takes a few seconds. Your bookings stay saved.</small></div>',
-      actions: [{ label: 'Later', run: () => window.HGApp && HGApp.later() },
-        { label: `Update now${ARW}`, primary: true, keep: true, run: () => { el.classList.add('upd-busy'); window.HGApp && HGApp.startUpdate(); HGUpdateProgress(0, 'downloading'); } }] });
+      actions: [{ label: 'Later', run: () => { try { sessionStorage.setItem('hg.updLater', ver.replace(/^1\./, '')); } catch (e) {} window.HGApp && HGApp.later(); } },
+        { label: `Update now${ARW}`, primary: true, keep: true, run: () => { el.classList.add('upd-busy'); window.HGApp && HGApp.startUpdate(); HGUpdateProgress(0, 'downloading');
+          // fallback: if the native downloader never reports progress, hand the APK to the phone's browser
+          window.__hgUpdTick = 0; setTimeout(() => { if (!window.__hgUpdTick) location.href = 'https://github.com/Ribonswebsites/hunter-gamers/releases/latest/download/hunter-game.apk'; }, 4000); } }] });
   };
+  // Site-side update check (works even if an older app's native check never fires the popup)
+  function selfUpdateCheck() {
+    if (!IN_APP) return;
+    const m = navigator.userAgent.match(/HunterGameApp\/[\w.?]+ \((\d+)\)/);
+    let have = m ? +m[1] : 0; try { if (window.HGApp && HGApp.versionCode) have = HGApp.versionCode() || have; } catch (e) {}
+    if (!have) return;
+    fetch('/version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(v => {
+      if (!(v.versionCode > have) || sessionStorage.getItem('hg.updLater') == v.versionCode) return;
+      const wait = () => { if ($('.hg-upd')) return; if (loginEl && loginEl.classList.contains('on')) return setTimeout(wait, 1500); window.HGUpdate(v.versionName, v.notes); };
+      setTimeout(wait, 1200);
+    }).catch(() => {});
+  }
   window.HGUpdateProgress = (pct, st) => {
+    window.__hgUpdTick = (window.__hgUpdTick || 0) + (pct > 0 || st !== 'downloading' ? 1 : 0);
     const box = $('.hg-upd'); if (!box) return;
     const sh = box.closest('.hg-sheet'); sh.classList.add('upd-busy'); sh.classList.toggle('upd-err', pct < 0);
     if (pct >= 0) $('i', box).style.transform = `scaleX(${pct / 100})`;
@@ -602,6 +617,7 @@
   loginEl = buildLogin(); cookieEl = buildCookie(); fillUser();
   if (IN_APP) document.documentElement.classList.add('in-app');
   if (!store.get('user') && !store.get('guest')) openLogin(); else afterLogin();
+  selfUpdateCheck();
 
   window.HG = { ordersPopup, gamePopup, games: () => GAMES, snacksPopup, accountPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, cookie: () => cookieEl.classList.add('on'), hide };
 })();
