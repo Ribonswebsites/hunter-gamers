@@ -6,7 +6,7 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=9';
+  const I = n => '/img/' + n + '?v=10';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -94,7 +94,7 @@
     hx.innerHTML = `<div class="hgx-layer hgx-bgs">${SLIDES.map((s, i) => `<div class="hgx-bg${s.clear ? ' clear' : ''}${i ? '' : ' on'}"${i ? '' : ` style="background-image:url(${bgSrc(s)})"`}></div>`).join('')}</div>
       <div class="hgx-ring r1"></div>
       <div class="hgx-layer hgx-subs">${SLIDES.map((s, i) => s.pop
-        ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}"><span class="tear"><i class="lip"></i><i class="hole"></i></span><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
+        ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}"><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
         : `<img class="hgx-subject hgx-subject-w${i ? '' : ' on'}" ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async">`).join('')}</div>
       ${SLIDES.map((s, i) => `<div class="hgx-copy${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
@@ -493,39 +493,30 @@
     <button class="hg-ph-back" data-back aria-label="Back">${IC.left()}</button><div class="hg-ph-t"><span class="hg-ic">${icon}</span><h1>${title}</h1><p>${text}</p></div></header>`;
 
   function renderControl() {
-    const C = 2 * Math.PI * 34;
-    page.innerHTML = `<div class="hg-pg hg-ctl">${pageHead(I('r-ctl.webp'), IC.live(26), 'Control room', '3 PS5 and 2 PS4 at Hunter Gamers, Indora. Live status, countdowns and today\'s line-up.')}
+    const ART = { P1: 'k-gow', P2: 'k-acs', P3: 'k-nr', P4: 'k-got', P5: 'k-wk' };
+    page.innerHTML = `<div class="hg-pg hg-ctl">${pageHead(I('r-ctl.webp'), IC.live(26), 'Control room', '3 PS5 and 2 PS4 at Hunter Gamers, Indora. Live status, time left and the next free slot for every console.')}
       <div class="hg-pg-in"><p class="hg-demo hg-ctl-demo" hidden>Demo data: the live feed switches on with the booking server.</p>
-      <div class="hg-ctl-sum"></div>
-      <div class="hg-floor"><div class="hg-floor-lbl">Shop floor</div>
-        ${RIG.map(r => `<button class="hg-stn" data-id="${r.id}" data-type="${r.type}"><span class="pulse"></span>
-          <svg viewBox="0 0 80 80" aria-hidden="true"><circle cx="40" cy="40" r="34"/><circle class="p" cx="40" cy="40" r="34" stroke-dasharray="${C}" stroke-dashoffset="${C}"/></svg>
-          <span class="ico">${r.type === 'ps5' ? `<img src="${I('x-ps5.webp')}" alt="">` : IC.pad(26)}</span><b>${r.name}</b><small class="st"></small><small class="cd"></small></button>`).join('')}
-        <div class="hg-floor-desk">Counter</div></div>
-      <h2 class="hg-pg-h">Today's line-up</h2>
-      <div class="hg-gantt"><div class="hg-g-axis"></div>${RIG.map(r => `<div class="hg-g-row" data-id="${r.id}"><span class="n">${r.name.replace(' · ', ' ')}</span><div class="tr"></div></div>`).join('')}<div class="hg-g-now"><i></i></div></div>
+      <p class="hg-cs-sum"></p>
+      <div class="hg-cs">${RIG.map(r => `<article class="hg-cs-c" data-id="${r.id}"><div class="bg" style="background-image:url(${I(ART[r.id] + '.webp')})"></div>
+        <div class="tx"><span class="tag"><i></i><b class="st"></b></span><h3>${r.name}</h3>
+        <dl><div><dt>Time left</dt><dd class="tl"></dd></div><div><dt>Next free</dt><dd class="nf"></dd></div><div><dt>Queue</dt><dd class="qc"></dd></div></dl></div></article>`).join('')}</div>
       <p class="hg-live-upd"></p>
       <button class="hg-btn p hg-pg-cta" data-hg-book>Book a slot${ARW}</button></div></div>`;
-    let built = false;
     CTRL.draw = () => {
       if (!LIVE.data) return; const now = Date.now(), cs = LIVE.data.consoles.map(c => derive(c, now));
       $('.hg-ctl-demo', page).hidden = !LIVE.demo;
-      const n = s => cs.filter(c => c.st === s).length, nf = Math.min(...cs.map(c => c.free));
-      $('.hg-ctl-sum', page).innerHTML = `<span class="g"><b>${n('free')}</b>Free now</span><span class="r"><b>${n('playing')}</b>Playing</span><span class="y"><b>${n('reserved')}</b>Reserved</span><span><b>${nf <= now ? 'Now' : tfmt(nf)}</b>Next free</span>`;
-      cs.forEach(c => { const el = $(`.hg-stn[data-id="${c.id}"]`, page); el.dataset.st = c.st;
-        const pct = c.cur ? (now - c.cur.start) / (c.cur.end - c.cur.start) : c.st === 'free' ? 1 : 0;
-        $('.p', el).style.strokeDashoffset = (C * (1 - pct)).toFixed(1);
+      const fr = cs.filter(c => c.st === 'free').length;
+      $('.hg-cs-sum', page).innerHTML = `<b>${fr} of ${cs.length}</b> consoles free right now`;
+      cs.forEach(c => { const el = $(`.hg-cs-c[data-id="${c.id}"]`, page); el.dataset.st = c.st;
         $('.st', el).textContent = { free: 'Free', playing: 'Playing', reserved: 'Reserved' }[c.st];
-        $('.cd', el).innerHTML = c.st === 'playing' ? `${left(c.cur.end - now)} left` : c.st === 'reserved' ? `from ${tfmt(c.nxt[0].start)}` : 'Walk in'; });
-      const t0 = now - 36e5, t1 = now + 10 * 36e5, X = t => ((t - t0) / (t1 - t0) * 100).toFixed(2) + '%';
-      if (!built) { built = true; const ax = []; for (let h = Math.ceil(t0 / 36e5) * 36e5; h < t1; h += 2 * 36e5) ax.push(`<span style="left:${X(h)}">${tfmt(h).replace(':00', '')}</span>`); $('.hg-g-axis', page).innerHTML = ax.join(''); }
-      cs.forEach(c => { const tr = $(`.hg-g-row[data-id="${c.id}"] .tr`, page);
-        tr.innerHTML = c.queue.filter(b => b.end > t0 && b.start < t1).map(b => `<i class="${b.start <= now && b.end > now ? 'on' : b.end <= now ? 'past' : ''}" style="left:${X(Math.max(b.start, t0))};width:calc(${X(Math.min(b.end, t1))} - ${X(Math.max(b.start, t0))})"><small>${b.players}P</small></i>`).join(''); });
-      $('.hg-g-now', page).style.left = `calc(64px + (100% - 64px) * ${((now - t0) / (t1 - t0)).toFixed(4)})`;
+        $('.tl', el).textContent = c.cur ? left(c.cur.end - now) : '—';
+        $('.nf', el).textContent = c.free <= now ? 'Now' : tfmt(c.free);
+        const q = c.nxt.length; $('.qc', el).textContent = q ? `${q} booking${q > 1 ? 's' : ''}` : 'None'; });
       $('.hg-live-upd', page).textContent = `Updated ${tfmt(LIVE.data.updated || now)} · refreshes every 15 s`;
     };
     CTRL.draw();
   }
+
 
   function renderOrders(filter = 'all') {
     const now = Date.now(), CN = { ps5: 'PS5', ps4: 'PS4' };
