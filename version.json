@@ -1,6 +1,6 @@
 {
- "versionCode": 18,
- "versionName": "2.8",
+ "versionCode": 19,
+ "versionName": "2.9",
  "apkUrl": "https://hunter-gamers.pages.dev/downloads/hunter-game.apk",
- "notes": "New GTA6 hero art, auto-rotating poster strip, new Wukong console art"
+ "notes": "Update popup now appears every time a newer version is out"
 }
