@@ -6,7 +6,9 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=23';
+  // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
+  const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp' };
+  const I = n => '/img/' + (REN[n] || n) + '?v=24';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -683,7 +685,7 @@
 
   window.HG = { ordersPopup, gamePopup, games: () => GAMES, snacksPopup, accountPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, rentPopup, cookie: () => cookieEl.classList.add('on'), hide };
 })();
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(r => { r.update().catch(() => {}); let re = false; const hadC = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (re || !hadC) return; re = true; if (!sessionStorage.getItem('hgSwReload')) { sessionStorage.setItem('hgSwReload', '1'); location.reload(); } }); }).catch(() => {}));
 
 /* r18: Happy Hours state + FC 26 Showdown dates/countdown (IST, last Sunday of each month, doors 10 AM) */
 (() => {
