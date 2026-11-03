@@ -667,11 +667,13 @@ main>section,.section,.hg-games,.hg-feat,.hgx,.hgf,section{overflow-x:clip}
 /* r16: ring on every slide, per-slide height */
 .hgx-ring,.hgx-ring.r1{top:var(--rt,58%)!important}
 /* r16: FC26 - the official key art is the hero; no extra cutout floating over the players' faces */
-.hgx-subject:nth-child(6){display:none!important}
 /* r16b: per-slide ring tuning so no face shows behind/under cards */
-.hgx[data-s=gta6] .hgx-ring{--cw:72px!important}
 .hgx[data-s=gow] .hgx-ring{clip-path:path(evenodd,'M-3000 -3000 H3000 V3000 H-3000 Z M-10 -600 H40 V600 H-10 Z')}
 .hgx.clr .hgx-bg.clear:not(.on){opacity:0!important}
 /* r16b: clearly visible mirror reflection under cover-flow cards */
 .hg-cf-card .rf{display:block!important;top:calc(100% + 6px)!important;opacity:.42!important;-webkit-mask:linear-gradient(0deg,#000 0%,rgba(0,0,0,.35) 30%,transparent 58%)!important;mask:linear-gradient(0deg,#000 0%,rgba(0,0,0,.35) 30%,transparent 58%)!important;box-shadow:none!important;pointer-events:none}
 .hg-cf-card:not(.on) .rf{opacity:.3!important}
+/* r17: readable version / size line on the app popup */
+.hg-app-meta{font-size:13px!important;line-height:1.4!important;color:rgba(255,255,255,.82)!important;font-weight:600!important;letter-spacing:.01em;margin-top:6px!important;opacity:1!important}
+/* r17: GTA6 only - ring lowered so it sits under Jason and Lucia, not at their faces */
+.hgx[data-s=gta6]{--rt:63%}
