@@ -6,7 +6,7 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=22';
+  const I = n => '/img/' + n + '?v=23';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -222,27 +222,44 @@
       bgs.forEach((b, j) => { if (j === i && b.dataset.bg) { b.style.backgroundImage = `url(${b.dataset.bg})`; delete b.dataset.bg; } b.classList.toggle('on', j === i); });
       ts.forEach((t, j) => t.classList.toggle('on', j === i)); go.dataset.game = SPOT[i]; const g = GAMES.find(x => x.id === SPOT[i]);
       go.className = 'hg-btn ' + (g.soon ? 's' : 'p') + ' hg-cf-go'; go.innerHTML = (g.soon ? 'Ask about launch day' : 'Book this game') + ARW; $('b', dial).textContent = String(i + 1).padStart(2, '0'); };
+    // r19: spring-physics 3D cover-flow. Transform-only (GPU), fractional positions while dragging, momentum + spring settle.
+    let cw = 0, W = 0; const measure = () => { W = cf.clientWidth; cw = Math.min(W * 0.5, 260); };
+    measure(); addEventListener('resize', () => { measure(); kick(); });
+    const ease = x => x * (2 - Math.min(1, x)); // soft knee for spacing
     function render() {
-      const W = cf.clientWidth, cw = Math.min(W * 0.5, 260);
-      cs.forEach((c, i) => { let o = i - pos; o -= Math.round(o / n) * n; const a = Math.abs(o);
-        c.style.transform = `translate3d(${(Math.sign(o) * Math.min(a, 1) * cw * 0.66 + o * cw * 0.14).toFixed(0)}px,0,0) scale(${a < 0.5 ? 1 : 0.78})`;
-        c.style.zIndex = 100 - Math.round(a * 10); c.style.visibility = a > 1.5 ? 'hidden' : 'visible'; c.classList.toggle('on', a < 0.5); });
+      for (let i = 0; i < n; i++) { const c = cs[i]; let o = i - pos; o -= Math.round(o / n) * n; const a = Math.abs(o), sg = o < 0 ? -1 : 1, k = Math.min(a, 1);
+        if (a > 2.7) { if (c._v !== 0) { c.style.visibility = 'hidden'; c._v = 0; } continue; }
+        if (c._v !== 1) { c.style.visibility = 'visible'; c._v = 1; }
+        const x = sg * (ease(k) * cw * 0.6 + Math.max(0, a - 1) * cw * 0.28), z = -Math.min(a, 2.5) * 150, r = -sg * k * 48, sc = 1 - Math.min(a, 2) * 0.06;
+        c.style.transform = `perspective(1100px) translate3d(${x.toFixed(1)}px,0,${z.toFixed(1)}px) rotateY(${r.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
+        const zi = 100 - Math.round(a * 10); if (c._z !== zi) { c.style.zIndex = zi; c._z = zi; }
+        const on = a < 0.5; if (c._on !== on) { c.classList.toggle('on', on); c._on = on; } }
       setCur(wrap(Math.round(pos)));
     }
+    const K = 210, D = 2 * Math.sqrt(210) * 0.86; // stiffness / damping (slightly under-damped = premium settle)
     function tick(now) {
-      raf = 0; const dt = Math.min(48, now - (last || now)); last = now;
-      pos = target;
-      render();
-      
+      raf = 0; const dt = Math.min(0.032, (now - (last || now)) / 1000) || 0.016; last = now;
+      if (drag == null) { const steps = Math.max(1, Math.ceil(dt / 0.008)), h = dt / steps;
+        for (let j = 0; j < steps; j++) { vel += ((target - pos) * K - vel * D) * h; pos += vel * h; }
+        if (Math.abs(target - pos) < 0.0006 && Math.abs(vel) < 0.002) { pos = target; vel = 0; render(); last = 0; return; } }
+      render(); raf = requestAnimationFrame(tick);
     }
-    const kick = () => { if (!raf) raf = requestAnimationFrame(tick); };
+    const kick = () => { if (!raf) { last = 0; raf = requestAnimationFrame(tick); } };
     new IntersectionObserver(es => { vis = es[0].isIntersecting; if (vis) { t0 = performance.now(); kick(); } }).observe(cf);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && vis) kick(); });
-    let sx = 0, lx = 0, lt = 0, moved = 0;
-    cf.addEventListener('pointerdown', e => { if (e.target.closest('.hg-cf-info')) return; drag = pos; sx = lx = e.clientX; lt = performance.now(); vel = 0; moved = 0; kick(); });
-    addEventListener('pointermove', e => { if (drag == null) return; const now = performance.now(), dx = e.clientX - lx; vel = dx / Math.max(1, now - lt); lx = e.clientX; lt = now; moved = e.clientX - sx;
-      }, { passive: true });
-    addEventListener('pointerup', () => { if (drag == null) return; drag = null; if (Math.abs(moved) > 40) target = Math.round(target) + (moved < 0 ? 1 : -1); t0 = performance.now(); kick(); });
+    let st0 = 0, sx = 0, sy = 0, lx = 0, lt = 0, moved = 0, pid = null, dv = 0, axis = 0;
+    const stage = $('.hg-cf-stage', cf); stage.style.touchAction = 'pan-y';
+    stage.addEventListener('pointerdown', e => { if (e.button > 0) return; drag = pos; st0 = Math.round(pos); pid = e.pointerId; sx = lx = e.clientX; sy = e.clientY; lt = performance.now(); dv = 0; moved = 0; axis = 0; vel = 0; });
+    stage.addEventListener('pointermove', e => { if (drag == null || e.pointerId !== pid) return;
+      if (!axis) { const ax = Math.abs(e.clientX - sx), ay = Math.abs(e.clientY - sy); if (ax < 6 && ay < 6) return; axis = ax > ay ? 1 : 2; if (axis === 1) try { stage.setPointerCapture(pid); } catch (_) {} }
+      if (axis !== 1) { drag = null; kick(); return; }
+      const now = performance.now(), dx = e.clientX - lx, d = Math.max(1, now - lt); const iv = -dx / (cw * 0.9) / (d / 1000); dv = dv * 0.6 + iv * 0.4; lx = e.clientX; lt = now; moved = e.clientX - sx;
+      pos = drag - moved / (cw * 0.9); t0 = now; kick(); }, { passive: true });
+    const up = e => { if (drag == null || (e && e.pointerId !== pid)) return; drag = null; if (performance.now() - lt > 90) dv = 0;
+      const v = Math.max(-9, Math.min(9, dv)); let tgt = Math.round(pos + v * 0.22); tgt = Math.max(Math.round(pos) - 3, Math.min(Math.round(pos) + 3, tgt));
+      if (tgt === st0 && (Math.abs(moved) > cw * 0.18 || Math.abs(v) > 0.8)) tgt = st0 + (moved < 0 ? 1 : -1);
+      target = tgt; vel = v; t0 = performance.now(); kick(); };
+    stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up); stage.addEventListener('lostpointercapture', up);
     cs.forEach((c, i) => c.addEventListener('click', e => { e.stopPropagation(); if (Math.abs(moved) > 8) return; let o = i - pos; o -= Math.round(o / n) * n;
       if (Math.abs(o) < 0.5) gamePopup(GAMES.find(g => g.id === SPOT[i])); else { target = Math.round(pos + o); t0 = performance.now(); kick(); } }));
     $$('img', cf).forEach(im => im.decode && im.decode().catch(() => {}));
