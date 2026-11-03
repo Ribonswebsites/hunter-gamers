@@ -6,7 +6,7 @@
   const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
-  const I = n => '/img/' + n + '?v=21';
+  const I = n => '/img/' + n + '?v=22';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -52,8 +52,16 @@
     const el = document.createElement('div');
     el.className = 'hg-sheet ' + (center ? 'center ' : '') + cls;
     el.setAttribute('role', 'dialog'); el.setAttribute('aria-modal', 'true');
-    el.innerHTML = (center ? '' : '<div class="hg-grab"></div>') + `<button class="hg-x" aria-label="Close" data-close>${IC.x(18)}</button>` + html;
-    document.body.append(el); return el;
+    el.innerHTML = '<div class="hg-grab" aria-hidden="true"></div>' + `<button class="hg-x" aria-label="Close" data-close>${IC.x(20)}</button>` + html;
+    document.body.append(el); swipe(el); return el;
+  }
+  // r18: swipe down to close (from the handle anywhere, or anywhere while the sheet is scrolled to top)
+  function swipe(el) {
+    let y0 = null, dy = 0, grab = false;
+    el.addEventListener('touchstart', e => { if (e.touches.length !== 1) return; grab = !!e.target.closest('.hg-grab'); if (!grab && el.scrollTop > 0) return; if (e.target.closest('input,select,textarea,.hg-cf,[data-noswipe]')) return; y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
+    el.addEventListener('touchmove', e => { if (y0 == null) return; dy = e.touches[0].clientY - y0; if (dy <= 0 || (!grab && el.scrollTop > 0)) { if (dy < 0 && !grab) y0 = null; el.style.transform = ''; return; } if (e.cancelable) e.preventDefault(); el.style.transition = 'none'; el.style.transform = el.classList.contains('center') ? `translate(-50%,calc(-50% + ${dy}px))` : `translate(-50%,${dy}px)`; }, { passive: false });
+    const end = () => { if (y0 == null) return; y0 = null; el.style.transition = ''; el.style.transform = ''; if (dy > 90) hide(el); dy = 0; };
+    el.addEventListener('touchend', end); el.addEventListener('touchcancel', end);
   }
   function show(el) {
     if (openSheet && openSheet !== el) hide(openSheet, true);
@@ -394,18 +402,32 @@
 
   /* ---------- App download ---------- */
   function appPopup() {
-    const el = popup({ cls: 'p-app', art: I('k-re9.webp'), icon: `<img src="${LOGO}" alt="Hunter Gamers" style="width:46px">`, title: 'Get the Hunter Gamers app', text: 'Book slots faster, keep your login, and get the full-screen experience on Android.',
-      extra: `<p class="hg-app-meta" style="font-size:12px">Android 7+ · latest version</p>`,
-      actions: [{ label: 'Maybe later', run: () => store.set('appAsked', Date.now()) }, { label: `${IC.dl()} Download APK`, primary: true, run: () => { store.set('appAsked', Date.now()); location.href = '/downloads/hunter-game.apk'; } }] });
-    $$('[data-close]', el).forEach(x => x.addEventListener('click', () => store.set('appAsked', Date.now())));
+    if (IN_APP || window.HGApp) return;
+    const P = ['gta6', 'gow', 'fc26', 'sm2', 'wk'];
+    const feat = [['M4 7h16v12H4zM8 3v4M16 3v4', 'Book in 3 taps'], ['M12 3v12M6 11l6 6 6-6M4 21h16', 'Stay logged in'], ['M3 12h4l3-8 4 16 3-8h4', 'Live seat status']];
+    const el = popup({ cls: 'p-app ap2', art: false, center: true, icon: '', title: '', text: '',
+      extra: `<div class="ap-stage"><img class="ap-key" src="${I('k-gta6.webp')}" alt="Grand Theft Auto VI official art" decoding="async"><div class="ap-fade"></div>
+        <div class="ap-fan">${P.map((g, i) => `<img src="${I('p-' + g + '.webp')}" alt="" style="--i:${i - 2}" decoding="async">`).join('')}</div>
+        <div class="ap-phone"><div class="ap-scr"><img src="${I('t-fc26.webp')}" alt="" decoding="async"><img class="ap-logo" src="${LOGO}" alt="Hunter Gamers"><b>Book a slot</b></div></div>
+        <span class="ap-chip">Android app</span></div>
+        <div class="ap-body"><h3>Hunter Gamers<span>in your pocket</span></h3>
+        <ul class="ap-feat">${feat.map(([d, t]) => `<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>${t}</li>`).join('')}</ul>
+        <a class="hg-btn p ap-dl" href="/downloads/hunter-game.apk" download>${IC.dl()}<span>Download APK<small class="hg-app-meta">Android 7+ · latest version</small></span></a>
+        <button class="hg-linkbtn ap-later" type="button" data-close>Maybe later</button></div>`,
+      actions: [] });
+    document.body.classList.add('hg-app-on');
+    const done = () => { store.set('appAsked', Date.now()); document.body.classList.remove('hg-app-on'); };
+    $$('[data-close]', el).forEach(x => x.addEventListener('click', done));
+    $('.ap-dl', el).addEventListener('click', () => { store.set('appAsked', Date.now()); setTimeout(() => { hide(el); done(); }, 300); });
+    new MutationObserver(() => { if (!el.classList.contains('on')) done(); }).observe(el, { attributes: true, attributeFilter: ['class'] });
     Promise.all([fetch('/version.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null), fetch('/downloads/hunter-game.apk', { method: 'HEAD', cache: 'no-store' }).then(r => +r.headers.get('content-length') || 0).catch(() => 0)])
       .then(([v, len]) => { const m = $('.hg-app-meta', el); if (m) m.textContent = `Android 7+ · ${v ? 'v' + v.versionName : 'latest version'}${len ? ' · ' + (len / 1048576).toFixed(1) + ' MB' : ''}`; });
   }
-  let appTries = 0;
+  // r18: on the website the popup shows on top of everything (login wall included) on first visit; waits only for another open sheet.
   function maybeApp() {
-    if (IN_APP || window.HGApp) return;
-    const t = store.get('appAsked'); if (t && Date.now() - t < 3 * 864e5) return;
-    if (loginEl.classList.contains('on') || openSheet || document.querySelector('.hg-cookie.on')) { if (appTries++ < 30) setTimeout(maybeApp, 2000); return; }
+    if (IN_APP || window.HGApp || document.querySelector('.p-app')) return;
+    const t = store.get('appAsked'); if (t && Date.now() - t < 864e5) return;
+    if (openSheet) { setTimeout(maybeApp, 2000); return; }
     appPopup();
   }
   setTimeout(maybeApp, 2000);
@@ -645,3 +667,33 @@
   window.HG = { ordersPopup, gamePopup, games: () => GAMES, snacksPopup, accountPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, rentPopup, cookie: () => cookieEl.classList.add('on'), hide };
 })();
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js').catch(() => {}));
+
+/* r18: Happy Hours state + FC 26 Showdown dates/countdown (IST, last Sunday of each month, doors 10 AM) */
+(() => {
+  const IST = 5.5 * 3600e3, pad = n => String(n).padStart(2, '0');
+  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const lastSun = (y, m) => { const d = new Date(Date.UTC(y, m + 1, 0)); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d; };
+  const startUTC = d => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 10) - IST; // 10 AM IST
+  function events(n) {
+    const now = Date.now(), t = new Date(now + IST); let y = t.getUTCFullYear(), m = t.getUTCMonth(); const out = [];
+    while (out.length < n) { const d = lastSun(y, m); if (startUTC(d) + 12 * 3600e3 > now) out.push(d); if (++m > 11) { m = 0; y++; } }
+    return out;
+  }
+  function run() {
+    const st = document.getElementById('hhState'), cnt = document.getElementById('evCount'), dt = document.getElementById('evDate'), li = document.getElementById('evList');
+    if (!cnt && !st) return;
+    const ev = events(3);
+    if (dt) dt.innerHTML = `<small>Next</small><b>${ev[0].getUTCDate()}</b><span>${MON[ev[0].getUTCMonth()]} · Sun</span>`;
+    if (li) li.innerHTML = ev.map((d, i) => `<li class="${i ? '' : 'on'}"><b>${pad(d.getUTCDate())}</b><span><em>${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}</em>Sunday · FC 26 tournament</span><i>${i ? 'Upcoming' : 'Next up'}</i></li>`).join('');
+    const bs = cnt ? cnt.querySelectorAll('b') : [];
+    function tick() {
+      const now = Date.now();
+      if (bs.length) { let s = Math.max(0, Math.floor((startUTC(ev[0]) - now) / 1000)); const v = [Math.floor(s / 86400), Math.floor(s % 86400 / 3600), Math.floor(s % 3600 / 60), s % 60]; v.forEach((x, i) => { const t = pad(x); if (bs[i].textContent !== t) bs[i].textContent = t; }); cnt.classList.toggle('live', s === 0); }
+      if (st) { const t = new Date(now + IST), h = t.getUTCHours() + t.getUTCMinutes() / 60;
+        if (h >= 12 && h < 15) { const l = Math.ceil((15 - h) * 60); st.textContent = `Live now · ${Math.floor(l / 60)}h ${pad(l % 60)}m left`; st.classList.add('live'); }
+        else { const until = (h < 12 ? 12 - h : 36 - h) * 60, hh = Math.floor(until / 60), mm = Math.round(until % 60); st.textContent = `Starts in ${hh}h ${pad(mm)}m`; st.classList.remove('live'); } }
+    }
+    tick(); setInterval(() => { if (!document.hidden) tick(); }, 1000);
+  }
+  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', run) : run();
+})();
