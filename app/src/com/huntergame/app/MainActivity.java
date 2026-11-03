@@ -26,11 +26,11 @@ public class MainActivity extends Activity {
   static final String LIVE_HOST = "hunter-gamers.pages.dev";
   static final String LIVE = "https://" + LIVE_HOST + "/";
   static final String VERSION_URL = LIVE + "version.json";
-  static final long RESUME_GAP = 3L * 60 * 60 * 1000; // resume checks at most every 3 hours
+  static final long RESUME_GAP = 20L * 1000; // check on every resume (20 s de-dupe only)
   WebView web;
   ValueCallback<Uri[]> fileCb;
   boolean pageReady, offline, pendingInstall, downloading;
-  UpdateInfo pending;
+  UpdateInfo pending; int snoozed = 0; // in-memory only, never persisted
   final Handler ui = new Handler(Looper.getMainLooper());
   SharedPreferences prefs;
 
@@ -113,7 +113,7 @@ public class MainActivity extends Activity {
         StringBuilder sb = new StringBuilder(); String l; while ((l = r.readLine()) != null) sb.append(l).append('\n'); r.close();
         final UpdateInfo i = UpdateInfo.parse(sb.toString());
         if (!UpdateInfo.isNewer(i, versionCode())) return;
-        if (i.versionCode == prefs.getInt("snoozed", 0) && !launch) return; // "Later" hides it until next launch
+        if (i.versionCode == snoozed && !launch) return; // "Later" hides it only until the app is reopened
         ui.post(new Runnable() { public void run() { pending = i; if (pageReady) offerUpdate(i); } });
       } catch (Exception ignored) {}
     } }).start();
@@ -137,7 +137,7 @@ public class MainActivity extends Activity {
   class Bridge {
     @JavascriptInterface public int versionCode() { return MainActivity.this.versionCode(); }
     @JavascriptInterface public String versionName() { return MainActivity.this.versionName(); }
-    @JavascriptInterface public void later() { if (pending != null) prefs.edit().putInt("snoozed", pending.versionCode).apply(); }
+    @JavascriptInterface public void later() { if (pending != null) snoozed = pending.versionCode; }
     @JavascriptInterface public void startUpdate() { ui.post(new Runnable() { public void run() { download(); } }); }
   }
 

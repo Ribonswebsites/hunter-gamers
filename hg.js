@@ -8,7 +8,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=27';
+  const I = n => '/img/' + (REN[n] || n) + '?v=28';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -741,6 +741,8 @@
   IC.update = () => sv('<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/><path d="M12 8v5l3 2"/>', 30);
   window.HGUpdate = (ver, notes) => {
     if ($('.hg-upd')) return;
+    // never let another sheet (login, cookies, app promo) swallow the update popup: wait until the screen is clear
+    if (openSheet || (loginEl && loginEl.classList.contains('on'))) { clearTimeout(window.__hgUpdWait); window.__hgUpdWait = setTimeout(() => window.HGUpdate(ver, notes), 1200); return; }
     const el = popup({ art: I('k-wolverine.webp'), cls: 'upd', icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
       extra: '<div class="hg-upd"><div class="hg-upd-bar"><i></i></div><small class="hg-upd-st">Takes a few seconds. Your bookings stay saved.</small></div>',
       actions: [{ label: 'Later', run: () => { try { sessionStorage.setItem('hg.updLater', ver.replace(/^1\./, '')); } catch (e) {} window.HGApp && HGApp.later(); } },
@@ -756,8 +758,7 @@
     if (!have) return;
     fetch('/version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(v => {
       if (!(v.versionCode > have) || sessionStorage.getItem('hg.updLater') == v.versionCode) return;
-      const wait = () => { if ($('.hg-upd')) return; if (loginEl && loginEl.classList.contains('on')) return setTimeout(wait, 1500); window.HGUpdate(v.versionName, v.notes); };
-      setTimeout(wait, 1200);
+      setTimeout(() => window.HGUpdate(v.versionName, v.notes), 1200);
     }).catch(() => {});
   }
   window.HGUpdateProgress = (pct, st) => {
@@ -774,38 +775,19 @@
   loginEl = buildLogin(); cookieEl = buildCookie(); fillUser();
   if (IN_APP) document.documentElement.classList.add('in-app');
   if (!store.get('user') && !store.get('guest')) openLogin(); else afterLogin();
-  selfUpdateCheck();
+  selfUpdateCheck(); document.addEventListener('visibilitychange', () => { if (!document.hidden) selfUpdateCheck(); });
 
   window.HG = { ordersPopup, gamePopup, games: () => GAMES, snacksPopup, accountPopup, live: LIVE, openBook, snackAdded, openLogin, appPopup, chooseConsole, consolePopup, rentPopup, cookie: () => cookieEl.classList.add('on'), hide };
 })();
-if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(r => { r.update().catch(() => {}); let re = false; const hadC = !!navigator.serviceWorker.controller; navigator.serviceWorker.addEventListener('controllerchange', () => { if (re || !hadC) return; re = true; if (!sessionStorage.getItem('hgSwReload')) { sessionStorage.setItem('hgSwReload', '1'); location.reload(); } }); }).catch(() => {}));
-
-/* r18: Happy Hours state + FC 26 Showdown dates/countdown (IST, last Sunday of each month, doors 10 AM) */
-(() => {
-  const IST = 5.5 * 3600e3, pad = n => String(n).padStart(2, '0');
-  const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  const lastSun = (y, m) => { const d = new Date(Date.UTC(y, m + 1, 0)); d.setUTCDate(d.getUTCDate() - d.getUTCDay()); return d; };
-  const startUTC = d => Date.UTC(d.getUTCFullYear(), d.getUTCMonth(), d.getUTCDate(), 10) - IST; // 10 AM IST
-  function events(n) {
-    const now = Date.now(), t = new Date(now + IST); let y = t.getUTCFullYear(), m = t.getUTCMonth(); const out = [];
-    while (out.length < n) { const d = lastSun(y, m); if (startUTC(d) + 12 * 3600e3 > now) out.push(d); if (++m > 11) { m = 0; y++; } }
-    return out;
-  }
-  function run() {
-    const st = document.getElementById('hhState'), cnt = document.getElementById('evCount'), dt = document.getElementById('evDate'), li = document.getElementById('evList');
-    if (!cnt && !st) return;
-    const ev = events(3);
-    if (dt) dt.innerHTML = `<small>Next</small><b>${ev[0].getUTCDate()}</b><span>${MON[ev[0].getUTCMonth()]} · Sun</span>`;
-    if (li) li.innerHTML = ev.map((d, i) => `<li class="${i ? '' : 'on'}"><b>${pad(d.getUTCDate())}</b><span><em>${MON[d.getUTCMonth()]} ${d.getUTCFullYear()}</em>Sunday · FC 26 tournament</span><i>${i ? 'Upcoming' : 'Next up'}</i></li>`).join('');
-    const bs = cnt ? cnt.querySelectorAll('b') : [];
-    function tick() {
-      const now = Date.now();
-      if (bs.length) { let s = Math.max(0, Math.floor((startUTC(ev[0]) - now) / 1000)); const v = [Math.floor(s / 86400), Math.floor(s % 86400 / 3600), Math.floor(s % 3600 / 60), s % 60]; v.forEach((x, i) => { const t = pad(x); if (bs[i].textContent !== t) bs[i].textContent = t; }); cnt.classList.toggle('live', s === 0); }
-      if (st) { const t = new Date(now + IST), h = t.getUTCHours() + t.getUTCMinutes() / 60;
-        if (h >= 12 && h < 15) { const l = Math.ceil((15 - h) * 60); st.textContent = `Live now · ${Math.floor(l / 60)}h ${pad(l % 60)}m left`; st.classList.add('live'); }
-        else { const until = (h < 12 ? 12 - h : 36 - h) * 60, hh = Math.floor(until / 60), mm = Math.round(until % 60); st.textContent = `Starts in ${hh}h ${pad(mm)}m`; st.classList.remove('live'); } }
-    }
-    tick(); setInterval(() => { if (!document.hidden) tick(); }, 1000);
-  }
-  document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', run) : run();
-})();
+if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(r => {
+  r.update().catch(() => {});
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); });
+  let shown = false; const hadC = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (shown || !hadC) return; shown = true;
+    const t = document.createElement('div'); t.className = 'hg-newver'; t.setAttribute('role', 'status');
+    t.innerHTML = '<span>New version of the site is ready</span><button type="button">Refresh</button>';
+    t.querySelector('button').onclick = () => location.reload();
+    document.body.append(t); requestAnimationFrame(() => t.classList.add('on'));
+  });
+}).catch(() => {}));
