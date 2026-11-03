@@ -8,7 +8,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=24';
+  const I = n => '/img/' + (REN[n] || n) + '?v=25';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -100,24 +100,31 @@
     const panel = $('.panel', form), ticket = $('.ticket', form), fs = $$('fieldset', panel);
     const by = (txt) => fs.find(f => ($('legend', f) || {}).textContent && $('legend', f).textContent.includes(txt));
     const STEPS = [
-      { t: 'Console', s: 'How do you want to play?', els: [$('#modeOpts', form), by('Console')] },
-      { t: 'Day & time', s: 'Pick your day, start time and hours.', els: [by('Day'), $('#slots', form) && $('#slots', form).closest('fieldset'), by('How long')] },
-      { t: 'Squad & snacks', s: 'Who is playing and what do you eat?', els: [by('Players'), by('Snacks'), by('Controllers')] },
-      { t: 'Your details', s: 'So we can hold the slot for you.', els: [by('Your details')] },
-      { t: 'Payment', s: 'Pay now by UPI or at the counter.', els: [by('Payment')] },
-      { t: 'Review', s: 'Check everything, then confirm.', els: [ticket] }
+      { l: 'Console', a: 'k-sm2', t: 'Console', s: 'How do you want to play?', els: [$('#modeOpts', form), by('Console')] },
+      { l: 'Time', a: 'k-acs', t: 'Day & time', s: 'Pick your day, start time and hours.', els: [by('Day'), $('#slots', form) && $('#slots', form).closest('fieldset'), by('How long')] },
+      { l: 'Squad', a: 'k-gow', t: 'Squad & snacks', s: 'Who is playing and what do you eat?', els: [by('Players'), by('Snacks'), by('Controllers')] },
+      { l: 'You', a: 'k-re9', t: 'Your details', s: 'So we can hold the slot for you.', els: [by('Your details')] },
+      { l: 'Pay', a: 'k-wk', t: 'Payment', s: 'Pay now by UPI or at the counter.', els: [by('Payment')] },
+      { l: 'Review', a: 'k-gta6', t: 'Review', s: 'Check everything, then confirm.', els: [ticket] }
     ];
     const N = STEPS.length;
     const wz = document.createElement('div'); wz.className = 'bw';
     wz.innerHTML = `<div class="bw-prog" aria-hidden="true"><div class="bw-ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" class="bg"/><circle cx="32" cy="32" r="27" class="fg" pathLength="100"/></svg><b>1</b><small>/${N}</small></div>
       <div class="bw-meta"><p class="bw-k">Step <span>1</span> of ${N}</p><h3 class="bw-t">${STEPS[0].t}</h3><p class="bw-s">${STEPS[0].s}</p></div></div>
-      <ol class="bw-rail">${STEPS.map((st, i) => `<li data-i="${i}"><i></i><span>${st.t}</span></li>`).join('')}</ol>
+      <ol class="bw-rail">${STEPS.map((st, i) => `<li data-i="${i}"><i></i><span>${st.l}</span></li>`).join('')}</ol>
       <div class="bw-view"><div class="bw-track">${STEPS.map((_, i) => `<div class="bw-step" data-step="${i}"></div>`).join('')}</div></div>
       <div class="bw-bar"><button type="button" class="bw-back" aria-label="Back"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
       <div class="bw-tot"><span>Total</span><b>₹100</b></div><button type="button" class="hg-btn p bw-next">Next<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>`;
     form.before(wz);
     const steps = $$('.bw-step', wz), track = $('.bw-track', wz), view = $('.bw-view', wz);
     STEPS.forEach((st, i) => st.els.filter(Boolean).forEach(el => steps[i].append(el)));
+    // r22: distinct per-step layouts
+    steps.forEach((x, i) => x.classList.add('bw-s' + i));
+    $$('#consoleOpts .opt', wz).forEach(b => { const im = document.createElement('img'); im.className = 'bw-hw'; im.alt = ''; im.decoding = 'async'; im.src = I(b.dataset.console === 'ps5' ? 'x-ps5.webp' : 'hw-ps4.webp'); b.prepend(im); });
+    { const f = by('Your details'); if (f) { const c = document.createElement('div'); c.className = 'bw-id'; c.innerHTML = `<img src="/img/inline-0de9c85f.webp" alt="" width="40" height="32"><div><small>Hunter Gamers</small><b>Player pass</b></div><span class="bw-chip"></span>`; f.querySelector('.fields').before(c); f.classList.add('bw-idcard'); } }
+    { const PI = { counter: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="13" width="38" height="24" rx="4"/><circle cx="24" cy="25" r="5"/><path d="M11 19v.01M37 31v.01"/></svg>', online: '<svg viewBox="0 0 48 48" width="44" height="44" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="13" y="4" width="22" height="40" rx="4"/><path d="M19 15h4v4h-4zM25 15h4v4h-4zM19 21h4v4h-4zM27 23l2 2M21 38h6"/></svg>' };
+      $$('#payOpts .pay-opt', wz).forEach(b => { const d = document.createElement('span'); d.className = 'bw-pi'; d.innerHTML = PI[b.dataset.pay] || ''; b.prepend(d); }); }
+    { const tk = $('.ticket', wz); if (tk) tk.classList.add('bw-pass'); }
     // the form keeps wrapping everything so submit + validation still work
     form.append(wz); panel.hidden = true; form.classList.add('bw-on');
     const head = $('.section-head', bookSheet); if (head) head.classList.add('bw-head');
@@ -128,6 +135,7 @@
     const fit = () => { view.style.height = steps[cur].offsetHeight + 'px'; };
     function go(i, focus) {
       i = Math.max(0, Math.min(N - 1, i)); const dir = i > cur; cur = i;
+      { const bk = bookSheet.querySelector('#book') || bookSheet; bk.style.setProperty('--bw-art', `url(${I(STEPS[i].a + '.webp')})`); bk.dataset.bw = i; }
       track.style.transform = `translate3d(${-i * 100}%,0,0)`;
       steps.forEach((s, j) => { s.classList.toggle('on', j === i); s.inert = j !== i; });
       $('.bw-ring b', wz).textContent = i + 1; $('.bw-k span', wz).textContent = i + 1; $('.bw-t', wz).textContent = STEPS[i].t; $('.bw-s', wz).textContent = STEPS[i].s;

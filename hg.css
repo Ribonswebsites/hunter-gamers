@@ -876,3 +876,91 @@ body.hg-app-on .hg-scrim{z-index:2990}
 /* r20: GTA6 cutout bleeds off the right edge and fades into the scene at the bottom (no hard cut) */
 .hgx-subject[data-id=gta6]{width:132vw!important;left:58%!important;-webkit-mask:linear-gradient(180deg,#000 72%,transparent 99%)!important;mask:linear-gradient(180deg,#000 72%,transparent 99%)!important}
 @media (min-width:900px){.hgx-subject[data-id=gta6]{width:64vw!important;left:66%!important}}
+/* r22: how-it-works snap carousel (static, no animation) */
+#how.hw{padding:28px 0 36px!important}
+#how.hw::before{display:none!important}
+.hw-track{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:0 18px;scroll-padding:0 18px;-webkit-overflow-scrolling:touch;scrollbar-width:none;overscroll-behavior-x:contain}
+.hw-track::-webkit-scrollbar{display:none}
+.hw-card{flex:0 0 min(86vw,420px);scroll-snap-align:start;display:flex;flex-direction:column;border-radius:22px;overflow:hidden;background:linear-gradient(180deg,#1a0a0d,#0e0809);border:1px solid rgba(251,36,28,.28);box-shadow:0 18px 40px rgba(0,0,0,.45)}
+.hw-art{height:190px;background-size:cover;background-position:center;position:relative;clip-path:polygon(0 0,100% 0,100% 80%,0 100%)}
+.hw-art::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(14,8,9,.85))}
+.hw-num{position:absolute;z-index:1;left:18px;bottom:6px;font:900 96px/.8 var(--font-display,system-ui);color:transparent;-webkit-text-stroke:2px #fb241c;text-shadow:0 0 34px rgba(251,36,28,.45)}
+.hw-body{padding:16px 18px 20px;flex:1;display:flex;flex-direction:column;gap:12px}
+.hw-c0 .hw-body ol{margin:0;padding:0;list-style:none}
+.hw-c0 .hw-body li{padding:12px 0!important}
+.hw-c0 .step-no{font-size:52px!important}
+.hw-k{display:flex;align-items:center;gap:8px;color:#fb241c;font:700 11px/1 var(--font-mono,monospace);letter-spacing:.2em;text-transform:uppercase}
+.hw-card h3{margin:0;font:800 22px/1.05 var(--font-display,system-ui);text-transform:uppercase;color:#fff}
+.hw-card p{margin:0;color:#d9c9cc;font-size:14px;line-height:1.45}
+.hw-chips{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.hw-chips span{border:1px solid rgba(255,255,255,.14);border-radius:12px;padding:12px;font:800 20px/1 var(--font-display,system-ui);color:#fff;display:flex;justify-content:space-between;align-items:center;background:rgba(255,255,255,.03)}
+.hw-chips b{font:600 11px/1 system-ui;color:#d9c9cc}
+.hw-chips .on{border-color:#fb241c;background:rgba(251,36,28,.14);box-shadow:inset 0 0 0 1px #fb241c}
+.hw-slots{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.hw-slots i{font-style:normal;text-align:center;padding:9px 0;border-radius:10px;border:1px solid rgba(255,255,255,.12);color:#fff;font:600 13px/1 system-ui}
+.hw-slots .on{background:#fb241c;border-color:#fb241c}
+.hw-slots .off{color:#6d5f62;text-decoration:line-through}
+.hw-snk{display:grid;gap:10px}
+.hw-snk div{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);color:#fb241c}
+.hw-snk span{flex:1;color:#fff;font-weight:600}
+.hw-snk b{color:#fff;font:800 18px/1 var(--font-display,system-ui)}
+.hw-tix{display:grid;grid-template-columns:1.4fr 1fr 1fr;border-radius:14px;overflow:hidden;background:#fb241c;color:#fff;position:relative}
+.hw-tix div{padding:12px;border-left:2px dashed rgba(0,0,0,.35)}
+.hw-tix div:first-child{border-left:0;background:#c8130d}
+.hw-tix small{display:block;font:700 9px/1 var(--font-mono,monospace);letter-spacing:.16em;text-transform:uppercase;opacity:.85;margin-bottom:6px}
+.hw-tix b{font:900 18px/1 var(--font-display,system-ui)}
+.hw-foot{margin-top:auto;display:flex;align-items:center;gap:8px;color:#bfaeb1;font-size:12px}
+.hw-foot svg{color:#fb241c}
+@media (min-width:900px){.hw-track{padding:0 max(18px,calc((100vw - 1200px)/2));scroll-padding:0 max(18px,calc((100vw - 1200px)/2))}}
+/* r22: booking wizard, distinct step layouts */
+.book-sheet #book::before{background-image:var(--bw-art,url(/img/sx-book.webp))!important;transform:none!important;right:0!important;width:62%!important;opacity:.5!important;border-radius:0 22px 0 0!important;-webkit-mask:linear-gradient(90deg,transparent,#000 55%),linear-gradient(#000 60%,transparent)!important;-webkit-mask-composite:source-in!important;mask:linear-gradient(90deg,transparent,#000 55%) intersect,linear-gradient(#000 60%,transparent)!important}
+.bw-on .legend-no{display:none!important}
+.bw-s3 legend,.bw-s4 legend{display:none!important}
+.bw-rail span{white-space:nowrap;overflow:visible!important;text-overflow:clip!important}
+/* 0 console: hardware cards */
+.bw-s0 .console-opts{display:grid!important;grid-template-columns:1fr 1fr;gap:12px}
+.bw-s0 .console-opts .opt{display:flex!important;flex-direction:column;align-items:flex-start;gap:4px;padding:12px!important;min-height:190px;border-radius:18px!important;background:radial-gradient(90% 60% at 50% 25%,rgba(251,36,28,.22),transparent 70%),#140b0d!important}
+.bw-hw{width:100%;height:110px;object-fit:contain;filter:drop-shadow(0 12px 18px rgba(0,0,0,.6))}
+.bw-s0 .console-opts strong{font:900 26px/1 var(--font-display,system-ui)!important}
+/* 1 time: calendar strip + slot grid */
+.bw-s1 #days{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.bw-s1 #days>*{border-radius:14px!important;min-width:64px}
+.bw-s1 #slots{display:grid!important;grid-template-columns:repeat(3,1fr)!important;gap:8px}
+.bw-s1 #slots button{border-radius:12px!important;position:relative}
+.bw-s1 #slots button:not(:disabled)::after{content:"";position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:#2fd37a}
+.bw-s1 #slots button:disabled::after{content:"";position:absolute;top:7px;right:7px;width:6px;height:6px;border-radius:50%;background:#fb241c}
+/* 2 squad: avatars + snack tiles */
+.bw-s2 #players{display:grid!important;grid-template-columns:repeat(4,1fr);gap:10px}
+.bw-s2 #players>*{aspect-ratio:1;border-radius:50%!important;background-size:cover!important;background-position:center 20%!important;font:900 22px/1 var(--font-display,system-ui)!important;color:#fff;text-shadow:0 2px 8px #000;border:2px solid rgba(255,255,255,.15)!important}
+.bw-s2 #players>*:nth-child(1){background-image:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(/img/f-kratos.webp)!important}
+.bw-s2 #players>*:nth-child(2){background-image:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(/img/f-miles.webp)!important}
+.bw-s2 #players>*:nth-child(3){background-image:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(/img/f-wolverine.webp)!important}
+.bw-s2 #players>*:nth-child(4){background-image:linear-gradient(rgba(0,0,0,.35),rgba(0,0,0,.35)),url(/img/f-jin.webp)!important}
+.bw-s2 #players>[aria-pressed=true],.bw-s2 #players>.on{border-color:#fb241c!important;box-shadow:0 0 0 3px rgba(251,36,28,.35)!important}
+.bw-s2 #snackRows{display:grid!important;grid-template-columns:1fr 1fr;gap:10px}
+.bw-s2 #snackRows>*{display:flex!important;flex-direction:column;align-items:stretch;gap:8px;padding:0 0 10px!important;border-radius:16px!important;overflow:hidden;background:#140b0d!important;border:1px solid rgba(255,255,255,.1)!important}
+.bw-s2 #snackRows>*::before{content:"";display:block;height:96px;background-size:cover;background-position:center 30%}
+.bw-s2 #snackRows>*:nth-child(1)::before{background-image:url(/img/sn-chips-r21.webp)}
+.bw-s2 #snackRows>*:nth-child(2)::before{background-image:url(/img/sn-drink-r21.webp)}
+.bw-s2 #snackRows>*>*{padding-left:10px!important;padding-right:10px!important}
+/* 3 details: ID card */
+.bw-idcard{border:1px solid rgba(251,36,28,.35)!important;border-radius:20px!important;padding:16px!important;background:linear-gradient(135deg,rgba(251,36,28,.18),transparent 55%),repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 8px),#120a0c!important}
+.bw-id{display:flex;align-items:center;gap:12px;padding-bottom:12px;margin-bottom:12px;border-bottom:1px dashed rgba(255,255,255,.15)}
+.bw-id small{display:block;font:700 10px/1 var(--font-mono,monospace);letter-spacing:.2em;text-transform:uppercase;color:#fb241c}
+.bw-id b{font:900 20px/1.1 var(--font-display,system-ui);text-transform:uppercase;color:#fff}
+.bw-chip{margin-left:auto;width:38px;height:28px;border-radius:6px;background:linear-gradient(135deg,#e9c46a,#9c7a2b);box-shadow:inset 0 0 0 1px rgba(0,0,0,.3)}
+/* 4 payment: method cards */
+.bw-s4 .pay-opts{display:grid!important;grid-template-columns:1fr 1fr;gap:12px}
+.bw-s4 .pay-opt{display:flex!important;flex-direction:column;align-items:flex-start;gap:6px;min-height:170px;padding:16px!important;border-radius:18px!important;background:#140b0d!important}
+.bw-pi{display:grid;place-items:center;width:62px;height:62px;border-radius:16px;background:rgba(251,36,28,.14);color:#fb241c;margin-bottom:6px}
+.bw-s4 .pay-opt[aria-pressed=true] .bw-pi{background:#fb241c;color:#fff}
+/* 5 review: boarding pass */
+.bw-pass{position:relative;overflow:visible!important}
+.bw-pass::before,.bw-pass::after{content:"";position:absolute;top:96px;width:24px;height:24px;border-radius:50%;background:#0B0809;border:1px solid rgba(251,36,28,.3)}
+.bw-pass::before{left:-13px}.bw-pass::after{right:-13px}
+.bw-pass .ticket-head{border-bottom:2px dashed rgba(255,255,255,.18)}
+.book-sheet .bw-pass .kv{display:grid!important;grid-template-columns:1fr 1fr;gap:12px}
+.book-sheet .bw-pass .kv>div{display:block!important}
+.book-sheet .bw-pass .kv dt{font:700 10px/1 var(--font-mono,monospace)!important;letter-spacing:.16em;text-transform:uppercase;color:#bfaeb1}
+.book-sheet .bw-pass .kv dd{font:800 18px/1.2 var(--font-display,system-ui)!important;color:#fff;margin:4px 0 0!important}
+.book-sheet .bw-pass .kv dd,.book-sheet .bw-pass .kv dt{text-align:left!important}
