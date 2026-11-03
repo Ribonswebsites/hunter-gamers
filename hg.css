@@ -874,9 +874,7 @@ body.hg-app-on .hg-scrim{z-index:2990}
 .bw .form-error{margin:10px 0 0}
 .bw-step .ticket{max-height:none!important;overflow:visible!important}
 /* r20: GTA6 cutout bleeds off the right edge and fades into the scene at the bottom (no hard cut) */
-.hgx-subject[data-id=gta6]{width:150vw!important;left:54%!important;top:auto!important;bottom:-10%!important;height:auto!important;max-height:none!important;-webkit-mask:none!important;mask:none!important}
 .hgx[data-s=gta6] .hgx-ring.r1{top:34%!important}
-@media (min-width:900px){.hgx-subject[data-id=gta6]{width:70vw!important;left:64%!important;bottom:-12%!important}}
 /* r22: how-it-works snap carousel (static, no animation) */
 #how.hw{padding:28px 0 36px!important}
 #how.hw::before{display:none!important}
@@ -1017,3 +1015,4 @@ body.hg-app-on .hg-scrim{z-index:2990}
 .cr-upd{margin:0;text-align:center;font-size:12px;color:#8a8a94}
 .cr-demo{margin:0;text-align:center;font-size:11px;color:#6d6d76}
 @media (min-width:900px){.cr-list{grid-template-columns:repeat(3,1fr)}.cr-hero{aspect-ratio:16/6}}
+.hgx-subject[data-id=gta6]{object-position:50% 0!important;padding-bottom:26px!important;box-sizing:border-box!important}

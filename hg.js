@@ -8,7 +8,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=26';
+  const I = n => '/img/' + (REN[n] || n) + '?v=27';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -37,7 +37,7 @@
   const SLIDES = [ // every slide shows the ring; rt = per-slide ring centre (% of hero height), kept below background faces
     { id: 'wolverine', pop: 'f-wolverine', clear: 1, bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
     { id: 'gow', bg: 'h-gow', tag: 'God of War Ragnarök', h: 'Kratos is <span>waiting.</span>' },
-    { id: 'gta6', bg: 'gta6-bg', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
+    { id: 'gta6', bg: 'gta6-bg', cut: 'gta6-r24', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
     { id: 'sm2', cut: 'peter', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Swing into <span>the city.</span>' },
     { id: 'acs', bg: 'h-acs', tag: "Assassin's Creed Shadows", h: 'Strike from <span>the shadows.</span>' },
     { id: 'fc26', bg: 'h-fc26', tag: 'EA SPORTS FC 26', h: 'Settle it <span>on the pitch.</span>' },
@@ -247,7 +247,7 @@
     function loop() { if (!running) { running = true; requestAnimationFrame(tick); } }
     function tick(now) {
       if (!visible || document.hidden) { running = false; tick.l = 0; return; }
-      const dt = Math.min(50, now - (tick.l || now)); tick.l = now; if (!reduce) { auto += dt * 0.00018; layout(); }
+      const dt = Math.min(50, now - (tick.l || now)); tick.l = now; auto += dt * 0.00018; layout();
       lastP = Math.min(1, (now - t0) / DUR); prog.style.transform = `scaleX(${lastP.toFixed(4)})`;
       if (lastP >= 1 && !reduce) go(cur + 1);
       requestAnimationFrame(tick);
@@ -628,7 +628,7 @@
     <button class="hg-ph-back" data-back aria-label="Back">${IC.left()}</button><div class="hg-ph-t"><span class="hg-ic">${icon}</span><h1>${title}</h1><p>${text}</p></div></header>`;
 
   function renderControl() {
-    const ART = { P1: 'cr-p1-r23', P2: 'cr-p2-r23', P3: 'cr-p3-r23', P4: 'cr-p4-r23', P5: 'cr-p5-r23' };
+    const ART = { P1: 'cr-p1-r23', P2: 'cr-p2-r23', P3: 'cr-p3-r23', P4: 'cr-p4-r23', P5: 'cr-p5-r24' };
     page.innerHTML = `<div class="hg-pg hg-ctl cr">${pageHead(I('r-ctl.webp'), IC.live(26), 'Control room', '3 PS5 and 2 PS4 at Hunter Gamers, Indora. Live status, time left and the next free slot for every console.')}
       <div class="hg-pg-in">
       <section class="cr-hero"><img src="${I('cr-hero-r23.webp')}" alt="Three PS5 and two PS4 consoles" width="1024" height="576" decoding="async">
