@@ -7,7 +7,7 @@
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
-  const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp' };
+  const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
   const I = n => '/img/' + (REN[n] || n) + '?v=24';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
@@ -94,6 +94,71 @@
   if (bookSec) bookSheet.append(bookSec);
   const openBook = () => { if (openSheet !== bookSheet) show(bookSheet); };
 
+  /* ---------- r20: booking wizard (moves the original fieldsets into steps; ids and logic untouched) ---------- */
+  (function wizard() {
+    const form = $('#bookForm', bookSheet); if (!form) return;
+    const panel = $('.panel', form), ticket = $('.ticket', form), fs = $$('fieldset', panel);
+    const by = (txt) => fs.find(f => ($('legend', f) || {}).textContent && $('legend', f).textContent.includes(txt));
+    const STEPS = [
+      { t: 'Console', s: 'How do you want to play?', els: [$('#modeOpts', form), by('Console')] },
+      { t: 'Day & time', s: 'Pick your day, start time and hours.', els: [by('Day'), $('#slots', form) && $('#slots', form).closest('fieldset'), by('How long')] },
+      { t: 'Squad & snacks', s: 'Who is playing and what do you eat?', els: [by('Players'), by('Snacks'), by('Controllers')] },
+      { t: 'Your details', s: 'So we can hold the slot for you.', els: [by('Your details')] },
+      { t: 'Payment', s: 'Pay now by UPI or at the counter.', els: [by('Payment')] },
+      { t: 'Review', s: 'Check everything, then confirm.', els: [ticket] }
+    ];
+    const N = STEPS.length;
+    const wz = document.createElement('div'); wz.className = 'bw';
+    wz.innerHTML = `<div class="bw-prog" aria-hidden="true"><div class="bw-ring"><svg viewBox="0 0 64 64"><circle cx="32" cy="32" r="27" class="bg"/><circle cx="32" cy="32" r="27" class="fg" pathLength="100"/></svg><b>1</b><small>/${N}</small></div>
+      <div class="bw-meta"><p class="bw-k">Step <span>1</span> of ${N}</p><h3 class="bw-t">${STEPS[0].t}</h3><p class="bw-s">${STEPS[0].s}</p></div></div>
+      <ol class="bw-rail">${STEPS.map((st, i) => `<li data-i="${i}"><i></i><span>${st.t}</span></li>`).join('')}</ol>
+      <div class="bw-view"><div class="bw-track">${STEPS.map((_, i) => `<div class="bw-step" data-step="${i}"></div>`).join('')}</div></div>
+      <div class="bw-bar"><button type="button" class="bw-back" aria-label="Back"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M19 12H5M11 6l-6 6 6 6"/></svg></button>
+      <div class="bw-tot"><span>Total</span><b>₹100</b></div><button type="button" class="hg-btn p bw-next">Next<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>`;
+    form.before(wz);
+    const steps = $$('.bw-step', wz), track = $('.bw-track', wz), view = $('.bw-view', wz);
+    STEPS.forEach((st, i) => st.els.filter(Boolean).forEach(el => steps[i].append(el)));
+    // the form keeps wrapping everything so submit + validation still work
+    form.append(wz); panel.hidden = true; form.classList.add('bw-on');
+    const head = $('.section-head', bookSheet); if (head) head.classList.add('bw-head');
+    const tot = $('.bw-tot b', wz), sumT = $('#sumTotal', form);
+    const syncTot = () => { if (sumT) tot.textContent = sumT.textContent; };
+    if (sumT) new MutationObserver(syncTot).observe(sumT, { childList: true, characterData: true, subtree: true }); syncTot();
+    let cur = 0;
+    const fit = () => { view.style.height = steps[cur].offsetHeight + 'px'; };
+    function go(i, focus) {
+      i = Math.max(0, Math.min(N - 1, i)); const dir = i > cur; cur = i;
+      track.style.transform = `translate3d(${-i * 100}%,0,0)`;
+      steps.forEach((s, j) => { s.classList.toggle('on', j === i); s.inert = j !== i; });
+      $('.bw-ring b', wz).textContent = i + 1; $('.bw-k span', wz).textContent = i + 1; $('.bw-t', wz).textContent = STEPS[i].t; $('.bw-s', wz).textContent = STEPS[i].s;
+      $('.bw-ring .fg', wz).style.strokeDashoffset = 100 - ((i + 1) / N) * 100;
+      $$('.bw-rail li', wz).forEach((l, j) => { l.classList.toggle('done', j < i); l.classList.toggle('on', j === i); });
+      wz.classList.toggle('first', i === 0); wz.classList.toggle('last', i === N - 1);
+      $('.bw-next', wz).firstChild.textContent = i === N - 1 ? 'Confirm booking' : i === N - 2 ? 'Review' : 'Next';
+      fit(); if (bookSheet.scrollTop > 0) bookSheet.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+    const err = (id, msg) => { const e = $('#err-' + id, form); if (e) { e.textContent = msg; e.hidden = false; } fit(); };
+    function ok(i) {
+      const st = document.querySelector('#slots .slot[aria-pressed=true], #slots .on, #slots [aria-checked=true]');
+      if (i === 1 && $('#sumTime', form) && $('#sumTime', form).textContent.trim() === '—' && !st) { err('slot', 'Pick a start time to continue.'); return false; }
+      if (i === 2 && $('#depositOk', form) && !$('#depositOk', form).closest('fieldset').hidden && !$('#depositOk', form).checked) { err('deposit', 'Tick the box to agree to the ₹1,000 refundable deposit.'); return false; }
+      if (i === 3) { const n = $('#name', form), p = $('#phone', form); let g = true;
+        if (n.value.trim().length < 2) { err('name', 'Enter the name for this booking.'); g = false; }
+        if (!/^[6-9]\d{9}$/.test(p.value)) { err('phone', 'Enter a 10-digit mobile number.'); g = false; } return g; }
+      return true;
+    }
+    $('.bw-next', wz).addEventListener('click', () => { if (cur === N - 1) { form.requestSubmit ? form.requestSubmit() : $('button[type=submit]', form).click(); return; } if (ok(cur)) go(cur + 1); });
+    $('.bw-back', wz).addEventListener('click', () => go(cur - 1));
+    $$('.bw-rail li', wz).forEach(l => l.addEventListener('click', () => { const i = +l.dataset.i; if (i < cur) go(i); }));
+    // after a failed submit, jump to the step holding the first error
+    form.addEventListener('submit', () => setTimeout(() => { const e = $$('.err', form).find(x => !x.hidden && x.textContent); if (e) { const s = e.closest('.bw-step'); if (s) go(+s.dataset.step); } }, 0));
+    view.addEventListener('scroll', () => { view.scrollLeft = 0; }); track.addEventListener('scroll', () => { track.scrollLeft = 0; });
+    { const ro = new ResizeObserver(fit); steps.forEach(x => ro.observe(x)); } addEventListener('resize', fit);
+    const _show = show; bookSheet._wzReset = () => go(0);
+    go(0);
+    // swipe left/right between steps is not used (avoids fighting the day/time scrollers)
+  })();
+
   /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
   const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = '-md';
   const HIBG = ['wolverine', 'gta6', 'gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
@@ -106,8 +171,8 @@
     hx.innerHTML = `<div class="hgx-layer hgx-bgs">${SLIDES.map((s, i) => `<div class="hgx-bg${s.clear ? ' clear' : ''}${i ? '' : ' on'}"${i ? '' : ` style="background-image:url(${bgSrc(s)})"`}></div>`).join('')}</div>
       <div class="hgx-ring r1"></div>
       <div class="hgx-layer hgx-subs">${SLIDES.map((s, i) => s.pop
-        ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}"><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
-        : `<img class="hgx-subject hgx-subject-w${i ? '' : ' on'}" ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async">`).join('')}</div>
+        ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}" data-id="${s.id}"><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
+        : `<img data-id="${s.id}" class="hgx-subject hgx-subject-w${i ? '' : ' on'}" ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async">`).join('')}</div>
       ${SLIDES.map((s, i) => `<div class="hgx-copy${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
       <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div>`).join('')}
@@ -251,21 +316,30 @@
     document.addEventListener('visibilitychange', () => { if (!document.hidden && vis) kick(); });
     let st0 = 0, sx = 0, sy = 0, lx = 0, lt = 0, moved = 0, pid = null, dv = 0, axis = 0;
     const stage = $('.hg-cf-stage', cf); stage.style.touchAction = 'pan-y';
-    stage.addEventListener('pointerdown', e => { if (e.button > 0) return; drag = pos; st0 = Math.round(pos); pid = e.pointerId; sx = lx = e.clientX; sy = e.clientY; lt = performance.now(); dv = 0; moved = 0; axis = 0; vel = 0; });
-    stage.addEventListener('pointermove', e => { if (drag == null || e.pointerId !== pid) return;
-      if (!axis) { const ax = Math.abs(e.clientX - sx), ay = Math.abs(e.clientY - sy); if (ax < 6 && ay < 6) return; axis = ax > ay ? 1 : 2; if (axis === 1) try { stage.setPointerCapture(pid); } catch (_) {} }
-      if (axis !== 1) { drag = null; kick(); return; }
-      const now = performance.now(), dx = e.clientX - lx, d = Math.max(1, now - lt); const iv = -dx / (cw * 0.9) / (d / 1000); dv = dv * 0.6 + iv * 0.4; lx = e.clientX; lt = now; moved = e.clientX - sx;
-      pos = drag - moved / (cw * 0.9); t0 = now; kick(); }, { passive: true });
-    const up = e => { if (drag == null || (e && e.pointerId !== pid)) return; drag = null; if (performance.now() - lt > 90) dv = 0;
-      const v = Math.max(-9, Math.min(9, dv)); let tgt = Math.round(pos + v * 0.22); tgt = Math.max(Math.round(pos) - 3, Math.min(Math.round(pos) + 3, tgt));
-      if (tgt === st0 && (Math.abs(moved) > cw * 0.18 || Math.abs(v) > 0.8)) tgt = st0 + (moved < 0 ? 1 : -1);
+    // r20: one gesture engine fed by touch events (Android WebView/Chrome) and mouse pointers; axis lock so vertical scroll still works
+    let touching = false;
+    const gStart = (x, y) => { drag = pos; st0 = Math.round(pos); sx = lx = x; sy = y; lt = performance.now(); dv = 0; moved = 0; axis = 0; vel = 0; touching = true; };
+    const gMove = (x, y, ev) => { if (drag == null) return;
+      if (!axis) { const ax = Math.abs(x - sx), ay = Math.abs(y - sy); if (ax < 5 && ay < 5) return; axis = ax >= ay * 0.8 ? 1 : 2; }
+      if (axis !== 1) { drag = null; touching = false; kick(); return; }
+      if (ev && ev.cancelable) ev.preventDefault();
+      const now = performance.now(), dx = x - lx, d = Math.max(1, now - lt); const iv = -dx / (cw * 0.9) / (d / 1000); dv = dv * 0.6 + iv * 0.4; lx = x; lt = now; moved = x - sx;
+      pos = drag - moved / (cw * 0.9); t0 = now; kick(); };
+    const gEnd = () => { touching = false; if (drag == null) return; drag = null; if (performance.now() - lt > 120) dv *= 0.3;
+      const v = Math.max(-9, Math.min(9, dv)); let tgt = Math.round(pos + v * 0.16); tgt = Math.max(st0 - 3, Math.min(st0 + 3, tgt));
+      if (tgt === st0 && (Math.abs(moved) > 22 || Math.abs(v) > 0.35)) tgt = st0 + (moved < 0 ? 1 : -1);
       target = tgt; vel = v; t0 = performance.now(); kick(); };
-    stage.addEventListener('pointerup', up); stage.addEventListener('pointercancel', up); stage.addEventListener('lostpointercapture', up);
+    stage.addEventListener('touchstart', e => { if (e.touches.length !== 1) { gEnd(); return; } const t = e.touches[0]; gStart(t.clientX, t.clientY); }, { passive: true });
+    stage.addEventListener('touchmove', e => { const t = e.touches[0]; if (t) gMove(t.clientX, t.clientY, e); }, { passive: false });
+    stage.addEventListener('touchend', gEnd); stage.addEventListener('touchcancel', gEnd);
+    stage.addEventListener('pointerdown', e => { if (e.pointerType !== 'mouse' || e.button > 0) return; pid = e.pointerId; gStart(e.clientX, e.clientY); });
+    addEventListener('pointermove', e => { if (e.pointerType === 'mouse' && e.pointerId === pid) gMove(e.clientX, e.clientY, e); });
+    addEventListener('pointerup', e => { if (e.pointerType === 'mouse' && e.pointerId === pid) { pid = null; gEnd(); } });
+    stage.addEventListener('dragstart', e => e.preventDefault());
     cs.forEach((c, i) => c.addEventListener('click', e => { e.stopPropagation(); if (Math.abs(moved) > 8) return; let o = i - pos; o -= Math.round(o / n) * n;
       if (Math.abs(o) < 0.5) gamePopup(GAMES.find(g => g.id === SPOT[i])); else { target = Math.round(pos + o); t0 = performance.now(); kick(); } }));
     $$('img', cf).forEach(im => im.decode && im.decode().catch(() => {}));
-    setInterval(() => { if (vis && drag == null && !document.hidden && performance.now() - t0 > 5600) { target = Math.round(target) + 1; t0 = performance.now(); kick(); } }, 1000);
+    setInterval(() => { if (vis && drag == null && !touching && !document.hidden && performance.now() - t0 > 3500) { target = Math.round(target) + 1; t0 = performance.now(); kick(); } }, 250);
     render();
   }
   function gamePopup(g) {
