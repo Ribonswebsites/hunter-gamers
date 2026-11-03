@@ -628,26 +628,37 @@
     <button class="hg-ph-back" data-back aria-label="Back">${IC.left()}</button><div class="hg-ph-t"><span class="hg-ic">${icon}</span><h1>${title}</h1><p>${text}</p></div></header>`;
 
   function renderControl() {
-    const ART = { P1: 'k-gow', P2: 'k-acs', P3: 'k-nr', P4: 'k-got', P5: 'k-wk' };
-    page.innerHTML = `<div class="hg-pg hg-ctl">${pageHead(I('r-ctl.webp'), IC.live(26), 'Control room', '3 PS5 and 2 PS4 at Hunter Gamers, Indora. Live status, time left and the next free slot for every console.')}
-      <div class="hg-pg-in"><p class="hg-demo hg-ctl-demo" hidden>Demo data: the live feed switches on with the booking server.</p>
-      <div class="hg-ctl-hero"><img class="a" src="${I('x-ps5.webp')}" alt="PS5"><img class="b" src="${I('hw-ps4.webp')}" alt="PS4"><p class="hg-cs-sum"></p><span class="k">3 × PS5 · 2 × PS4</span></div>
-      <div class="hg-cs">${RIG.map(r => `<article class="hg-cs-c" data-id="${r.id}"><div class="bg" style="background-image:url(${I(ART[r.id] + '.webp')})"></div>
-        <i class="rail"></i><div class="tx"><span class="tag"><i></i><b class="st"></b></span><h3>${r.name}</h3>
-        <dl><div><dt>Time left</dt><dd class="tl"></dd></div><div><dt>Next free</dt><dd class="nf"></dd></div><div><dt>Queue</dt><dd class="qc"></dd></div></dl></div></article>`).join('')}</div>
-      <p class="hg-live-upd"></p>
-      <button class="hg-btn p hg-pg-cta" data-hg-book>Book a slot${ARW}</button></div></div>`;
+    const ART = { P1: 'cr-p1-r23', P2: 'cr-p2-r23', P3: 'cr-p3-r23', P4: 'cr-p4-r23', P5: 'cr-p5-r23' };
+    page.innerHTML = `<div class="hg-pg hg-ctl cr">${pageHead(I('r-ctl.webp'), IC.live(26), 'Control room', '3 PS5 and 2 PS4 at Hunter Gamers, Indora. Live status, time left and the next free slot for every console.')}
+      <div class="hg-pg-in">
+      <section class="cr-hero"><img src="${I('cr-hero-r23.webp')}" alt="Three PS5 and two PS4 consoles" width="1024" height="576" decoding="async">
+        <div class="cr-hero-tx"><p class="cr-k">Right now at the shop</p>
+        <div class="cr-counts"><div class="f"><b class="cr-nf">0</b><span>Free</span></div><div class="p"><b class="cr-np">0</b><span>Playing</span></div></div>
+        <p class="cr-next"></p></div></section>
+      <div class="cr-list">${RIG.map(r => `<article class="cr-c" data-id="${r.id}" data-type="${r.type}">
+        <div class="cr-art"><img src="${I(ART[r.id] + '.webp')}" alt="" loading="lazy" decoding="async"></div>
+        <div class="cr-bd"><div class="cr-top"><span class="cr-ty ${r.type}">${r.type.toUpperCase()}</span><h3>${r.name.replace(' · ', ' #')}</h3><span class="cr-st"></span></div>
+        <div class="cr-main"></div><div class="cr-foot"><span class="cr-q"></span></div></div></article>`).join('')}</div>
+      <p class="cr-upd"></p>
+      <p class="cr-demo" hidden>Demo data · the live feed switches on with the booking server</p></div></div>`;
+    const els = {};
+    $$('.cr-c', page).forEach(el => els[el.dataset.id] = { el, st: $('.cr-st', el), main: $('.cr-main', el), q: $('.cr-q', el), mode: '' });
     CTRL.draw = () => {
       if (!LIVE.data) return; const now = Date.now(), cs = LIVE.data.consoles.map(c => derive(c, now));
-      { const d = $('.hg-ctl-demo', page); if (d) d.hidden = !LIVE.demo; }
-      const fr = cs.filter(c => c.st === 'free').length;
-      $('.hg-cs-sum', page).innerHTML = `<b>${fr} of ${cs.length}</b> consoles free right now`;
-      cs.forEach(c => { const el = $(`.hg-cs-c[data-id="${c.id}"]`, page); el.dataset.st = c.st;
-        $('.st', el).textContent = { free: 'Free', playing: 'Playing', reserved: 'Reserved' }[c.st];
-        $('.tl', el).textContent = c.cur ? left(c.cur.end - now) : '—';
-        $('.nf', el).textContent = c.free <= now ? 'Now' : tfmt(c.free);
-        const q = c.nxt.length; $('.qc', el).textContent = q ? `${q} booking${q > 1 ? 's' : ''}` : 'None'; });
-      $('.hg-live-upd', page).textContent = `Updated ${tfmt(LIVE.data.updated || now)} · refreshes every 15 s`;
+      $('.cr-demo', page).hidden = !LIVE.demo;
+      const fr = cs.filter(c => c.st === 'free').length, pl = cs.filter(c => c.st === 'playing').length, nf = Math.min(...cs.map(c => c.free));
+      $('.cr-nf', page).textContent = fr; $('.cr-np', page).textContent = pl;
+      $('.cr-next', page).innerHTML = fr ? 'Walk in and play, a console is waiting' : `Next console free at <b>${tfmt(nf)}</b>`;
+      cs.forEach(c => { const o = els[c.id]; if (!o) return; o.el.dataset.st = c.st;
+        o.st.textContent = { free: 'Free', playing: 'Playing', reserved: 'Reserved' }[c.st];
+        if (o.mode !== c.st) { o.mode = c.st;
+          o.main.innerHTML = c.st === 'free' ? `<p class="cr-ready">Ready to play now</p><button class="cr-book" data-hg-book>Book now${ARW}</button>`
+            : c.st === 'playing' ? `<div class="cr-left"><b class="n"></b><span>left</span></div><div class="cr-bar"><i></i></div><p class="cr-nx">Free at <b class="t"></b></p>`
+            : `<div class="cr-left"><b class="n"></b><span>until booked slot</span></div><p class="cr-nx">Booking starts <b class="t"></b></p>`; }
+        if (c.st === 'playing') { const d = c.cur.end - c.cur.start; $('.n', o.main).textContent = left(c.cur.end - now); $('.cr-bar i', o.main).style.transform = `scaleX(${Math.min(1, (now - c.cur.start) / d)})`; $('.t', o.main).textContent = tfmt(c.free); }
+        else if (c.st === 'reserved') { $('.n', o.main).textContent = left(c.nxt[0].start - now); $('.t', o.main).textContent = tfmt(c.nxt[0].start); }
+        const q = c.nxt.length; o.q.textContent = q ? `${q} in queue` : 'No queue'; o.q.classList.toggle('on', !!q); });
+      $('.cr-upd', page).textContent = `Updated ${tfmt(LIVE.data.updated || now)} · refreshes every 15 s`;
     };
     CTRL.draw();
   }
