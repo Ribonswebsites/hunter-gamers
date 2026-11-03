@@ -874,8 +874,9 @@ body.hg-app-on .hg-scrim{z-index:2990}
 .bw .form-error{margin:10px 0 0}
 .bw-step .ticket{max-height:none!important;overflow:visible!important}
 /* r20: GTA6 cutout bleeds off the right edge and fades into the scene at the bottom (no hard cut) */
-.hgx-subject[data-id=gta6]{width:132vw!important;left:58%!important;-webkit-mask:linear-gradient(180deg,#000 72%,transparent 99%)!important;mask:linear-gradient(180deg,#000 72%,transparent 99%)!important}
-@media (min-width:900px){.hgx-subject[data-id=gta6]{width:64vw!important;left:66%!important}}
+.hgx-subject[data-id=gta6]{width:150vw!important;left:54%!important;top:auto!important;bottom:-10%!important;height:auto!important;max-height:none!important;-webkit-mask:none!important;mask:none!important}
+.hgx[data-s=gta6] .hgx-ring.r1{top:34%!important}
+@media (min-width:900px){.hgx-subject[data-id=gta6]{width:70vw!important;left:64%!important;bottom:-12%!important}}
 /* r22: how-it-works snap carousel (static, no animation) */
 #how.hw{padding:28px 0 36px!important}
 #how.hw::before{display:none!important}
@@ -940,8 +941,8 @@ body.hg-app-on .hg-scrim{z-index:2990}
 .bw-s2 #snackRows{display:grid!important;grid-template-columns:1fr 1fr;gap:10px}
 .bw-s2 #snackRows>*{display:flex!important;flex-direction:column;align-items:stretch;gap:8px;padding:0 0 10px!important;border-radius:16px!important;overflow:hidden;background:#140b0d!important;border:1px solid rgba(255,255,255,.1)!important}
 .bw-s2 #snackRows>*::before{content:"";display:block;height:96px;background-size:cover;background-position:center 30%}
-.bw-s2 #snackRows>*:nth-child(1)::before{background-image:url(/img/sn-chips-r21.webp)}
-.bw-s2 #snackRows>*:nth-child(2)::before{background-image:url(/img/sn-drink-r21.webp)}
+.bw-s2 #snackRows>*:nth-child(1)::before{background-image:url(/img/bw-chips-r23.webp)}
+.bw-s2 #snackRows>*:nth-child(2)::before{background-image:url(/img/bw-drink-r23.webp)}
 .bw-s2 #snackRows>*>*{padding-left:10px!important;padding-right:10px!important}
 /* 3 details: ID card */
 .bw-idcard{border:1px solid rgba(251,36,28,.35)!important;border-radius:20px!important;padding:16px!important;background:linear-gradient(135deg,rgba(251,36,28,.18),transparent 55%),repeating-linear-gradient(135deg,rgba(255,255,255,.025) 0 2px,transparent 2px 8px),#120a0c!important}
@@ -964,3 +965,12 @@ body.hg-app-on .hg-scrim{z-index:2990}
 .book-sheet .bw-pass .kv dt{font:700 10px/1 var(--font-mono,monospace)!important;letter-spacing:.16em;text-transform:uppercase;color:#bfaeb1}
 .book-sheet .bw-pass .kv dd{font:800 18px/1.2 var(--font-display,system-ui)!important;color:#fff;margin:4px 0 0!important}
 .book-sheet .bw-pass .kv dd,.book-sheet .bw-pass .kv dt{text-align:left!important}
+/* r23: how-it-works slides full-bleed, edge to edge */
+#how.hw{padding:0!important}
+.hw-track{gap:0!important;padding:0!important;scroll-padding:0!important}
+.hw-card{flex:0 0 100%!important;border:0!important;border-radius:0!important;box-shadow:none!important;background:transparent!important}
+.hw-art{height:250px!important;clip-path:polygon(0 0,100% 0,100% 72%,0 100%)!important}
+.hw-art::after{background:linear-gradient(180deg,transparent 45%,rgba(11,8,9,.9))!important}
+.hw-body{padding:16px 18px 30px!important}
+@media (min-width:900px){.hw-track{padding:0!important}.hw-art{height:380px!important}.hw-body{max-width:1200px;margin:0 auto;width:100%}}
+.hh-bg{object-position:50% 0%!important}
