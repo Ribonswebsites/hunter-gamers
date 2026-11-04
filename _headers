@@ -11,6 +11,10 @@
   Access-Control-Allow-Origin: *
 /downloads/*
   Cache-Control: no-cache
+/downloads/Hunter-Gamers.mobileconfig
+  Content-Type: application/x-apple-aspen-config
+  Content-Disposition: inline; filename="Hunter-Gamers.mobileconfig"
+  Cache-Control: no-cache
 /img/*
   Cache-Control: public, max-age=604800
 /sw.js

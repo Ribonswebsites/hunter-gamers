@@ -3,7 +3,9 @@
   'use strict';
   const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
   const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
-  const IN_APP = /HunterGameApp/i.test(navigator.userAgent);
+  const IS_IOS = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  // Android shell sets HunterGameApp. iPhone full-screen install sets navigator.standalone (not a browser tab).
+  const IN_APP = /HunterGameApp/i.test(navigator.userAgent) || (IS_IOS && navigator.standalone === true);
   const IS_ANDROID = /Android/i.test(navigator.userAgent);
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
@@ -506,23 +508,42 @@
     if (IN_APP || window.HGApp) return;
     const P = ['gta6', 'gow', 'fc26', 'sm2', 'wk'];
     const feat = [['M4 7h16v12H4zM8 3v4M16 3v4', 'Book in 3 taps'], ['M12 3v12M6 11l6 6 6-6M4 21h16', 'Stay logged in'], ['M3 12h4l3-8 4 16 3-8h4', 'Live seat status']];
+    const inSafariTab = IS_IOS && /CriOS|FxiOS|EdgiOS|OPiOS|Instagram|FBAN|FBAV|Line|Twitter|Snapchat/i.test(navigator.userAgent);
+    const dl = IS_IOS
+      ? (inSafariTab
+          ? `<p class="ap-ios-note">Apple only installs the app from Safari, not from this in-app browser.</p>
+             <a class="hg-btn p ap-dl" href="https://hunter-gamers.pages.dev/">${IC.dl()}<span>Open in Safari<small class="hg-app-meta">Then tap Get the app</small></span></a>`
+          : `<a class="hg-btn p ap-dl" href="/downloads/Hunter-Gamers.mobileconfig">${IC.dl()}<span>Install on iPhone<small class="hg-app-meta">Full screen · no Safari bar</small></span></a>
+             <ol class="ap-steps">
+               <li><b>1</b><span>Tap Install. iOS downloads the app profile.</span></li>
+               <li><b>2</b><span>Open Settings. Tap <em>Profile Downloaded</em>, then Install. Enter your passcode and tap Install again.</span></li>
+               <li><b>3</b><span>Leave Safari. Open the Hunter Gamers icon on the home screen. That icon is the app.</span></li>
+             </ol>
+             <p class="ap-ios-note">If you do not see Profile Downloaded: Settings → General → VPN & Device Management → Hunter Gamers → Install.</p>`)
+      : `<a class="hg-btn p ap-dl" href="/downloads/hunter-game.apk" download>${IC.dl()}<span>Download APK<small class="hg-app-meta">Android 7+ · latest version</small></span></a>`;
     const el = popup({ cls: 'p-app ap2', art: false, center: true, icon: '', title: '', text: '',
       extra: `<div class="ap-stage"><img class="ap-key" src="${I('k-gta6.webp')}" alt="Grand Theft Auto VI official art" decoding="async"><div class="ap-fade"></div>
         <div class="ap-fan">${P.map((g, i) => `<img src="${I('p-' + g + '.webp')}" alt="" style="--i:${i - 2}" decoding="async">`).join('')}</div>
         <div class="ap-phone"><div class="ap-scr"><img src="${I('t-fc26.webp')}" alt="" decoding="async"><img class="ap-logo" src="${LOGO}" alt="Hunter Gamers"><b>Book a slot</b></div></div>
-        <span class="ap-chip">Android app</span></div>
+        <span class="ap-chip">${IS_IOS ? 'iPhone app' : 'Android app'}</span></div>
         <div class="ap-body"><h3>Hunter Gamers<span>in your pocket</span></h3>
         <ul class="ap-feat">${feat.map(([d, t]) => `<li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="${d}"/></svg>${t}</li>`).join('')}</ul>
-        <a class="hg-btn p ap-dl" href="/downloads/hunter-game.apk" download>${IC.dl()}<span>Download APK<small class="hg-app-meta">Android 7+ · latest version</small></span></a>
+        ${dl}
         <button class="hg-linkbtn ap-later" type="button" data-close>Maybe later</button></div>`,
       actions: [] });
     document.body.classList.add('hg-app-on');
     const done = () => { store.set('appAsked', Date.now()); document.body.classList.remove('hg-app-on'); };
     $$('[data-close]', el).forEach(x => x.addEventListener('click', done));
-    $('.ap-dl', el).addEventListener('click', () => { store.set('appAsked', Date.now()); setTimeout(() => { hide(el); done(); }, 300); });
+    const dlBtn = $('.ap-dl', el);
+    if (dlBtn) dlBtn.addEventListener('click', () => {
+      store.set('appAsked', Date.now());
+      if (!IS_IOS) setTimeout(() => { hide(el); done(); }, 300);
+    });
     new MutationObserver(() => { if (!el.classList.contains('on')) done(); }).observe(el, { attributes: true, attributeFilter: ['class'] });
-    Promise.all([fetch('/version.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null), fetch('/downloads/hunter-game.apk', { method: 'HEAD', cache: 'no-store' }).then(r => +r.headers.get('content-length') || 0).catch(() => 0)])
-      .then(([v, len]) => { const m = $('.hg-app-meta', el); if (m) m.textContent = `Android 7+ · ${v ? 'v' + v.versionName : 'latest version'}${len ? ' · ' + (len / 1048576).toFixed(1) + ' MB' : ''}`; });
+    if (!IS_IOS) {
+      Promise.all([fetch('/version.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null), fetch('/downloads/hunter-game.apk', { method: 'HEAD', cache: 'no-store' }).then(r => +r.headers.get('content-length') || 0).catch(() => 0)])
+        .then(([v, len]) => { const m = $('.hg-app-meta', el); if (m) m.textContent = `Android 7+ · ${v ? 'v' + v.versionName : 'latest version'}${len ? ' · ' + (len / 1048576).toFixed(1) + ' MB' : ''}`; });
+    }
   }
   // r18: on the website the popup shows on top of everything (login wall included) on first visit; waits only for another open sheet.
   function maybeApp() {
@@ -534,7 +555,7 @@
   setTimeout(maybeApp, 2000);
   function addAppLinks() {
     if (IN_APP) return;
-    const a = `<a class="hg-dl-link" href="/downloads/hunter-game.apk" data-hg-app>${svg(ico.dl).replace('<svg', '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"')}Get the app</a>`;
+    const a = `<a class="hg-dl-link" href="${IS_IOS ? '/downloads/Hunter-Gamers.mobileconfig' : '/downloads/hunter-game.apk'}" data-hg-app>${svg(ico.dl).replace('<svg', '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"')}Get the app</a>`;
     const nav = $('.nav-links'); nav && nav.insertAdjacentHTML('beforeend', a);
     const ff = $('.foot-links'); ff && ff.insertAdjacentHTML('beforeend', a);
   }

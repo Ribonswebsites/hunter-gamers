@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>PayloadContent</key>
+  <array>
+    <dict>
+      <key>FullScreen</key>
+      <true/>
+      <key>Icon</key>
+      <data>
+iVBORw0KGgoAAAANSUhEUgAAALQAAAC0CAIAAACyr5FlAAAeNElEQVR4nO2daZAl1ZXf/+fm9pYq
+QJoBtCFGEgLBaJkBDRrJIyGswQKEhMwqIVkjZBNhW/LYEw47whH+7HDYH+zwWPJoRmKHpukGRLOp
+AbFILIMaFOwgNgFqFoGa7qbey8y7Hn+4mVmvql5WN/Srrqqu+4uMhqp6L/Pmvf8899xzz71J/U4X
+gcA4xHIXILByCeIItBLEEWgliCPQShBHoJUgjkArQRyBVoI4Aq0EcQRaCeIItBLEEWgliCPQShBH
+oJUgjkArQRyBVoI4Aq0EcQRaCeIItBLEEWgliCPQShBHoJUgjkArQRyBVoI4Aq0EcQRaCeIItBLE
+EWgliCPQShBHoJUgjkArQRyBVoI4Aq0EcQRaCeIItBLEEWgliCPQShBHoJUgjkAr8ZKeXQBuSS+w
+GqDqIP+j8L9C/fOCD0cE8PwPJFQ9x80vGciIOkRgCMJO57Y55omWfJLiEIAAGbAAEiLF7ICYkIIc
+QP62uLq9gid8Jx5fsTGhR8SABchrlKv2IUAwCBA0x2xy/fWIiOpvCUAQEZASx6AYiIn83Qkgqj4A
+AcSAABHQEdQBETgiCJAgECMldEgAEOCIENUX6teS8cX2/79/JDImX54IAOCAvqCMAEAwGCCCADqE
+jMgyOoKuyMu/nSnVROt0kuLoEJ3STd4dRYo5BhkwE/Yn6oIsQTCEvz1QRPil1NcVytWtMikEcEIn
+PSaNDhRCg19z/E4S06J6IgVDkEgIYKSEvpj/9BKQEogpAkdEvoEJHAGCSACCEREJAgGWmetmjsBe
+Uo6hQcSIiP3HBIQAN9JE3ZdHoISIAGaQqCqCGbGA/4nn9vpzv06ovkkgPKPMQ8pOVhmYrDgYOD5N
+z+hnFs6CIkYqCPV9evwjkhA+lSTPGfewNpPtehzwvkh8u985KBKSoZg7guKRmm2gxpjNZ/xvx8HO
+G0KavUMeuR2a/XfMOWerheb/6wAx9zsLqojBYADMzvKPB+Wtpd7tYu8ukxRHwXxFWR6ViaOTxAJE
+s7a6ofoN46OJ+FY/+2877RvMNCH74c9zfak+34lP6WYJIaNZdS60Uo7nfLf6JHvDPUc9DDD7zzP7
+GwBiEmL0rmqax93/2rYXmOs+YpRo3DBh7MDBAQnwC2WuKxXmSHQyTHK0QsCdpblyqN5wjgADOMAA
+BrD14Z8ADXQFnd5NT+2no1+Pdv+hHYc38q9a9z/eLG4vtagv2pxftB+Nn0EEEiDyBnv294IQC8SC
+YkERCQHRdio398CCD0TNQYhp5MfaydgdHBADrzt3QS6fN05MWhlYiqHsT6W+qdQ7HEeAYzbOm7/Z
+qgEQAQY4MBJf73Y+kURcq97u8f35Uz2s7cVD+aJ1YtFOYmzTJvURz22zuD4SIAUyaq07XnB4HGAB
+w6yYpWPp2PD8w+6em+77nRnmGwp1a6mwBMrAZMXhG+ZZbdcNy+eMiUFElArv1o25sAGOzuKzelmH
+iN9KV79LCPi5VNcNVeH4rfo03tRphmEoZs2smBWgGZpZc/UBw/NP29iJeIGwPNVY1I+GCEQQRPHc
+IyJCfR63aMljot9oe3mutjseHexMkCUJgt2r7KZCz7CLAGa2zGPLbQAAZ/bT03rpqE+2h/hnaJvj
+C/LyHjXHTXOLegDzTmIZjitjVnU3RKIeiNICxTd20Y4cpu5ePV4rCVFKlBK11b6Ye8JRpGNvNrZb
+e1Wh7ld6NPIxWSYsDq9fxbwhl7eXOiZqG6xSfe33iOicbnZUEk3w3nwxnjH2kqF6Ttu0bp7GM12E
+uv2QCmSCMkEJUWMDRO3YupYDjYUY6Yzm1fK87mb3cUAsCIAF7lNmU6E0T94PbZi85fCj863W/cOw
+fEHbjiBBNK/0BJSOleMEUMCnO8l3+p0pISZuGzeXamMhtzvnGzV6i8Oztuan9oob7QvmfWs3z+/m
+2p5RR17UkZhXrLtwKJ81dklj0EvSrfg2vleZDYUs7PhrjNZvCnylm57cmXDQBUDBfGWh7pQac2P5
+i3QuDtDM0rFm5gXe6C6PsR+OGm8U0IBmSMea545c6iMlyhYcSa0bBl4x9ppc/rzUWDKb4VmSuRWu
+bcNlufx4Gv1llpq5MmQgq+NjApDAuyLxV73OE9o+ou2k7KQ/+TPaXpmrjyTxoXGU1H+yjiFo7LhR
+ALGg3Lk3LDsgIZESN08/g7iOP1lmu8DS5cw5eJ6pNMwlw9Jov8a8wKUFANBO5wzPP+8M85A5Bjnw
+r429V5oZZqxGcaDWx9PaXjCQh0biA/H8C82PRwHHZNHXe+lv3yx3TC4s5hvjdqnfN5Bn95OPJYmo
+m3+Rr7xs3BapHzN2m2UiZEQD53Q1JCcLdmCADLNGFepuuhvJPKybdnYQy6zr2wTgGA4wzNuZDeZ4
+6wy86WCYCbMCI8CBm7DpbvrUe87SzsoScGupP5clf9WPmCtr4X9fsGOgR4KBGFDAlIi+0MnukfZO
+pQZuj/ys5rteozOO1+fyQEHvFdFBkTDtvan/1uvW3aHMply+7nj0bHuXOdesJm4A1HLcC0VawnyO
+pte/eFjeI7WtZw3qC4uIZ68uAMX8wSj6t1OdI+NkDz1Tnvv/BGxz7spc/lIZP35exIkTwOFx9I1e
+ekwao24JGjkWCbOOBlsne3gaiewdsS5tso+v1ke0vXAotzuOafaBzgiZmL1J3/1nAsdmyYndpE/k
+Jh0We8LY9bl8xthk0Y85oCvo2Cw9s9t5TyTcyJPaeAyLHwsjpJM99hpLKw4PAbeU+rZSK4Z27LvM
+hfdZjSYIZ3TTM3vZBJXBtUxvKfWVw3KGXdxuPPyskGL+iyz6UiddouDjqmDJxeEVMGT+4UzxK2kS
+MT/mMQ8C/iiOvjedfTSJeNLly5mvzNUdpV48NuAv+t44Pq2XHZPGy+FwrAj2huXwbfyosRfn5cBx
+tmiX7+fkjoiT07tZNNEIjzcAL1p38VA9rEyb8WjGAhr8J4k4r985JI7GGo9dOgq79E5233dZFvaG
+OFDbj+sLtblQQ3bGLXbDDEjmL/fSkzrpwpp6exXdJEkQ8HOpL83l1pbwoi9YBDDQF+LEbnJaN+2L
+MVODu3QOdumd7NJ3EaC97GeMsrRD2QZfs284/sGgfE8kPtsRozc8LyoQASXzB+LoP+3f2Wrdg9rM
+O9WeQEDOvLnUH02ic+MxYTDvfhbsEhIWeKcQZ/fSLcr8UhlX571GwH5EhmAZESEB0nr+her00ph8
+eJQiVHlPfsZOEDXJp8mCmyHCfkJYZsPYLxIAv2Dc49rscLx0YfI29pI4UOvjQW02FPIjSXxQRE28
+QTqQwOggIhUUAYdF8Rm9zOa807Gf6Y6AiDhiisjPbBEBoMq0CFDczJrCp3ASATHwDiF+b91dypTM
+Athq7I2F+kyWHDauy2DAMiVUOaeHx/HXeulrzj07Er39syw+sZNMk4gFCXYalBFiEMinelDCiPxE
+LiMm9kX1QvGXi4l6Pr20xt9Lj8iALVNXwDFfW6gfDNxOt9dCX7PsPXF4CPhZqT+Rlmd0s/2F0MwJ
+EQPOcTriq1Zz34Tjs/iopJczizr5OyEkgKhz6yKGqJKpiKiKNlKd9FtlhAMHCPGidf9rkG/MtWZ2
+wH3KXDEsz+13D4mrsJgbmSufHilMQji1m2619m+NK5gFYIEU9PksPTyNAHLMObsuCf+n2Ld+NW6f
+bftKhTzP+I3pYBlkgZSww+IBZR7Xy6AM7GVx+Ep52borhur9UfTFTuoYltARMCDNiGnOh6eIPpiI
+QxFlta2mOpeCAMez4akGn5hIdeCk+dOA+ZCY/nqq+6Lhu6QWwA7H1xT6vXH0DZGlgmac65FovjAa
+urbAtBD/vJNtUfb2UvuL3ib1h4byb6LOAULk7GIWjmB9NG++Kt4mBliXyw2FWqYQ7d5ySEdxwP3K
+bMzVC9Y1AXUG9ALvUAA9EtNESd3YXKdpKa5SU6t5zvrg2vccdQkN0CHqkDgqic+b7nwwjnyE7Vlj
+r8rVU8b6udNFnOQIeH8Sfavf+VBcDbBz5qsKeUdppOMUFInZeeY9HKT4wqdEz2h7yVAO3PhUqb3A
+MojDRyGvL9W1ufI5FgpwjpORxCgLeOM/Nla2yOEAvSATovmTA76Yxmf20ghVBPZXyqzP1e8cT0et
+c3GiLsMJWfKdfjXAFsBW6y7I5ePaZkTeqilGwW4P29IBMWCATYV6WJtmSmXvswzi8E/ewPH6vHxE
+GQMYdjy3hyNUSwFGMzAqO8Hsj4UJMq4etY6NEFhmC0wJ8ZVO9oVOHFM1crmykDeXsrC7eEAj5v0F
+nd5NT8hS1Ce/W+oNhXzZVpnRgkB7/JwzUDp+oFTrcrmHp9pDlkEcAPxT+6i2PxyW262bIjFvDl0A
+qaB4JE+zydJLiPwh6tJXcYXa0VtoTvwV/RhSA0ck4lv97I/j2Ivpd9ZdMJAPjHtGR8vUEUIB70vi
+v57ufiiO/EJLw7yxkLdIM+OcT2bu7ioEvJB5PlMKvGzd94fy6cmltrw9lkccHgdcW+hfKNO29Gwh
+C4srmmQtWmzRhxjxWhKif5JlZ3RTv55WAFuUWZer7c6lI/pwgKxngqrfMBTzn2XRqd0kq7/7muXL
+hvJRZQ1YubfclBZoljH6S0vmLcrcvAQr2N4qyyYO7/MPnPvBTPGY0unbymF5GxZcVEtmcEo3PTaL
+uU7X2FDIjbnKHY/ajyGzHEmdjwgWyIjO6WendlPUXeS9Uq8vpGaRCWLAMBfsXD2Ht8h9EaDZ5bWk
+/H+2aLOukAPnltdsYHkth2+YB5S5cKhmmN+q52UY0nGT+F8NTBiGK/+j7WwRoBkHxeIb3eyQKLJA
+BOSOzx8Wv9Imrs8WAftHQjDsyIKABGDgvSI6p1dNDQIg4MZCXVuW7NO3iAT7iMauayAlMRWRv2IC
+SHabC7VF2ZUwD7yc4vA4YN2w3FRIMZJvt0t8f99YXjf6B1SBpkVmNxjoEZ3ez/79dDcj8g3/lHY/
+GsgXjWtcGQFkgpRjOTeW1RH0uU7yb6a60/Wcy+uOvz8o71bKL5zviGr8Eu9qhaOY+4H7lb2mUAPn
+sNxmA8suDt8AO5l/PJAvWrf7ITnfQn1B89aWpUBK8FHUZG7+97yDgJRwdi/5cif1zWCBTaXaWMid
+rkr4qIY/RCmombezDAskhK/20pM6Kdd38bS2F8zIbdZmBAb8gsfF51QtUDpGPXx9xdq/nyleMMvf
+oXj2dvh8If7Je0jb8wflv5vqvjMit3uajeqYmF+aVuf/VnNjo6vsiHjeCJMABeTsiHBcJ75X6Zes
+E4BiXp/LjyfR8Z3UMBxch0RC8PbAo5k1QKD9iL47nT1n7P3KeBHcKdX/nhF/nsYGPHCYFjgqiQ+J
+I1rkjshvsgEN3FKaW5Vp++Deh/qd7nKXoXIJDyD67+/on9PL3G4kX1ngQaW3Gh4w77A8JOd4NjDK
+VYY3OTDAkqmoe556gwVoYOhYMe9kPKLNm3UgkgindbP/PN09PIkKdkTUAQGQDkyuS8ICkl1KwvcI
+1xbyv+wottoqASAiOoAQAZJxUCzO62cnd7M/EFUq9Vi82bhPmv+6c3ifMivEbGAlWA7UZnkH8yVD
++Zk0bkuu8XhXEYxHtL1oKLcaN2DWftcMQp3Rz652O7Dbde0v6hg3lupjSXRo1E2F0OxARIAhtowu
+QQAZiSYX5AtZ+qWO+fHQ2qrT4W319T4mxJFRfBCJJnm27XZetW59UXplzGMZtbL8DqnHN8x9yvyf
+meI165LZ0cf8mvEznwnhq930iDh63bmC2czOufj4aTVgafRBix7zipE7vjxX92oVodrLi4E+0X5C
+NHE21CH5nqCv9dPjs6S5kM8fOEiI7011jusmQuyilgXhPmmuL3RThnk1s1ysIHEAMMy3Sv0Lqavp
+TcegMQEy3yrvEOLcqeyTabx4w9fDl93N5/b6eEqbS4bqJePGZouNIhkfiKMze9l7I9FETQRwajc9
+Ol3M27BAzpwStmp7RV6+aleKH9qwUsSBulVeMO6ioXxSmwig2Y3UxlCwOzZL/uN09w9Hdl/aZdvv
+fmFuKNSGXA7dYqnqABS7A4Q4vpMc30l8ygEDhyfROf303VGkaymPvYQAa8amUt0sl3zh69tgBYkD
+de3cq/T5Q/mGc91FS5eQiBjHZ8lJ3YXpdntaDAGUzBcOy7uVsYt6xz0hABwYibN62V9kqQMyoi91
+0iOSmJuJ4nFhdQFMkXhI60uG0i+qXmmswCLBMK7J1d2lbl/QCvhAJzAViXP72ZGL+rBvAx/8ft66
+fxiWT7Zseega7xgg4NNJfE43PViIz2bxmb20R+SdiLEFc0BM2ObcZQP12HJPsLWx4sRRBxzdRYV8
+QO5iI0oBaOZPpMn3pjuHLLI4+u1CwB2luXQo36h95IUF8FigK+j4TvLd6c63+50jktiNJLKnc4vG
+VcmxWerrCvWWhlR7kxUnDg8Bt5Xm0qHc6ca3SvMxnwhyRi89vZu6ia7y8K0lmdfn8lFtF3rGvu78
+zAsAAxwcie/0O8dnyWiqwNgzR8Dr1m4YyldXwARbGytRHL6mNPMtUt8mjQKM45Kdf9resE6NbF8h
+AAX0SJzczY5OJrw6zZux3zv+n4Nii1RjzRgBiaBGCtOCpgS5umxN/bp6etbHf39v3bqhukuuoHjo
+QlaiOFDr4yVrNxfqcWV8j6GBmNAV4Ln7pvvIxwfj6Ixe9o5xq4/2EALulfqyofJzLmbulK+YW4m2
+xQz4YZfXRwR6WNtrC1VMbieSpWCFigNVrgNuKdVVhSyYOySsYwH0SEREbiRPwt/DOwWd1k0+nyWY
+qDhqM4ZrCnm7NBYwjrm94hapUAEwcwxsc/baQj2qV1CkfCwrVxzeAGxz/JNC3yNNRIgFKWYGqvTB
+kXr1z/H7kujsXvaxEWdwsiX5vzPFE9os3E5/lzQTvIKICLcU+ifFyu5RAKxkcaBuleeNvWBQPm9c
+DOh6WQrqvbC9B6odF84ZxnFZck4/m5p059LkJV02lDuZ47eYt9akv6fAc9pekpdvOF4kvrdCWNHi
+QN0qt0l92bB8w7oOkRsJKPlt/wBEgojIAtMRndJNT+mkSbVQcsKF2ZCrG3K1w7F5i8tJfERkB/MV
+ufylWqGBjXmsdHF4SuaLh3KLNimRqINLfpwyBPvRbJ8oAhTj0Eh8u9/506UZubzm3N8NyieN7Uet
+U/BoEWVE9IA0V+SqXPqNACfCKhCHb5WXrbs6l68aO/qaiwzo1w3R1LUFPpnG35xK918C40HAQ9ps
+zOWvtZk3bBndxnqGuRwxLT4/9BVr1uXyN2Z1mA2sCnF4CLip0OtzablKQmEgIcoWLHhhICIcn6X/
+rJtO3HgAcMDNhb42V9udjQDjqlh7U5UEGK72InV1JF6CNxf6ZytgwcHuszrE4Y3HDua/H5b3Kd1M
+k46ddPVz/e+JxNd66R9Nes7Fn+1Fa68q5MPK+u04Bo4Lx83+MAz0BaUkABjHlpEQPaTM/xuUr6/g
+eOhCVoc4UA8FXzDuwkH5SstMR/PJRFACfCpLvt4bvynPnuAV+Zi21xTqKW0SoANqCuMvlNYprpGg
+jLDDuqtz9Zi2WD3KwCoSB+qn9tZSb8xVyRi7Y1gTUTDANNHZvezkTjrmXHuGHz/fUKiNudzmuCeQ
+CbIji+QaBfgR7D8qfWOpMWkHaKlZZeKAX8cwlHdK1RZp8B5JBFjgsCQ+t5cdGUdYgrDpdscbc3VH
+oQeueiWUZcxLXWPgcW3W5WoV+aENq0kcqI3Hc8acPyhfsi4lmmc8fCOVjgfMBGjmY7LkpN6EPdOR
+ktgL8vIJYxPyDjKyesmu90OVc5tL9dPl24BlT1hl4kDd5d8mzbW59I/swiTQWMC/6NUBPYFv9LIT
+O+nEJ+Q890h9US5fsy4mWKBgp0cK9JBxV+dq2PKuqhXO6hOHp2T+SaF+Lk2TpDlqQhJQlwT8zjCM
+I5L4P+w3uynPpGhGtjcV6mdS+58dV91KDLxm3dVD+ai2tHwbsOwJq1UcBDyq7Y+G5WvGRfUSxaYB
+Roe4BCjmo+P4zF4a1fsmTIoqb83yJQP1lLapXyVLKNgVDvcrc92E3yC+V1mV4vDVXTLfWerNpSqb
+edpx+N93BZ3RzY5dmr2qHXCPVOsLuc25ehcQet6aK3P58spbcLD7rEpxoH5kJfOPBuUWqZO5Mcp5
++GygD8Tiu1PZwdGE38fA9T4cFw/kpkIpAIBmvlPqW6Reja5Gw2oVB+pWedzYy3P5kl2sX/cbCsZE
+f5mlZ030fQyjJfmdc5cN1YPKvObcY8peX+iBWx0TbG2sYnF4CNiUq/W5luB5YTGq/1XsNDsf1T6r
+m30uSyeYh4w6z5mAB7TeWMiXjL2h1FvGLXxdXayIhdRvG98kO5nXDctPJtGnOwnqzAlTz4UyEFM1
+O2eBwxLxL/rps8ZsXQJvwDBuzPWMc3dLs8LzQ3eHVW85qqWt1l5WyJeNi0bn7rnaMDypHwIHTJH4
+VJp8pZvuJyY2oT+68OS31l4+VC+YFbE1zx6y6sXhsYy7Sn2zVG+6KocvAlIShXOmTvs2XL3X/l2x
++Eov/Uy6p2+SG8vo6u3Vzr4gDt/GL1h32VA+qk39VoI5CRbwGwABDKTAn8bx6d30XUJMduSCPVu9
+vdLYF8SBkQTgawr1oplNqOkJEdcrzABU+6sAHUH/tJN+cypbrgKvCvYRcXgYuL5QN5V6u60mVkY3
+6iPAsuN6Qv/gWJzRzT6eTDgbaF9i3xFHk2q6PtePGeO3f9G1tfB5N6iXFPgJ28Pj6F9Pdd5Vb7oS
+mMe+Iw7U+nhQ6xsKNeNcBDjH1tU7hgFRPaZtUk2/2MlO7iaLbxW6ZtmnxOExjCtz+dNCG3BHEAN+
+i2oBJCM37GPqB8f0r/qdP6/3uQ6Msq+Jw7sU2x1/f1A8pa1/896UGL/GRACK8ZEkPruX7bcEK7BX
+O/uaOFB3Lg9re+FQvWqc381+Hn6qzL/kICGc1E3P6mXNHsUBz74pDgAEXJ6XN0vdIRp7k47hiGNg
+4NyBQvzLfvbhMHKZyz4ojoadji8fyCeNWfgGBb9UPyWhqr2O8eEkPq/fCZ3LKPuyOAjYos1FA/ma
+tQu3i/R74xfOZfVbgL/cTc9aglTk1cu+KY4mgK2Yf1Kq+5Q1IyHtRiUWSECxf7EtcADRN3vZYaFz
+qdk3xeHxI5etxl08LJ8ztglmKHZ+44YY6NRLbWMgE3RUnPzNVOfdIoTFgH1bHKhHLvcqc32uZupX
+dBFT24KoVOC4TnpiN93H62X32McrwXcluePzh+Wt9ZbqQLV6cSEOeH8kTu+lR4bOZZ8XB+rO5UXr
+/m6m/K2xEVEsKAJM+5scj06js3vZtADWtj72fXGgXpl4n9IbcpXXK/TTcfu+1SuwxVe76WfTtT5y
+WRPiaLg0L+9SevFt/Pxc7vvj6Oxe9uE4Wsv6WCviqDcmdN8flC9om9Ji6xj85z+Xxef0sr6gfSbt
+762yVsTRLHm6rdTrCrnDcTw34DHrn3K1+PYPYnF2L/vU0iySWxWsFXFwnfUDYEOu7ii0GbEHzJDM
+1YblBPgV2A6HxOK8frZmwx5rRRwe38a/Mfb8vHxC2Waje0FghuXqNbB+wjYiOOC4Tnp6L03WoDTW
+mjhQ6+NuaTYU5Q5XLZITQCZIkH+zJKxjXWcD9YhO6CYHrUnjsebE4ZHMmwp9j9Q7a32MvldcCIrA
+qF8G9bTmNxe8pHItsBbF4dv5BWsvy+WD2hieYxIYSIBEiMKxAJ5Q5vxB4UPva00ga1EcqDd3u13q
+u6V+06ci139yzQugCDsd/3BYPm7sWutQPGtUHN6BGDq+sVC/0rPvfzTMPndQABHRLVLdVCjUcllr
+rFFxeAj4tXHrc/WssdVKawYTOyAlPKnNJcNyez2XuwZZu+JosoE2FerqXA7ZERAJSkkQUDhcncs7
+SoM1aTM8a1ccGHm58FWF/kdpm5dLRoS7lL6q0BNfZr26WNPiQB3keFqbS3P5inF+J4/fanvRoHzO
+rNYtIifFWhcHAJ9AemupfirVgJ0FNpd6c71V+VquoNW97dNEqN7X4fjyofyTJJoi3lioot7pZS13
+K9TvdJe7DCuFmHBClk4LuqlUazPqNY8gjkAra7lLDeyCII5AK0EcgVaCOAKtBHEEWgniCLQSxBFo
+JYgj0EoQR6CVII5AK0EcgVaCOAKtBHEEWgniCLQSxBFoJYgj0EoQR6CVII5AK0EcgVaCOAKtBHEE
+WgniCLQSxBFoJYgj0EoQR6CVII5AK0EcgVaCOAKtBHEEWgniCLQSxBFoJYgj0EoQR6CVII5AK0Ec
+gVaCOAKtBHEEWgniCLTy/wF6e0qOfNcIAwAAAABJRU5ErkJggg==
+      </data>
+      <key>IgnoreManifestScope</key>
+      <true/>
+      <key>IsRemovable</key>
+      <true/>
+      <key>Label</key>
+      <string>Hunter Gamers</string>
+      <key>PayloadDescription</key>
+      <string>Full-screen Hunter Gamers app icon. Opens the shop with no Safari bars.</string>
+      <key>PayloadDisplayName</key>
+      <string>Hunter Gamers</string>
+      <key>PayloadIdentifier</key>
+      <string>com.huntergame.webclip</string>
+      <key>PayloadType</key>
+      <string>com.apple.webClip.managed</string>
+      <key>PayloadUUID</key>
+      <string>8F3C1A2E-6B47-4D19-9C55-1A0E7B2D44C1</string>
+      <key>PayloadVersion</key>
+      <integer>1</integer>
+      <key>Precomposed</key>
+      <true/>
+      <key>URL</key>
+      <string>https://hunter-gamers.pages.dev/</string>
+    </dict>
+  </array>
+  <key>PayloadDescription</key>
+  <string>Installs Hunter Gamers on the iPhone home screen as a full-screen app. No App Store. Open the icon, not Safari.</string>
+  <key>PayloadDisplayName</key>
+  <string>Hunter Gamers</string>
+  <key>PayloadIdentifier</key>
+  <string>com.huntergame.ios</string>
+  <key>PayloadOrganization</key>
+  <string>Hunter Gamers</string>
+  <key>PayloadRemovalDisallowed</key>
+  <false/>
+  <key>PayloadType</key>
+  <string>Configuration</string>
+  <key>PayloadUUID</key>
+  <string>C2A91F70-5E18-4B6A-8D33-9F0C6E21AB74</string>
+  <key>PayloadVersion</key>
+  <integer>1</integer>
+</dict>
+</plist>

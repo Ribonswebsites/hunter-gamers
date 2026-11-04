@@ -6,6 +6,8 @@
 
 Also on the website: https://hunter-gamers.pages.dev/downloads/hunter-game.apk — on Android, allow "Install unknown apps" when asked.
 
+iPhone: the download popup installs a full-screen home-screen app (not the APK, Apple cannot install that). Profile: https://hunter-gamers.pages.dev/downloads/Hunter-Gamers.mobileconfig — open it in Safari, then Settings → Profile Downloaded → Install, and launch the home-screen icon.
+
 ---
 
 PS5 / PS4 pay-by-the-hour gaming shop site for Hunter Gamers, Indora, Nagpur.

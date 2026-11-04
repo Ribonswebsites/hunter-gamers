@@ -815,6 +815,11 @@ body.hg-app-on .hg-scrim{z-index:2990}
 .ap-dl span{display:flex;flex-direction:column;align-items:flex-start;line-height:1.1}
 .ap-dl small{font-size:11px;font-weight:600;opacity:.9}
 .ap-later{display:block;margin:12px auto 0;min-height:44px;padding:0 18px;color:#bfaeb2}
+.ap-steps{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+.ap-steps li{display:grid;grid-template-columns:28px 1fr;gap:10px;align-items:start;color:#eadfe1;font-size:13.5px;line-height:1.35}
+.ap-steps b{display:grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#fb241c;color:#fff;font-size:13px}
+.ap-steps em{font-style:normal;color:#fff;font-weight:700}
+.ap-ios-note{margin:10px 0 0;color:#bfaeb2;font-size:12.5px;line-height:1.4;text-align:center}
 .hg-sheet.book-sheet section.book{padding-top:56px!important}
 /* r19: snacks polish */
 .sn-hero-img{object-position:35% 45%!important}
