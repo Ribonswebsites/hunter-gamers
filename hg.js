@@ -532,14 +532,16 @@
         <button class="hg-linkbtn ap-later" type="button" data-close>Maybe later</button></div>`,
       actions: [] });
     document.body.classList.add('hg-app-on');
-    const done = () => { store.set('appAsked', Date.now()); document.body.classList.remove('hg-app-on'); };
-    $$('[data-close]', el).forEach(x => x.addEventListener('click', done));
+    const later = () => { try { sessionStorage.setItem('hg.appLater', '1'); } catch (e) {} document.body.classList.remove('hg-app-on'); };
+    const gotApp = () => { store.set('appInstalled', Date.now()); document.body.classList.remove('hg-app-on'); };
+    $$('[data-close]', el).forEach(x => x.addEventListener('click', later));
     const dlBtn = $('.ap-dl', el);
     if (dlBtn) dlBtn.addEventListener('click', () => {
-      store.set('appAsked', Date.now());
-      if (!IS_IOS) setTimeout(() => { hide(el); done(); }, 300);
+      const openSafari = /hunter-gamers\.pages\.dev\/?$/.test(dlBtn.getAttribute('href') || '');
+      if (!openSafari) gotApp();
+      if (!IS_IOS) setTimeout(() => hide(el), 300);
     });
-    new MutationObserver(() => { if (!el.classList.contains('on')) done(); }).observe(el, { attributes: true, attributeFilter: ['class'] });
+    new MutationObserver(() => { if (!el.classList.contains('on')) document.body.classList.remove('hg-app-on'); }).observe(el, { attributes: true, attributeFilter: ['class'] });
     if (!IS_IOS) {
       Promise.all([fetch('/version.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null), fetch('/downloads/hunter-game.apk', { method: 'HEAD', cache: 'no-store' }).then(r => +r.headers.get('content-length') || 0).catch(() => 0)])
         .then(([v, len]) => { const m = $('.hg-app-meta', el); if (m) m.textContent = `Android 7+ · ${v ? 'v' + v.versionName : 'latest version'}${len ? ' · ' + (len / 1048576).toFixed(1) + ' MB' : ''}`; });
@@ -547,8 +549,8 @@
   }
   // r18: on the website the popup shows on top of everything (login wall included) on first visit; waits only for another open sheet.
   function maybeApp() {
-    if (IN_APP || window.HGApp || document.querySelector('.p-app')) return;
-    const t = store.get('appAsked'); if (t && Date.now() - t < 864e5) return;
+    if (IN_APP || window.HGApp || store.get('appInstalled') || document.querySelector('.p-app')) return;
+    try { if (sessionStorage.getItem('hg.appLater')) return; } catch (e) {}
     if (openSheet) { setTimeout(maybeApp, 2000); return; }
     appPopup();
   }
