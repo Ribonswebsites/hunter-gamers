@@ -520,7 +520,7 @@
                <li><b>3</b><span>Leave Safari. Open the Hunter Gamers icon on the home screen. That icon is the app.</span></li>
              </ol>
              <p class="ap-ios-note">If you do not see Profile Downloaded: Settings → General → VPN & Device Management → Hunter Gamers → Install.</p>`)
-      : `<a class="hg-btn p ap-dl" href="/downloads/hunter-game.apk" download>${IC.dl()}<span>Download APK<small class="hg-app-meta">Android 7+ · latest version</small></span></a>`;
+      : `<a class="hg-btn p ap-dl" href="/downloads/hunter-flutter.apk" download>${IC.dl()}<span>Download APK<small class="hg-app-meta">Flutter · same site and images</small></span></a>`;
     const el = popup({ cls: 'p-app ap2', art: false, center: true, icon: '', title: '', text: '',
       extra: `<div class="ap-stage"><img class="ap-key" src="${I('k-gta6.webp')}" alt="Grand Theft Auto VI official art" decoding="async"><div class="ap-fade"></div>
         <div class="ap-fan">${P.map((g, i) => `<img src="${I('p-' + g + '.webp')}" alt="" style="--i:${i - 2}" decoding="async">`).join('')}</div>
@@ -543,8 +543,8 @@
     });
     new MutationObserver(() => { if (!el.classList.contains('on')) document.body.classList.remove('hg-app-on'); }).observe(el, { attributes: true, attributeFilter: ['class'] });
     if (!IS_IOS) {
-      Promise.all([fetch('/version.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null), fetch('/downloads/hunter-game.apk', { method: 'HEAD', cache: 'no-store' }).then(r => +r.headers.get('content-length') || 0).catch(() => 0)])
-        .then(([v, len]) => { const m = $('.hg-app-meta', el); if (m) m.textContent = `Android 7+ · ${v ? 'v' + v.versionName : 'latest version'}${len ? ' · ' + (len / 1048576).toFixed(1) + ' MB' : ''}`; });
+      Promise.all([fetch('/version.json', { cache: 'no-store' }).then(r => r.json()).catch(() => null), fetch('/downloads/hunter-flutter.apk', { method: 'HEAD', cache: 'no-store' }).then(r => +r.headers.get('content-length') || 0).catch(() => 0)])
+        .then(([v, len]) => { const m = $('.hg-app-meta', el); if (m) m.textContent = `Flutter · Android 7+${len ? ' · ' + (len / 1048576).toFixed(1) + ' MB' : ''}`; });
     }
   }
   // r18: on the website the popup shows on top of everything (login wall included) on first visit; waits only for another open sheet.
@@ -557,7 +557,7 @@
   setTimeout(maybeApp, 2000);
   function addAppLinks() {
     if (IN_APP) return;
-    const a = `<a class="hg-dl-link" href="${IS_IOS ? '/downloads/Hunter-Gamers.mobileconfig' : '/downloads/hunter-game.apk'}" data-hg-app>${svg(ico.dl).replace('<svg', '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"')}Get the app</a>`;
+    const a = `<a class="hg-dl-link" href="${IS_IOS ? '/downloads/Hunter-Gamers.mobileconfig' : '/downloads/hunter-flutter.apk'}" data-hg-app>${svg(ico.dl).replace('<svg', '<svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"')}Get the app</a>`;
     const nav = $('.nav-links'); nav && nav.insertAdjacentHTML('beforeend', a);
     const ff = $('.foot-links'); ff && ff.insertAdjacentHTML('beforeend', a);
   }
