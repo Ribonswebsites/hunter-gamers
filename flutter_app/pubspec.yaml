@@ -1,6 +1,6 @@
 name: hunter_game
 description: "Hunter Gamers shop app. Same site, images and booking, inside Flutter."
-version: 4.0.0+40
+version: 4.1.0+41
 
 environment:
   sdk: ^3.13.7

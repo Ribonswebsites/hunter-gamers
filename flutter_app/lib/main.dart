@@ -47,7 +47,7 @@ class _HunterHomeState extends State<HunterHome> {
   var _failed = false;
 
   static const _agent =
-      'Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 HunterGameApp/4.0 (40)';
+      'Mozilla/5.0 (Linux; Android 14; Mobile) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Mobile Safari/537.36 HunterGameApp/4.1 (41)';
 
   @override
   void initState() {
