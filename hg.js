@@ -37,7 +37,7 @@
 
   // Each slide: one game. Centre = clean cutout, background = different official art (dimmed + blurred), ring = posters of the OTHER games
   const SLIDES = [ // every slide shows the ring; rt = per-slide ring centre (% of hero height), kept below background faces
-    { id: 'wolverine', pop: 'f-wolverine', clear: 1, bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
+    { id: 'wolverine', bg: 'wolverine-key', tag: "Marvel's Wolverine · PS5", h: 'Unleash the <span>claws.</span>' },
     { id: 'gow', bg: 'h-gow', tag: 'God of War Ragnarök', h: 'Kratos is <span>waiting.</span>' },
     { id: 'gta6', bg: 'gta6-bg', cut: 'gta6-r24', soon: 1, tag: 'Grand Theft Auto VI', h: 'Vice City nights. <span>Coming soon.</span>' },
     { id: 'sm2', cut: 'peter', bg: 'h-sm2', tag: "Marvel's Spider-Man 2", h: 'Swing into <span>the city.</span>' },
@@ -172,8 +172,8 @@
   /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
   const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = '-md';
   const HIBG = ['wolverine', 'gta6', 'gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
-  const bgSrc = s => HIBG.includes(s.id) ? I((MOB ? 't-' : 'w-') + s.id + '.webp') : I(s.bg + (s.id === 'wolverine' || s.id === 'gta6' ? '-md' : (MOB ? '-sm' : BIG)) + '.webp');
-  const cutSrc = s => I('c-' + (s.cut || s.id) + CUT + '.webp');
+  const bgSrc = s => I('hb-' + s.id + '.webp');
+  const cutSrc = s => I('hp-' + s.id + '.webp');
   function buildHero() {
     const hx = $('#top > .hgx') || document.createElement('section');
     hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
@@ -185,7 +185,7 @@
         : `<img data-id="${s.id}" class="hgx-subject hgx-subject-w${i ? '' : ' on'}" ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async">`).join('')}</div>
       ${SLIDES.map((s, i) => `<div class="hgx-copy${i ? '' : ' on'}" aria-hidden="${i ? 'true' : 'false'}"><span class="hgx-tag"><i></i>${s.tag}</span>${s.soon ? '<span class="hgx-soon">Coming soon</span>' : ''}<h1>${s.h}</h1>
       <p>PS5 &amp; PS4 by the hour in Indora, Nagpur. Pick a slot, add snacks, walk in and play.</p>
-      <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-hg-console>See rates</button></div></div>`).join('')}
+      <div class="hgx-cta"><button class="hg-btn p" data-hg-book>Book a slot${ARW}</button><button class="hg-btn s" data-route="request">Request a game</button></div></div>`).join('')}
       <div class="hgx-progress"></div>`;
     if (!hx.parentNode) $('#top').prepend(hx);
     const bgs = $$('.hgx-bg', hx), subs = $$('.hgx-subject-w', hx), copies = $$('.hgx-copy', hx), prog = $('.hgx-progress', hx);
@@ -638,7 +638,96 @@
   /* ---------- Pages (hash routes: #control, #orders) ---------- */
   const CTRL = {};
   const page = (() => { const p = document.createElement('div'); p.className = 'hg-page'; p.setAttribute('role', 'dialog'); p.setAttribute('aria-modal', 'true'); document.body.append(p); return p; })();
-  const ROUTES = { control: renderControl, orders: renderOrders };
+  /* ---------- Request a game (₹200 upfront) ---------- */
+  const REQ_FEE = 200, REQ_UPI = '7038896627@okbizaxis';
+  const GAMES_REQ = [
+    [2322010,'God of War Ragnarök'],[1593500,'God of War'],[2358720,'Black Myth: Wukong'],[2622380,'Elden Ring Nightreign'],[1245620,'Elden Ring'],
+    [3159330,"Assassin's Creed Shadows"],[2651280,"Marvel's Spider-Man 2"],[1817070,"Marvel's Spider-Man: Miles Morales"],[1817190,"Marvel's Spider-Man Remastered"],
+    [2215430,'Ghost of Tsushima'],[1888930,'The Last of Us Part I'],[2531310,'The Last of Us Part II'],[1151640,'Horizon Zero Dawn'],[2420110,'Horizon Forbidden West'],
+    [271590,'Grand Theft Auto V'],[1174180,'Red Dead Redemption 2'],[1091500,'Cyberpunk 2077'],[292030,'The Witcher 3'],[814380,'Sekiro'],[2050650,'Resident Evil 4'],
+    [1196590,'Resident Evil Village'],[1687950,'Persona 5 Royal'],[976310,'Mortal Kombat 1'],[1778820,'Tekken 8'],[1888160,'Armored Core VI'],[1240440,'Halo Infinite'],
+    [570,'Dota 2'],[2357570,'Overwatch 2'],[1962663,'Call of Duty'],[990080,'Hogwarts Legacy'],[1811260,'EA SPORTS FIFA 23'],[2195250,'EA SPORTS FC 24'],
+    [2669320,'EA SPORTS FC 25'],[3405690,'EA SPORTS FC 26'],[1222670,'The Sims 4'],[1240440,'Halo Infinite'],[1888930,'The Last of Us'],[883710,'Uncharted: Legacy of Thieves'],
+    [0,'Astro Bot'],[0,'Gran Turismo 7'],[0,'Demon\'s Souls'],[0,'Bloodborne'],[0,'Marvel\'s Wolverine'],[0,'Grand Theft Auto VI'],[0,'Ghost of Yotei']
+  ];
+  const reqStore = {
+    get() { try { return JSON.parse(localStorage.getItem('hg.requests') || '[]'); } catch { return []; } },
+    set(v) { localStorage.setItem('hg.requests', JSON.stringify(v)); }
+  };
+  const reqPoster = id => id ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900_2x.jpg` : '';
+  let reqState = { view: 'shelf', q: '', game: null, opened: false };
+  function renderRequest() {
+    const root = document.createElement('div');
+    page.innerHTML = ''; page.append(root); root.className = 'hg-pg rq';
+    const go = (patch) => { reqState = Object.assign({}, reqState, patch); draw(); };
+    const esc = s => String(s).replace(/&/g, '&' + 'amp;').replace(/</g, '&' + 'lt;').replace(/>/g, '&' + 'gt;').replace(/"/g, '&' + 'quot;').replace(/'/g, '&#39;');
+    const art = g => g && g.id ? `<img src="${reqPoster(g.id)}" alt="" data-fb="${esc((g.name || 'G').slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(((g && g.name) || 'G').slice(0, 2).toUpperCase())}</div>`;
+    const bindPosters = () => $$('img[data-fb]', root).forEach(im => { im.onerror = () => { const d = document.createElement('div'); d.className = 'rq-ph'; d.textContent = im.dataset.fb; im.replaceWith(d); }; });
+    function draw() {
+      const s = reqState;
+      if (s.view === 'shelf') {
+        const q = s.q.trim().toLowerCase();
+        const list = (q ? GAMES_REQ.filter(g => g[1].toLowerCase().includes(q)) : GAMES_REQ).filter((g, i, a) => a.findIndex(x => x[1] === g[1]) === i).slice(0, 24);
+        const custom = q && !GAMES_REQ.some(g => g[1].toLowerCase() === q);
+        root.innerHTML = `<div class="rq-top"><button class="rq-back" data-back aria-label="Back">${IC.left()}</button><div><h1>Request a game</h1><p>₹200 paid now. Then we order it.</p></div></div>
+          <label class="rq-search"><input id="rqFind" placeholder="Search any game" value="${esc(s.q)}" autocomplete="off"><button type="button" id="rqMine">Mine</button></label>
+          <p class="rq-note">${list.length ? 'Tap a poster. The ₹200 is the order fee, not the hourly slot.' : 'Nothing matched. You can still request that name.'}</p>
+          <div class="rq-grid">${list.map((g, i) => `<button class="rq-card" data-i="${i}">${g[0] ? `<img src="${reqPoster(g[0])}" alt="" loading="lazy" data-fb="${esc(g[1].slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(g[1].slice(0, 2).toUpperCase())}</div>`}<b>${esc(g[1])}</b><small>₹200</small></button>`).join('')}${custom ? `<button class="rq-card" data-custom="1"><div class="rq-ph">+</div><b>Request “${esc(s.q)}”</b><small>₹200</small></button>` : ''}</div>`;
+        const input = $('#rqFind', root);
+        const caret = input.value.length; input.focus(); try { input.setSelectionRange(caret, caret); } catch {}
+        input.addEventListener('input', () => { reqState.q = input.value; draw(); });
+        $('#rqMine', root).onclick = () => go({ view: 'mine' });
+        bindPosters();
+        $$('.rq-card', root).forEach(b => b.onclick = () => {
+          if (b.dataset.custom) go({ view: 'game', game: { id: 0, name: reqState.q.trim() }, opened: false });
+          else { const g = list[+b.dataset.i]; go({ view: 'game', game: { id: g[0], name: g[1] }, opened: false }); }
+        });
+        return;
+      }
+      if (s.view === 'mine') {
+        const rows = reqStore.get();
+        root.innerHTML = `<div class="rq-top"><button class="rq-back" data-rq-back aria-label="Back">${IC.left()}</button><div><h1>Your requests</h1><p>Saved on this phone.</p></div></div>
+          ${rows.length ? `<div class="rq-list">${rows.map(r => `<article class="rq-item">${r.id ? `<img src="${reqPoster(r.id)}" alt="" data-fb="${esc(r.name.slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(r.name.slice(0, 2).toUpperCase())}</div>`}<div><b>${esc(r.name)}</b><small>${esc(r.code)} · ₹200 · ${new Date(r.at).toLocaleDateString('en-IN')}</small></div></article>`).join('')}</div>` : `<p class="rq-empty">No requests yet. Search a game and pay ₹200.</p>`}`;
+        bindPosters();
+        $('[data-rq-back]', root).onclick = () => go({ view: 'shelf' });
+        return;
+      }
+      const g = s.game;
+      if (s.view === 'game') {
+        root.innerHTML = `<div class="rq-top"><button class="rq-back" data-rq-back aria-label="Back">${IC.left()}</button><div><h1>Game</h1><p>Check the poster, then pay.</p></div></div>
+          <div class="rq-hero">${art(g)}<h2>${esc(g.name)}</h2>
+          <ol class="rq-steps"><li><b>1</b><span>You pay ₹200 now.</span></li><li><b>2</b><span>We order this game for the shop.</span></li><li><b>3</b><span>Come play it here. Slot booking is extra.</span></li></ol>
+          <div class="rq-fee"><span>Pay now</span><strong>₹200</strong></div>
+          <button class="hg-btn p" id="rqPay" style="width:100%;justify-content:center">Pay ₹200${ARW}</button></div>`;
+        bindPosters();
+        $('[data-rq-back]', root).onclick = () => go({ view: 'shelf' });
+        $('#rqPay', root).onclick = () => go({ view: 'pay', opened: false });
+        return;
+      }
+      const note = 'Game request ' + g.name;
+      const upi = `upi://pay?pa=${encodeURIComponent(REQ_UPI)}&pn=${encodeURIComponent('Hunter Gamers')}&am=${REQ_FEE}.00&cu=INR&tn=${encodeURIComponent(note)}`;
+      const qr = 'https://api.qrserver.com/v1/create-qr-code/?size=280x280&data=' + encodeURIComponent(upi);
+      root.innerHTML = `<div class="rq-top"><button class="rq-back" data-rq-back aria-label="Back">${IC.left()}</button><div><h1>Pay ₹200</h1><p>${esc(g.name)}</p></div></div>
+        <div class="rq-pay"><img class="rq-qr" src="${qr}" alt="UPI QR for ₹200"><p class="rq-id">${REQ_UPI}</p>
+        <a class="hg-btn p" id="rqUpi" href="${upi}" style="justify-content:center">Open UPI app</a>
+        <button class="hg-btn s" id="rqDone" ${s.opened ? '' : 'disabled'} style="justify-content:center">I paid ₹200</button>
+        <p class="rq-note">Open the UPI app first. The ₹200 has to be paid before the request is placed. We cannot see your bank from the site, so the shop confirms it on WhatsApp.</p></div>`;
+      $('[data-rq-back]', root).onclick = () => go({ view: 'game' });
+      $('#rqUpi', root).addEventListener('click', () => { reqState.opened = true; $('#rqDone', root).disabled = false; });
+      $('#rqDone', root).onclick = () => {
+        if (!reqState.opened) return;
+        const code = 'RQ' + Math.floor(1000 + Math.random() * 9000);
+        const all = reqStore.get(); all.unshift({ id: g.id, name: g.name, code, at: Date.now() }); reqStore.set(all.slice(0, 30));
+        const msg = encodeURIComponent(`Game request ${code}: ${g.name}. I paid ₹200 on UPI.`);
+        location.href = 'https://wa.me/917038896627?text=' + msg;
+        go({ view: 'done', code });
+      };
+    }
+    if (reqState.view === 'done') reqState.view = 'shelf';
+    draw();
+  }
+
+  const ROUTES = { control: renderControl, orders: renderOrders, request: renderRequest };
   function route() {
     const r = location.hash.slice(1);
     if (ROUTES[r]) { ROUTES[r](); page.scrollTop = 0; page.classList.add('on'); document.documentElement.classList.add('hg-paged'); }
