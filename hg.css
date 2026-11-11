@@ -1078,14 +1078,14 @@ body.hg-app-on .hg-scrim{z-index:2990}
 @media (min-width:761px) and (orientation:landscape){
   .hgx-bg{background-image:var(--bg-d);background-position:center center}
 }
-.hgx-bg[data-id=wolverine]{--bg-m:url(/img/t-wolverine.webp?v=43);--bg-d:url(/img/w-wolverine.webp?v=43)}
-.hgx-bg[data-id=gow]{--bg-m:url(/img/t-gow.webp?v=43);--bg-d:url(/img/w-gow.webp?v=43)}
-.hgx-bg[data-id=gta6]{--bg-m:url(/img/t-gta6.webp?v=43);--bg-d:url(/img/w-gta6.webp?v=43)}
-.hgx-bg[data-id=sm2]{--bg-m:url(/img/t-sm2-r28.webp?v=43);--bg-d:url(/img/w-sm2-r28.webp?v=43)}
-.hgx-bg[data-id=acs]{--bg-m:url(/img/t-acs-r28.webp?v=43);--bg-d:url(/img/w-acs-r28.webp?v=43)}
-.hgx-bg[data-id=fc26]{--bg-m:url(/img/t-fc26-r28.webp?v=43);--bg-d:url(/img/w-fc26-r28.webp?v=43)}
-.hgx-bg[data-id=nr]{--bg-m:url(/img/t-nr-r20.webp?v=43);--bg-d:url(/img/w-nr-r20.webp?v=43)}
-.hgx-bg[data-id=wk]{--bg-m:url(/img/t-wk-r28.webp?v=43);--bg-d:url(/img/w-wk-r28.webp?v=43)}
+.hgx-bg[data-id=wolverine]{--bg-m:url(/img/t-wolverine.webp?v=44);--bg-d:url(/img/w-wolverine.webp?v=44)}
+.hgx-bg[data-id=gow]{--bg-m:url(/img/t-gow.webp?v=44);--bg-d:url(/img/w-gow.webp?v=44)}
+.hgx-bg[data-id=gta6]{--bg-m:url(/img/t-gta6.webp?v=44);--bg-d:url(/img/w-gta6.webp?v=44)}
+.hgx-bg[data-id=sm2]{--bg-m:url(/img/t-sm2-r28.webp?v=44);--bg-d:url(/img/w-sm2-r28.webp?v=44)}
+.hgx-bg[data-id=acs]{--bg-m:url(/img/t-acs-r28.webp?v=44);--bg-d:url(/img/w-acs-r28.webp?v=44)}
+.hgx-bg[data-id=fc26]{--bg-m:url(/img/t-fc26-r28.webp?v=44);--bg-d:url(/img/w-fc26-r28.webp?v=44)}
+.hgx-bg[data-id=nr]{--bg-m:url(/img/t-nr-r20.webp?v=44);--bg-d:url(/img/w-nr-r20.webp?v=44)}
+.hgx-bg[data-id=wk]{--bg-m:url(/img/t-wk-r28.webp?v=44);--bg-d:url(/img/w-wk-r28.webp?v=44)}
 /* true cutouts: no card, no fill, no crop box */
 .hgx-subject{left:50%!important;top:84px!important;width:94vw!important;height:calc(100% - 84px - 300px - env(safe-area-inset-bottom))!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:50% 100%!important;border-radius:0!important;background:transparent!important;box-shadow:none!important;padding:0!important;-webkit-mask:none!important;mask:none!important;filter:drop-shadow(0 24px 30px rgba(0,0,0,.75))!important}
 .hgx-subject.on{transform:translate3d(-50%,0,0) scale(1)!important}
@@ -1094,7 +1094,7 @@ body.hg-app-on .hg-scrim{z-index:2990}
 }
 .hgx-subject[data-id=gta6]{object-position:50% 0!important;padding-bottom:26px!important;box-sizing:border-box!important}
 /* three rows of the original curve; lowest row keeps --rt per-slide position */
-.hgx-ring,.hgx-ring.r0,.hgx-ring.r1,.hgx-ring.r2{display:block!important;left:50%;transform-style:flat;perspective:none;z-index:1}
+.hgx-ring,.hgx-ring.r0,.hgx-ring.r1,.hgx-ring.r2{display:block!important;left:var(--ring-left,50%);transform-style:flat;perspective:none;z-index:1}
 .hgx-ring.r2{top:var(--rt,58%)!important}
 .hgx-ring.r1{top:calc(var(--rt,58%) - var(--rg,170px))!important}
 .hgx-ring.r0{top:calc(var(--rt,58%) - 2 * var(--rg,170px))!important}
@@ -1103,3 +1103,5 @@ body.hg-app-on .hg-scrim{z-index:2990}
 .hgx[data-s=gta6] .hgx-ring.r2{top:var(--rt,34%)!important}
 .hgx[data-s=gta6] .hgx-ring.r1{top:calc(var(--rt,34%) - var(--rg,170px))!important}
 .hgx[data-s=gta6] .hgx-ring.r0{top:calc(var(--rt,34%) - 2 * var(--rg,170px))!important}
+
+.hgx-card.back{opacity:0!important;visibility:hidden!important;pointer-events:none!important}

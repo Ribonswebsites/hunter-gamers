@@ -10,7 +10,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=43';
+  const I = n => '/img/' + (REN[n] || n) + '?v=44';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -207,42 +207,107 @@
     const N = ROW[0].length;
     let auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, step = 0, busy = false;
     const DUR = 6500;
+    let yAmp = 18;
     function measure() {
-      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / N;
-      const cw = Math.max(96, Math.min(170, w * 0.12));
+      const w = hx.clientWidth; step = Math.PI * 2 / N;
+      if (w <= 760) {
+        R = Math.min(w * 0.42, 620); yAmp = 18;
+        const cw = Math.max(96, Math.min(170, w * 0.12));
+        rings.forEach(r => r.el.style.setProperty('--cw', cw + 'px'));
+        hx.style.setProperty('--rg', (cw * 1.5 + 16) + 'px');
+        hx.style.removeProperty('--ring-left');
+        return;
+      }
+      const cw = Math.max(58, Math.min(96, w * 0.06));
+      yAmp = Math.max(7, 18 * (cw / 170));
+      R = Math.min(w * 0.42, 620) * (cw / 170);
       rings.forEach(r => r.el.style.setProperty('--cw', cw + 'px'));
       hx.style.setProperty('--rg', (cw * 1.5 + 16) + 'px');
     }
     function rowBox(cs) {
-      let t = 1e9, b = -1e9; cs.forEach(c => { const r = c.getBoundingClientRect(); if (r.top < t) t = r.top; if (r.bottom > b) b = r.bottom; });
-      return { t, b, h: b - t };
+      const desk = hx.clientWidth > 760;
+      let t = 1e9, b = -1e9, any = false;
+      cs.forEach(c => {
+        if (desk && c.classList.contains('back')) return;
+        const r = c.getBoundingClientRect(); if (r.width < 2) return;
+        any = true; if (r.top < t) t = r.top; if (r.bottom > b) b = r.bottom;
+      });
+      return { t, b, h: any ? b - t : 0 };
     }
     function fitRing() {
       if (!rings[2] || !rings[2].cards.length) return;
       layout();
+      const w = hx.clientWidth;
       hx.style.removeProperty('--rt');
       const hxR = hx.getBoundingClientRect();
+      const sp0 = rowBox(rings[2].cards);
+      const origin0 = rings[2].el.getBoundingClientRect().top;
+      const above0 = origin0 - sp0.t;
+      const orig = origin0 - hxR.top;
+      const gap = 16;
+      if (w <= 760) {
+        const pad = 8;
+        const avail = hxR.height - pad * 2;
+        let stride = sp0.h + gap;
+        if (sp0.h * 3 + gap * 2 > avail) {
+          stride = sp0.h * 3 > avail ? avail / 3 : (avail - sp0.h) / 2;
+        }
+        let r2 = orig;
+        if (r2 - 2 * stride - above0 < pad) r2 = pad + above0 + 2 * stride;
+        hx.style.setProperty('--rt', Math.round(r2) + 'px');
+        hx.style.setProperty('--rg', Math.round(stride) + 'px');
+        return;
+      }
+      const pad = 10;
+      let cap = hxR.bottom;
+      const copy = $('.hgx-copy.on', hx);
+      if (copy) {
+        const h1 = $('h1', copy), tag = $('.hgx-tag', copy), cta = $('.hgx-cta', copy);
+        [h1, tag, cta].forEach(el => { if (el) cap = Math.min(cap, el.getBoundingClientRect().top); });
+      }
+      cap -= gap;
+      const top = hxR.top + pad;
+      const avail = Math.max(150, cap - top);
+      const Rfull = Math.min(w * 0.42, 620);
+      let cw = (avail - 2 * gap) / 3 / (1.5 * 1.10 + 36 / 170);
+      cw = Math.max(56, Math.min(88, cw));
+      const apply = () => {
+        yAmp = Math.max(7, 18 * (cw / 170));
+        // Same arc proportions, scaled; R big enough that front cards keep a 16px in-row gap.
+        const minR = (cw * 1.09 + gap) / Math.sin(Math.PI * 2 / N);
+        R = Math.max(minR, Math.min(Rfull * (cw / 170), w * 0.14));
+        rings.forEach(r => r.el.style.setProperty('--cw', cw.toFixed(1) + 'px'));
+        layout();
+      };
+      apply();
+      const rowH = () => Math.max(rowBox(rings[0].cards).h, rowBox(rings[1].cards).h, rowBox(rings[2].cards).h);
+      for (let n = 0; n < 6; n++) {
+        if (rowH() * 3 + gap * 2 <= avail + 0.5) break;
+        cw = Math.max(54, cw * 0.9);
+        apply();
+      }
       const sp = rowBox(rings[2].cards);
       const origin = rings[2].el.getBoundingClientRect().top;
       const above = origin - sp.t;
-      const orig = origin - hxR.top;
-      const gap = 16;
-      const pad = 8;
-      const avail = hxR.height - pad * 2;
-      let stride = sp.h + gap;
-      if (sp.h * 3 + gap * 2 > avail) {
-        stride = sp.h * 3 > avail ? avail / 3 : (avail - sp.h) / 2;
-      }
-      let r2 = orig;
-      if (r2 - 2 * stride - above < pad) r2 = pad + above + 2 * stride;
+      const stride = Math.ceil(rowH() + gap);
+      let r2 = (top - hxR.top) + above + 2 * stride;
+      const bottom = hxR.top + r2 - above + rowH();
+      if (bottom > cap) r2 -= (bottom - cap);
       hx.style.setProperty('--rt', Math.round(r2) + 'px');
       hx.style.setProperty('--rg', Math.round(stride) + 'px');
+      // Keep the visible front arc left of the FC26 / key-art wordmark.
+      const maxRight = w * 0.21;
+      const leftPx = Math.max(cw * 0.6, maxRight - R);
+      hx.style.setProperty('--ring-left', (leftPx / w * 100).toFixed(2) + '%');
     }
     function place(cs, rot, st, rad) {
+      const desk = hx.clientWidth > 760;
       for (let i = 0; i < cs.length; i++) {
         const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
-        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,0) scale(${(0.62 + d * 0.48).toFixed(3)})`;
+        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -yAmp).toFixed(1)}px,0) scale(${(0.62 + d * 0.48).toFixed(3)})`;
         cs[i].style.zIndex = Math.round(d * 100);
+        if (desk) cs[i].classList.toggle('back', d < 0.62);
+        else cs[i].classList.remove('back');
       }
     }
     function layout() {
