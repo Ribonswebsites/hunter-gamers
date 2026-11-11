@@ -10,7 +10,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=30';
+  const I = n => '/img/' + (REN[n] || n) + '?v=42';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -170,16 +170,18 @@
   })();
 
   /* ---------- Hero: cutout centre-stage over a spinning poster ring, dimmed + blurred background ---------- */
-  const MOB = innerWidth <= 760, BIG = innerWidth > 1100 ? '-md' : '-sm', CUT = '-md';
-  const HIBG = ['wolverine', 'gta6', 'gow', 'sm2', 'acs', 'fc26', 'nr', 'wk'];
-  const bgSrc = s => I('hb-' + s.id + '.webp');
-  const cutSrc = s => I('hp-' + s.id + '.webp');
+  const MOB = () => innerWidth <= 760 || !matchMedia('(orientation: landscape)').matches;
+  const BGM = { wolverine:'t-wolverine', gow:'t-gow', gta6:'t-gta6', sm2:'t-sm2-r28', acs:'t-acs-r28', fc26:'t-fc26-r28', nr:'t-nr', wk:'t-wk-r28' };
+  const BGD = { wolverine:'w-wolverine', gow:'w-gow', gta6:'w-gta6', sm2:'w-sm2-r28', acs:'w-acs-r28', fc26:'w-fc26-r28', nr:'w-nr', wk:'w-wk-r28' };
+  const CUTS = { fc26:'c-fc26-md', nr:'c-nr-r28-md' };
+  const bgSrc = s => I((MOB() ? BGM[s.id] : BGD[s.id]) + '.webp');
+  const cutSrc = s => I((CUTS[s.id] || ('hp-' + s.id)) + '.webp');
   function buildHero() {
     const hx = $('#top > .hgx') || document.createElement('section');
     hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
     // Separate layers (not per-slide wrappers) so fading never creates a stacking context that lets the ring pass in front.
-    hx.innerHTML = `<div class="hgx-layer hgx-bgs">${SLIDES.map((s, i) => `<div class="hgx-bg${s.clear ? ' clear' : ''}${i ? '' : ' on'}"${i ? '' : ` style="background-image:url(${bgSrc(s)})"`}></div>`).join('')}</div>
-      <div class="hgx-ring r1"></div>
+    hx.innerHTML = `<div class="hgx-layer hgx-bgs">${SLIDES.map((s, i) => `<div class="hgx-bg${s.clear ? ' clear' : ''}${i ? '' : ' on'}" data-id="${s.id}"></div>`).join('')}</div>
+      <div class="hgx-ring r0"></div><div class="hgx-ring r1"></div><div class="hgx-ring r2"></div>
       <div class="hgx-layer hgx-subs">${SLIDES.map((s, i) => s.pop
         ? `<div class="hgx-pop hgx-subject-w${i ? '' : ' on'}" data-id="${s.id}"><img ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async"${i ? '' : ' fetchpriority="high"'}></div>`
         : `<img data-id="${s.id}" class="hgx-subject hgx-subject-w${i ? '' : ' on'}" ${i ? 'data-src' : 'src'}="${cutSrc(s)}" alt="" decoding="async">`).join('')}</div>
@@ -193,33 +195,41 @@
     const ready = SLIDES.map(() => null);
     // Fetch + decode a slide's images before showing it, so nothing pops in half-loaded.
     const ensure = i => ready[i] || (ready[i] = Promise.all([preload(bgSrc(SLIDES[i])), preload(cutSrc(SLIDES[i]))].concat(SLIDES[i].pop ? [preload(I(SLIDES[i].pop + '.webp'))] : [])).then(() => {
-      if (!bgs[i].style.backgroundImage) bgs[i].style.backgroundImage = `url(${bgSrc(SLIDES[i])})`;
       const im = subs[i].tagName === 'IMG' ? subs[i] : $('img', subs[i]); if (im.dataset.src) { im.src = im.dataset.src; delete im.dataset.src; }
     }));
-    function mkRing(el, ids, n) { const cs = []; for (let i = 0; i < n; i++) { const c = document.createElement('div'); c.className = 'hgx-card'; if (ids) c.style.backgroundImage = `url(${I(ids[i] + '.webp')})`; el.append(c); cs.push(c); } return cs; }
-    const ring1 = $('.hgx-ring.r1', hx);
-    const N = 9, cards = mkRing(ring1, null, N);
-    let auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, R2 = 0, step = 0, step2 = 0, busy = false;
+    const ROW = [
+      ['p-re9','p-got','p-ds2','p-er','p-cp','p-rdr2','p-dg','p-sek','p-re4'],
+      ['q-sb','q-hfw','q-ff7r','q-t8','q-mk1','q-hl','q-tlou2','q-rc','q-dmc5'],
+      ['p-bo7','p-wolverine','p-gow','p-sm2','p-acs','p-fc26','p-nr','p-wk','p-gta6']
+    ];
+    function mkRing(el, ids) { const cs = []; ids.forEach(id => { const c = document.createElement('div'); c.className = 'hgx-card'; c.style.backgroundImage = `url(${I(id + '.webp')})`; el.append(c); cs.push(c); }); return cs; }
+    const rings = [0,1,2].map(i => { const el = $('.hgx-ring.r' + i, hx); return { el, cards: mkRing(el, ROW[i]) }; });
+    const N = ROW[0].length;
+    let auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, step = 0, busy = false;
     const DUR = 6500;
-    function fillRing() { const HERO = SLIDES.map(x => x.id), others = ['re9', 'got', 'ds2', 'er', 'cp', 'rdr2', 'dg', 'sek', 're4'].filter(p => !HERO.includes(p)); cards.forEach((c, i) => { c.style.backgroundImage = `url(${I('p-' + others[(i + cur) % others.length] + '.webp')})`; }); }
     function measure() {
-      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / N;
-      const cw = Math.max(96, Math.min(170, w * 0.12));
-      ring1.style.setProperty('--cw', cw + 'px');
+      const w = hx.clientWidth, desk = w > 760;
+      R = Math.min(w * (desk ? 0.26 : 0.40), desk ? 380 : 560); step = Math.PI * 2 / N;
+      const cw = desk ? Math.max(60, Math.min(64, w * 0.045)) : Math.max(58, Math.min(72, w * 0.08));
+      rings.forEach(r => r.el.style.setProperty('--cw', cw + 'px'));
     }
     function place(cs, rot, st, rad) {
       for (let i = 0; i < cs.length; i++) {
         const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
-        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,0) scale(${(0.62 + d * 0.48).toFixed(3)})`;
+        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -8).toFixed(1)}px,0) scale(${(0.68 + d * 0.38).toFixed(3)})`;
         cs[i].style.zIndex = Math.round(d * 100);
       }
     }
-    function layout() { place(cards, auto + drag, step, R); }
+    function layout() {
+      place(rings[0].cards, auto + drag, step, R * 0.92);
+      place(rings[1].cards, -(auto * 0.85) + drag, step, R);
+      place(rings[2].cards, auto * 1.12 + drag, step, R * 1.06);
+    }
     function go(i) {
       const next = (i + SLIDES.length) % SLIDES.length; if (next === cur || busy) { t0 = performance.now(); return; }
       busy = true; t0 = performance.now(); lastP = 0;
       ensure(next).then(() => requestAnimationFrame(() => {
-        const prev = cur; cur = next; fillRing();
+        const prev = cur; cur = next;
         bgs.forEach((b, j) => b.classList.toggle('on', j === cur)); hx.classList.toggle('clr', !!SLIDES[cur].clear); hx.classList.add('ring-on'); hx.dataset.s = SLIDES[cur].id;
         subs[prev].classList.remove('on'); subs[prev].classList.add('out');
         setTimeout(() => subs[prev].classList.remove('out'), 700);
@@ -230,14 +240,7 @@
       }));
     }
     hx.classList.toggle('clr', !!SLIDES[0].clear); hx.classList.add('ring-on'); hx.dataset.s = SLIDES[0].id;
-    // Ring sits as low as possible: its bottom edge stops just above the game tag, so it stays under every face and title.
-    function fitRing() {
-      const tag = $('.hgx-copy.on .hgx-tag', hx) || $('.hgx-copy.on', hx); if (!tag) return;
-      const hr = hx.getBoundingClientRect(); let bo = -1e9; cards.forEach(c => { const r = c.getBoundingClientRect(); if (r.bottom > bo) bo = r.bottom; });
-      const cur = parseFloat(getComputedStyle(ring1).top) || 0, want = cur + (tag.getBoundingClientRect().top - 12 - bo);
-      hx.style.setProperty('--rt', Math.round(want) + 'px');
-    }
-    measure(); fillRing(); layout();
+    measure(); layout();
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
     addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; }, { passive: true });
