@@ -10,7 +10,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=42';
+  const I = n => '/img/' + (REN[n] || n) + '?v=43';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -173,9 +173,9 @@
   const MOB = () => innerWidth <= 760 || !matchMedia('(orientation: landscape)').matches;
   const BGM = { wolverine:'t-wolverine', gow:'t-gow', gta6:'t-gta6', sm2:'t-sm2-r28', acs:'t-acs-r28', fc26:'t-fc26-r28', nr:'t-nr', wk:'t-wk-r28' };
   const BGD = { wolverine:'w-wolverine', gow:'w-gow', gta6:'w-gta6', sm2:'w-sm2-r28', acs:'w-acs-r28', fc26:'w-fc26-r28', nr:'w-nr', wk:'w-wk-r28' };
-  const CUTS = { fc26:'c-fc26-md', nr:'c-nr-r28-md' };
+  const CUTS = { wolverine:'c-wolverine-md', gow:'c-gow-md', gta6:'c-gta6-r24-md', sm2:'c-peter-md', acs:'c-acs-md', fc26:'c-fc26-md', nr:'c-nr-r28-md', wk:'c-wk-md' };
   const bgSrc = s => I((MOB() ? BGM[s.id] : BGD[s.id]) + '.webp');
-  const cutSrc = s => I((CUTS[s.id] || ('hp-' + s.id)) + '.webp');
+  const cutSrc = s => I(CUTS[s.id] + '.webp');
   function buildHero() {
     const hx = $('#top > .hgx') || document.createElement('section');
     hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
@@ -208,22 +208,47 @@
     let auto = 0, drag = 0, cur = 0, t0 = performance.now(), visible = true, R = 0, step = 0, busy = false;
     const DUR = 6500;
     function measure() {
-      const w = hx.clientWidth, desk = w > 760;
-      R = Math.min(w * (desk ? 0.26 : 0.40), desk ? 380 : 560); step = Math.PI * 2 / N;
-      const cw = desk ? Math.max(60, Math.min(64, w * 0.045)) : Math.max(58, Math.min(72, w * 0.08));
+      const w = hx.clientWidth; R = Math.min(w * 0.42, 620); step = Math.PI * 2 / N;
+      const cw = Math.max(96, Math.min(170, w * 0.12));
       rings.forEach(r => r.el.style.setProperty('--cw', cw + 'px'));
+      hx.style.setProperty('--rg', (cw * 1.5 + 16) + 'px');
+    }
+    function rowBox(cs) {
+      let t = 1e9, b = -1e9; cs.forEach(c => { const r = c.getBoundingClientRect(); if (r.top < t) t = r.top; if (r.bottom > b) b = r.bottom; });
+      return { t, b, h: b - t };
+    }
+    function fitRing() {
+      if (!rings[2] || !rings[2].cards.length) return;
+      layout();
+      hx.style.removeProperty('--rt');
+      const hxR = hx.getBoundingClientRect();
+      const sp = rowBox(rings[2].cards);
+      const origin = rings[2].el.getBoundingClientRect().top;
+      const above = origin - sp.t;
+      const orig = origin - hxR.top;
+      const gap = 16;
+      const pad = 8;
+      const avail = hxR.height - pad * 2;
+      let stride = sp.h + gap;
+      if (sp.h * 3 + gap * 2 > avail) {
+        stride = sp.h * 3 > avail ? avail / 3 : (avail - sp.h) / 2;
+      }
+      let r2 = orig;
+      if (r2 - 2 * stride - above < pad) r2 = pad + above + 2 * stride;
+      hx.style.setProperty('--rt', Math.round(r2) + 'px');
+      hx.style.setProperty('--rg', Math.round(stride) + 'px');
     }
     function place(cs, rot, st, rad) {
       for (let i = 0; i < cs.length; i++) {
         const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
-        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -8).toFixed(1)}px,0) scale(${(0.68 + d * 0.38).toFixed(3)})`;
+        cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -18).toFixed(1)}px,0) scale(${(0.62 + d * 0.48).toFixed(3)})`;
         cs[i].style.zIndex = Math.round(d * 100);
       }
     }
     function layout() {
-      place(rings[0].cards, auto + drag, step, R * 0.92);
-      place(rings[1].cards, -(auto * 0.85) + drag, step, R);
-      place(rings[2].cards, auto * 1.12 + drag, step, R * 1.06);
+      place(rings[0].cards, auto + drag, step, R);
+      place(rings[1].cards, auto + drag + step / 3, step, R);
+      place(rings[2].cards, auto + drag + 2 * step / 3, step, R);
     }
     function go(i) {
       const next = (i + SLIDES.length) % SLIDES.length; if (next === cur || busy) { t0 = performance.now(); return; }
@@ -235,17 +260,18 @@
         setTimeout(() => subs[prev].classList.remove('out'), 700);
         subs[cur].classList.remove('out'); subs[cur].classList.add('on');
         copies.forEach((c, j) => { c.classList.toggle('on', j === cur); c.setAttribute('aria-hidden', j !== cur); });
+        fitRing();
         t0 = performance.now(); busy = false;
         ensure((cur + 1) % SLIDES.length); // preload the next slide while this one plays
       }));
     }
     hx.classList.toggle('clr', !!SLIDES[0].clear); hx.classList.add('ring-on'); hx.dataset.s = SLIDES[0].id;
-    measure(); layout();
+    measure(); layout(); requestAnimationFrame(fitRing);
     let sx = null, moved = 0;
     hx.addEventListener('pointerdown', e => { if (e.target.closest('button')) return; sx = e.clientX; moved = 0; });
     addEventListener('pointermove', e => { if (sx == null) return; const dx = e.clientX - sx; sx = e.clientX; moved += dx; drag += dx * 0.01; }, { passive: true });
     addEventListener('pointerup', () => { if (sx == null) return; sx = null; if (Math.abs(moved) > 60) go(cur + (moved < 0 ? 1 : -1)); });
-    let rz; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { measure(); layout(); }); });
+    let rz; addEventListener('resize', () => { cancelAnimationFrame(rz); rz = requestAnimationFrame(() => { measure(); layout(); fitRing(); }); });
     new IntersectionObserver(([e]) => { visible = e.isIntersecting; hx.classList.toggle('paused', !visible); if (visible) { t0 = performance.now() - lastP * DUR; loop(); } }).observe(hx);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && visible) { t0 = performance.now() - lastP * DUR; loop(); } });
     let running = false, lastP = 0;
@@ -854,26 +880,46 @@
   let cookieEl;
   /* ---------- In-app update (Android app only; native side calls HGUpdate when /version.json is newer) ---------- */
   IC.update = () => sv('<path d="M21 12a9 9 0 1 1-3-6.7"/><path d="M21 3v6h-6"/><path d="M12 8v5l3 2"/>', 30);
-  window.HGUpdate = (ver, notes) => {
-    if ($('.hg-upd')) return;
+  function appVersionCode() {
+    const m = navigator.userAgent.match(/HunterGameApp\/[\w.?]+ \((\d+)\)/);
+    let have = m ? +m[1] : 0; try { if (window.HGApp && HGApp.versionCode) have = HGApp.versionCode() || have; } catch (e) {}
+    return have;
+  }
+  const FLUTTER_APK = 'https://hunter-gamers.pages.dev/downloads/hunter-flutter.apk';
+  function offerNewApp(have) {
+    if (store.get('newAppOffer') == have || $('.hg-sheet.newapp') || $('.hg-upd')) return;
+    if (openSheet || (loginEl && loginEl.classList.contains('on'))) {
+      clearTimeout(window.__hgUpdWait); window.__hgUpdWait = setTimeout(() => offerNewApp(have), 1200); return;
+    }
+    const dismiss = () => store.set('newAppOffer', have);
+    const el = popup({ art: I('r-app.webp'), cls: 'newapp', icon: IC.update(), title: 'Hunter Game has a new app', text: 'Install it, then you can delete this old one.',
+      actions: [{ label: 'Later', run: dismiss },
+        { label: `Install${ARW}`, primary: true, keep: true, run: () => { dismiss(); location.href = FLUTTER_APK; } }] });
+    const done = () => { if (!el.classList.contains('on')) { dismiss(); obs.disconnect(); } };
+    const obs = new MutationObserver(done); obs.observe(el, { attributes: true, attributeFilter: ['class'] });
+  }
+  window.HGUpdate = (ver, notes, code) => {
+    const have = appVersionCode();
+    if (have && have < 30) { offerNewApp(have); return; }
+    if ($('.hg-upd') || $('.hg-sheet.newapp')) return;
     // never let another sheet (login, cookies, app promo) swallow the update popup: wait until the screen is clear
-    if (openSheet || (loginEl && loginEl.classList.contains('on'))) { clearTimeout(window.__hgUpdWait); window.__hgUpdWait = setTimeout(() => window.HGUpdate(ver, notes), 1200); return; }
+    if (openSheet || (loginEl && loginEl.classList.contains('on'))) { clearTimeout(window.__hgUpdWait); window.__hgUpdWait = setTimeout(() => window.HGUpdate(ver, notes, code), 1200); return; }
     const el = popup({ art: I('k-wolverine.webp'), cls: 'upd', icon: IC.update(), title: 'Update available', text: `Version ${ver} of the Hunter Game app is ready.${notes ? ' ' + notes.replace(/</g, '&lt;') : ''}`,
       extra: '<div class="hg-upd"><div class="hg-upd-bar"><i></i></div><small class="hg-upd-st">Takes a few seconds. Your bookings stay saved.</small></div>',
-      actions: [{ label: 'Later', run: () => { try { sessionStorage.setItem('hg.updLater', ver.replace(/^1\./, '')); } catch (e) {} window.HGApp && HGApp.later(); } },
+      actions: [{ label: 'Later', run: () => { try { sessionStorage.setItem('hg.updLater', String(code != null ? code : ver)); } catch (e) {} window.HGApp && HGApp.later(); } },
         { label: `Update now${ARW}`, primary: true, keep: true, run: () => { el.classList.add('upd-busy'); window.HGApp && HGApp.startUpdate(); HGUpdateProgress(0, 'downloading');
           // fallback: if the native downloader never reports progress, hand the APK to the phone's browser
-          window.__hgUpdTick = 0; setTimeout(() => { if (!window.__hgUpdTick) location.href = 'https://hunter-gamers.pages.dev/downloads/hunter-flutter.apk'; }, 4000); } }] });
+          window.__hgUpdTick = 0; setTimeout(() => { if (!window.__hgUpdTick) location.href = FLUTTER_APK; }, 4000); } }] });
   };
   // Site-side update check (works even if an older app's native check never fires the popup)
   function selfUpdateCheck() {
     if (!IN_APP) return;
-    const m = navigator.userAgent.match(/HunterGameApp\/[\w.?]+ \((\d+)\)/);
-    let have = m ? +m[1] : 0; try { if (window.HGApp && HGApp.versionCode) have = HGApp.versionCode() || have; } catch (e) {}
+    const have = appVersionCode();
     if (!have) return;
+    if (have < 30) { if (store.get('newAppOffer') != have) setTimeout(() => offerNewApp(have), 1200); return; }
     fetch('/version.json?t=' + Date.now(), { cache: 'no-store' }).then(r => r.json()).then(v => {
-      if (!(v.versionCode > have) || sessionStorage.getItem('hg.updLater') == v.versionCode) return;
-      setTimeout(() => window.HGUpdate(v.versionName, v.notes), 1200);
+      if (!(v.versionCode > have) || String(sessionStorage.getItem('hg.updLater')) === String(v.versionCode)) return;
+      setTimeout(() => window.HGUpdate(v.versionName, v.notes, v.versionCode), 1200);
     }).catch(() => {});
   }
   window.HGUpdateProgress = (pct, st) => {
