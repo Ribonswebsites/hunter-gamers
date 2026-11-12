@@ -10,7 +10,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=45';
+  const I = n => '/img/' + (REN[n] || n) + '?v=46';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -1196,12 +1196,11 @@
 if ('serviceWorker' in navigator) addEventListener('load', () => navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).then(r => {
   r.update().catch(() => {});
   document.addEventListener('visibilitychange', () => { if (!document.hidden) r.update().catch(() => {}); });
-  let shown = false; const hadC = !!navigator.serviceWorker.controller;
+  const hadC = !!navigator.serviceWorker.controller;
+  let reloading = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => {
-    if (shown || !hadC) return; shown = true;
-    const t = document.createElement('div'); t.className = 'hg-newver'; t.setAttribute('role', 'status');
-    t.innerHTML = '<span>New version of the site is ready</span><button type="button">Refresh</button>';
-    t.querySelector('button').onclick = () => location.reload();
-    document.body.append(t); requestAnimationFrame(() => t.classList.add('on'));
+    if (!hadC || reloading) return;
+    reloading = true;
+    location.reload();
   });
 }).catch(() => {}));
