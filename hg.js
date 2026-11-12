@@ -10,7 +10,7 @@
   const store = { get: k => { try { return JSON.parse(localStorage.getItem('hg.' + k)); } catch { return null; } }, set: (k, v) => { try { localStorage.setItem('hg.' + k, JSON.stringify(v)); } catch {} } };
   // r20: art that changed gets a new filename so no cache (SW, WebView, CDN) can serve the old file
   const REN = { 'c-wk-md.webp': 'c-wk-md-r20.webp', 'c-wk-sm.webp': 'c-wk-sm-r20.webp', 't-wk.webp': 't-wk-r20.webp', 'w-wk.webp': 'w-wk-r20.webp', 'c-nr-md.webp': 'c-nr-md-r20.webp', 'c-nr-sm.webp': 'c-nr-sm-r20.webp', 't-nr.webp': 't-nr-r20.webp', 'w-nr.webp': 'w-nr-r20.webp' };
-  const I = n => '/img/' + (REN[n] || n) + '?v=44';
+  const I = n => '/img/' + (REN[n] || n) + '?v=45';
   const POSTERS = Array.from({ length: 12 }, (_, i) => I(`card-${String(i + 1).padStart(2, '0')}.webp`));
   const LOGO = I('hg-logo.png');
   const sv = (p, w = 30) => `<svg class="hg-svg" width="${w}" height="${w}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${p}</svg>`;
@@ -175,7 +175,12 @@
   const BGD = { wolverine:'w-wolverine', gow:'w-gow', gta6:'w-gta6', sm2:'w-sm2-r28', acs:'w-acs-r28', fc26:'w-fc26-r28', nr:'w-nr', wk:'w-wk-r28' };
   const CUTS = { wolverine:'c-wolverine-md', gow:'c-gow-md', gta6:'c-gta6-r24-md', sm2:'c-peter-md', acs:'c-acs-md', fc26:'c-fc26-md', nr:'c-nr-r28-md', wk:'c-wk-md' };
   const bgSrc = s => I((MOB() ? BGM[s.id] : BGD[s.id]) + '.webp');
-  const cutSrc = s => I(CUTS[s.id] + '.webp');
+  const cutSrc = s => {
+    let n = CUTS[s.id];
+    const sm = { 'c-peter-md': 'c-peter-sm', 'c-wk-md': 'c-wk-sm', 'c-wolverine-md': 'c-wolverine-sm' };
+    if (innerWidth <= 760 && sm[n]) n = sm[n];
+    return I(n + '.webp');
+  };
   function buildHero() {
     const hx = $('#top > .hgx') || document.createElement('section');
     hx.className = 'hgx'; hx.setAttribute('aria-label', 'Featured games');
@@ -306,6 +311,8 @@
         const a = rot + i * st, c = Math.cos(a), s = Math.sin(a), d = (c + 1) / 2;
         cs[i].style.transform = `translate3d(${(s * rad).toFixed(1)}px,${(c * -yAmp).toFixed(1)}px,0) scale(${(0.62 + d * 0.48).toFixed(3)})`;
         cs[i].style.zIndex = Math.round(d * 100);
+        cs[i].classList.toggle('far', d < 0.5);
+        cs[i].style.willChange = d > 0.72 ? 'transform' : 'auto';
         if (desk) cs[i].classList.toggle('back', d < 0.62);
         else cs[i].classList.remove('back');
       }
@@ -348,7 +355,7 @@
       if (lastP >= 1 && !reduce) go(cur + 1);
       requestAnimationFrame(tick);
     }
-    ensure(0).then(() => SLIDES.forEach((_, i) => setTimeout(() => ensure(i), 300 * i)));
+    ensure(0).then(() => ensure(1));
     loop();
     window.HG_go = go;
   }
@@ -377,7 +384,7 @@
       <p class="hg-games-sub rv">Featured this week. Swipe the shelf for everything else.</p>
       <div class="hg-cf rv" aria-roledescription="carousel" aria-label="Featured games">
         <div class="hg-cf-bg">${sp.map((g, i) => `<span data-bg="${I('k-' + g.id + '.webp')}"${i ? '' : ' class="on" style="background-image:url(' + I('k-' + g.id + '.webp') + ')"'}></span>`).join('')}</div>
-        <div class="hg-cf-stage">${sp.map((g, i) => `<button class="hg-cf-card" data-i="${i}" aria-label="${g.name}"><img src="${I('p-' + g.id + '.webp')}" alt="" decoding="sync"><img class="rf" src="${I('p-' + g.id + '.webp')}" alt="" decoding="sync"><i class="sh"></i></button>`).join('')}</div>
+        <div class="hg-cf-stage">${sp.map((g, i) => `<button class="hg-cf-card" data-i="${i}" aria-label="${g.name}"><img ${i ? 'data-src' : 'src'}="${I('p-' + g.id + '.webp')}" alt="" decoding="async"><img class="rf" data-src="${I('p-' + g.id + '.webp')}" alt="" decoding="async"><i class="sh"></i></button>`).join('')}</div>
         <div class="hg-cf-info">${sp.map((g, i) => `<div class="hg-cf-t${i ? '' : ' on'}"><div class="hg-cf-chips"><span>${g.tag}</span>${g.soon ? (/soon/i.test(g.tag) ? '' : '<span class="y">Coming soon</span>') : `<span>Up to 4 players</span><span>From ₹${/PS4/.test(g.tag) ? 75 : 100} / player / hr</span>`}</div><h3>${g.name}</h3><p>${g.blurb}</p></div>`).join('')}
           <div class="hg-cf-row"><button class="hg-btn p hg-cf-go" data-game="${sp[0].id}">Book this game${ARW}</button>
           <div class="hg-cf-dial" aria-hidden="true"><svg viewBox="0 0 44 44"><circle cx="22" cy="22" r="19"/><circle class="p" cx="22" cy="22" r="19" pathLength="1"/></svg><b>01</b><small>/${String(sp.length).padStart(2, '0')}</small></div></div></div>
@@ -400,7 +407,10 @@
     function render() {
       for (let i = 0; i < n; i++) { const c = cs[i]; let o = i - pos; o -= Math.round(o / n) * n; const a = Math.abs(o), sg = o < 0 ? -1 : 1, k = Math.min(a, 1);
         if (a > 2.7) { if (c._v !== 0) { c.style.visibility = 'hidden'; c._v = 0; } continue; }
-        if (c._v !== 1) { c.style.visibility = 'visible'; c._v = 1; }
+        if (c._v !== 1) {
+          c.style.visibility = 'visible'; c._v = 1;
+          c.querySelectorAll('img[data-src]').forEach(im => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
+        }
         const x = sg * (ease(k) * cw * 0.6 + Math.max(0, a - 1) * cw * 0.28), z = -Math.min(a, 2.5) * 150, r = -sg * k * 48, sc = 1 - Math.min(a, 2) * 0.06;
         c.style.transform = `perspective(1100px) translate3d(${x.toFixed(1)}px,0,${z.toFixed(1)}px) rotateY(${r.toFixed(2)}deg) scale(${sc.toFixed(3)})`;
         const zi = 100 - Math.round(a * 10); if (c._z !== zi) { c.style.zIndex = zi; c._z = zi; }
@@ -527,10 +537,10 @@
   /* ---------- Login ---------- */
   function buildLogin() {
     const L = document.createElement('div'); L.className = 'hg-login'; L.setAttribute('role', 'dialog'); L.setAttribute('aria-label', 'Login');
-    const col = k => { const set = [0, 1, 2, 3, 4, 5].map(j => POSTERS[(k + j * 2) % POSTERS.length]); return `<div class="hgl-col"><div class="hgl-track">${[...set, ...set].map(s => `<img src="${s}" alt="" decoding="sync">`).join('')}</div></div>`; };
+    const col = k => { const set = [0, 1, 2, 3, 4, 5].map(j => POSTERS[(k + j * 2) % POSTERS.length]); return `<div class="hgl-col"><div class="hgl-track">${[...set, ...set].map(s => `<img data-src="${s}" alt="" decoding="async">`).join('')}</div></div>`; };
     const SH = ['<path d="M12 4 21 20H3z"/>', '<circle cx="12" cy="12" r="9"/>', '<path d="M5 5l14 14M19 5 5 19"/>', '<rect x="4" y="4" width="16" height="16" rx="1"/>'];
     const glyphs = SH.flatMap(g => [g, g, g]).map((g, i) => `<span style="left:${(i * 37) % 100}%;animation-duration:${14 + (i * 7) % 16}s;animation-delay:-${(i * 3) % 14}s;width:${18 + (i * 11) % 30}px"><svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.35)" stroke-width="1.5">${g}</svg></span>`).join('');
-    L.innerHTML = `<div class="hgl-bg" style="background-image:url(${I('wolverine-bg-sm.webp')})"></div>
+    L.innerHTML = `<div class="hgl-bg" data-bg="${I('wolverine-bg-sm.webp')}"></div>
       <div class="hgl-cols">${[0, 3, 6, 9].map(col).join('')}</div><div class="hgl-shade"></div><div class="hgl-glyphs">${glyphs}</div>
       <form class="hgl-card" novalidate>
         <div class="hgl-brand"><img src="${LOGO}" alt="">HUNTER GAMERS</div>
@@ -560,7 +570,14 @@
     return L;
   }
   let loginEl;
-  function openLogin() { loginEl.classList.add('on'); document.body.classList.add('hg-lock'); }
+  function fillLoginArt() {
+    if (loginEl.dataset.art === '1') return;
+    loginEl.dataset.art = '1';
+    const bg = $('.hgl-bg', loginEl);
+    if (bg && bg.dataset.bg) bg.style.backgroundImage = 'url(' + bg.dataset.bg + ')';
+    $$('img[data-src]', loginEl).forEach(im => { im.src = im.dataset.src; im.removeAttribute('data-src'); });
+  }
+  function openLogin() { fillLoginArt(); loginEl.classList.add('on'); document.body.classList.add('hg-lock'); }
   function closeLogin() { loginEl.classList.remove('on'); document.body.classList.remove('hg-lock'); afterLogin(); }
   function fillUser() {
     const u = store.get('user'); const lab = $('[data-acct-label]');
@@ -725,8 +742,11 @@
       CTRL.draw && CTRL.draw();
     }
     LIVE.subs.push(draw);
-    pull(); setInterval(() => { if (!document.hidden) pull(); }, 15000);
-    setInterval(() => { if (!document.hidden) draw(); }, 1000);
+    let liveOn = false;
+    new IntersectionObserver(([e]) => { liveOn = e.isIntersecting; if (liveOn) { pull(); draw(); } }).observe(sec);
+    pull();
+    setInterval(() => { if (liveOn && !document.hidden) pull(); }, 15000);
+    setInterval(() => { if (liveOn && !document.hidden) draw(); }, 1000);
   }
 
   /* ---------- Pages (hash routes: #control, #orders) ---------- */
@@ -735,61 +755,229 @@
   /* ---------- Request a game (₹200 upfront) ---------- */
   const REQ_FEE = 200, REQ_UPI = '7038896627@okbizaxis';
   const GAMES_REQ = [
-    [2322010,'God of War Ragnarök'],[1593500,'God of War'],[2358720,'Black Myth: Wukong'],[2622380,'Elden Ring Nightreign'],[1245620,'Elden Ring'],
-    [3159330,"Assassin's Creed Shadows"],[2651280,"Marvel's Spider-Man 2"],[1817070,"Marvel's Spider-Man: Miles Morales"],[1817190,"Marvel's Spider-Man Remastered"],
-    [2215430,'Ghost of Tsushima'],[1888930,'The Last of Us Part I'],[2531310,'The Last of Us Part II'],[1151640,'Horizon Zero Dawn'],[2420110,'Horizon Forbidden West'],
-    [271590,'Grand Theft Auto V'],[1174180,'Red Dead Redemption 2'],[1091500,'Cyberpunk 2077'],[292030,'The Witcher 3'],[814380,'Sekiro'],[2050650,'Resident Evil 4'],
-    [1196590,'Resident Evil Village'],[1687950,'Persona 5 Royal'],[976310,'Mortal Kombat 1'],[1778820,'Tekken 8'],[1888160,'Armored Core VI'],[1240440,'Halo Infinite'],
-    [570,'Dota 2'],[2357570,'Overwatch 2'],[1962663,'Call of Duty'],[990080,'Hogwarts Legacy'],[1811260,'EA SPORTS FIFA 23'],[2195250,'EA SPORTS FC 24'],
-    [2669320,'EA SPORTS FC 25'],[3405690,'EA SPORTS FC 26'],[1222670,'The Sims 4'],[1240440,'Halo Infinite'],[1888930,'The Last of Us'],[883710,'Uncharted: Legacy of Thieves'],
-    [0,'Astro Bot'],[0,'Gran Turismo 7'],[0,'Demon\'s Souls'],[0,'Bloodborne'],[0,'Marvel\'s Wolverine'],[0,'Grand Theft Auto VI'],[0,'Ghost of Yotei']
+    /* New releases (Sep–12 Nov 2026) */
+    {id:0,name:"Marvel's Wolverine",platforms:"PS5",tags:["new","trending"],date:"15 Sep 2026",art:"p-wolverine"},
+    {id:0,name:"Ghost of Yotei: Echoes of Sekigahara",platforms:"PS5",tags:["new"],date:"1 Oct 2026"},
+    {id:2288340,name:"ACE COMBAT 8: Wings of Theve",platforms:"PS5",tags:["new"],date:"2 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2288340/13dea8084135fd130605b78189c82e39bf944c35/header.jpg?t=1794266051"},
+    {id:4078430,name:"STAR WARS: Galactic Racer",platforms:"PS5 · PS4",tags:["new"],date:"6 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4078430/97215eb609882139ce6a28419116be23fcf5ac86/header.jpg?t=1791388584"},
+    {id:1551980,name:"Clive Barker's Hellraiser: Revival",platforms:"PS5",tags:["new"],date:"8 Oct 2026"},
+    {id:0,name:"Kingdom Hearts Collection",platforms:"PS5 · PS4",tags:["new"],date:"8 Oct 2026"},
+    {id:3219030,name:"Planet Zoo 2",platforms:"PS5",tags:["new"],date:"13 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3219030/a5131aa4b84d04a55e3b9c561d7c886cc22bbe1c/header.jpg?t=1793011606"},
+    {id:2828710,name:"Valor Mortis",platforms:"PS5",tags:["new"],date:"13 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2828710/e729c7f909db5c52ea780923d9b258517162866a/header.jpg?t=1793135279"},
+    {id:4231820,name:"Castlevania: Belmont's Curse",platforms:"PS5",tags:["new"],date:"15 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4231820/6b65aec2c398006aea8b76e1463cc34d0e4ba68b/header.jpg?t=1793067818"},
+    {id:1203620,name:"Enshrouded",platforms:"PS5",tags:["new"],date:"15 Oct 2026"},
+    {id:284160,name:"BeamNG.drive",platforms:"PS5",tags:["new"],date:"19 Oct 2026"},
+    {id:4435490,name:"Call of Duty: Modern Warfare 4",platforms:"PS5 · PS4",tags:["new","trending"],date:"23 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4435490/0c492be3204835d71e8b454b6eb1817f8ff68c0d/header.jpg?t=1794339680"},
+    {id:4115450,name:"Phantom Blade Zero",platforms:"PS5",tags:["new","trending"],date:"28 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4115450/7f882f889630270d3d3fb93825ac6f55b55e7a6c/header.jpg?t=1793261976"},
+    {id:3884860,name:"The Wolf Among Us Remastered",platforms:"PS5 · PS4",tags:["new"],date:"29 Oct 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3884860/80ddd096b6fdd5ab25162251bee4131c78cdf351/header.jpg?t=1793636108"},
+    {id:4251460,name:"Godzilla: Destroy All Monsters Melee Remastered",platforms:"PS5 · PS4",tags:["new"],date:"3 Nov 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4251460/28023d80b51185fe3dbadadf608523942f47238c/header.jpg?t=1793714569"},
+    {id:2863680,name:"ZERO PARADES: Director's Cut",platforms:"PS5",tags:["new"],date:"3 Nov 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2863680/54018bd8ff78f17e7bfd691dadade1602938b8e8/header.jpg?t=1790856627"},
+    {id:2615540,name:"VOID/BREAKER",platforms:"PS5",tags:["new"],date:"4 Nov 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2615540/4f3789458cfd9c3375c2926620b19640135f7c4a/header_alt_assets_8.jpg?t=1794245445"},
+    {id:3296060,name:"Escape Academy 2: Back 2 School",platforms:"PS5 · PS4",tags:["new"],date:"5 Nov 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3296060/2602a19a9df4c306febaed3f9cab850b78515f23/header.jpg?t=1794246612"},
+    {id:4530370,name:"Football Manager 27",platforms:"PS5",tags:["new"],date:"10 Nov 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4530370/32b41d18ffaac3d2e1dc1a9c3915538db0ba3fca/header.jpg?t=1794391162"},
+    {id:2523740,name:"DreamWorks Shrek 2 Remastered",platforms:"PS5 · PS4",tags:["new"],date:"10 Nov 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2523740/abfa94e9a286146554386662e218aae82716711f/header.jpg?t=1794330089"},
+    {id:4082030,name:"Barbie Rewind",platforms:"PS5 · PS4",tags:["new"],date:"12 Nov 2026",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4082030/58beeb27ced499b9010c24cbc8c6ee0c24e67cad/header.jpg?t=1792608169"},
+    /* Upcoming */
+    {id:0,name:"Grand Theft Auto VI",platforms:"PS5",tags:["upcoming","trending"],date:"19 Nov 2026",art:"p-gta6"},
+    {id:250900,name:"The Binding of Isaac: Repentance+",platforms:"PS5 · PS4",tags:["upcoming"],date:"19 Nov 2026"},
+    {id:2694490,name:"Path of Exile 2",platforms:"PS5",tags:["upcoming"],date:"11 Dec 2026"},
+    {id:4814120,name:"ANANTA",platforms:"PS5",tags:["upcoming"],date:"15 Jan 2027",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4814120/3bd40cfd93dfe6e7a21d9f825fa3b82ee1c57105/header.jpg?t=1790579282"},
+    {id:4260840,name:"STRANGER THAN HEAVEN",platforms:"PS5",tags:["upcoming"],date:"15 Jan 2027",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4260840/3e40b76faf9a3eafb4397dd51308eb2e48ac3660/header.jpg?t=1794198873"},
+    {id:0,name:"Until Dawn 2",platforms:"PS5",tags:["upcoming"],date:"28 Jan 2027"},
+    {id:2590240,name:"METRO 2039",platforms:"PS5",tags:["upcoming"],date:"4 Feb 2027",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2590240/6998fb70f896b0f155061de0b472a8262bd06ef9/header.jpg?t=1792741532"},
+    {id:2769570,name:"Fable",platforms:"PS5",tags:["upcoming"],date:"23 Feb 2027"},
+    {id:4354570,name:"FINAL FANTASY VII REVELATION",platforms:"PS5",tags:["upcoming"],date:"8 Apr 2027",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4354570/e1750093047ef96e99879977810c9b4c774bab68/header.jpg?t=1793980510"},
+    {id:0,name:"God of War Laufey",platforms:"PS5",tags:["upcoming"],date:"May 2027"},
+    {id:4829700,name:"Monster Hunter Wilds: Ascendance",platforms:"PS5",tags:["upcoming"],date:"2027",cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4829700/6a3eec73bed78fafa128e24dddb872df87832dff/header.jpg?t=1788503895"},
+    /* Trending (also in catalog) */
+    {id:3405690,name:"EA SPORTS FC 26",platforms:"PS5 · PS4",tags:["trending"],cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3405690/2d96aa1b06e453cd62dae9029d412f19e61932c3/header.jpg?t=1789751159"},
+    {id:2358720,name:"Black Myth: Wukong",platforms:"PS5",tags:["trending"]},
+    {id:2622380,name:"Elden Ring Nightreign",platforms:"PS5",tags:["trending"]},
+    {id:2651280,name:"Marvel's Spider-Man 2",platforms:"PS5",tags:["trending"]},
+    {id:553850,name:"HELLDIVERS 2",platforms:"PS5 · PS4",tags:["trending"]},
+    {id:0,name:"Ghost of Yotei",platforms:"PS5",tags:["trending"]},
+    /* Major PS5 / PS4 library */
+    {id:2322010,name:"God of War Ragnarök",platforms:"PS5 · PS4",tags:[]},
+    {id:1593500,name:"God of War",platforms:"PS5 · PS4",tags:[]},
+    {id:1245620,name:"Elden Ring",platforms:"PS5 · PS4",tags:[]},
+    {id:3159330,name:"Assassin's Creed Shadows",platforms:"PS5 · PS4",tags:[]},
+    {id:1817070,name:"Marvel's Spider-Man: Miles Morales",platforms:"PS5 · PS4",tags:[]},
+    {id:1817190,name:"Marvel's Spider-Man Remastered",platforms:"PS5",tags:[]},
+    {id:2215430,name:"Ghost of Tsushima",platforms:"PS5 · PS4",tags:[]},
+    {id:1888930,name:"The Last of Us Part I",platforms:"PS5",tags:[]},
+    {id:2531310,name:"The Last of Us Part II",platforms:"PS5 · PS4",tags:[]},
+    {id:1151640,name:"Horizon Zero Dawn",platforms:"PS5 · PS4",tags:[]},
+    {id:2420110,name:"Horizon Forbidden West",platforms:"PS5 · PS4",tags:[]},
+    {id:271590,name:"Grand Theft Auto V",platforms:"PS5 · PS4",tags:[]},
+    {id:1174180,name:"Red Dead Redemption 2",platforms:"PS5 · PS4",tags:[]},
+    {id:1091500,name:"Cyberpunk 2077",platforms:"PS5 · PS4",tags:[]},
+    {id:292030,name:"The Witcher 3",platforms:"PS5 · PS4",tags:[]},
+    {id:814380,name:"Sekiro: Shadows Die Twice",platforms:"PS5 · PS4",tags:[]},
+    {id:2050650,name:"Resident Evil 4",platforms:"PS5 · PS4",tags:[]},
+    {id:1196590,name:"Resident Evil Village",platforms:"PS5 · PS4",tags:[]},
+    {id:883710,name:"Resident Evil 2",platforms:"PS5 · PS4",tags:[]},
+    {id:1687950,name:"Persona 5 Royal",platforms:"PS5 · PS4",tags:[]},
+    {id:976310,name:"Mortal Kombat 1",platforms:"PS5 · PS4",tags:[]},
+    {id:1778820,name:"Tekken 8",platforms:"PS5 · PS4",tags:[]},
+    {id:1888160,name:"Armored Core VI",platforms:"PS5 · PS4",tags:[]},
+    {id:990080,name:"Hogwarts Legacy",platforms:"PS5 · PS4",tags:[]},
+    {id:2669320,name:"EA SPORTS FC 25",platforms:"PS5 · PS4",tags:[]},
+    {id:2195250,name:"EA SPORTS FC 24",platforms:"PS5 · PS4",tags:[]},
+    {id:1811260,name:"EA SPORTS FIFA 23",platforms:"PS5 · PS4",tags:[]},
+    {id:1222670,name:"The Sims 4",platforms:"PS5 · PS4",tags:[]},
+    {id:2357570,name:"Overwatch 2",platforms:"PS5 · PS4",tags:[]},
+    {id:1962663,name:"Call of Duty",platforms:"PS5 · PS4",tags:[]},
+    {id:0,name:"Uncharted: Legacy of Thieves",platforms:"PS5 · PS4",tags:[]},
+    {id:0,name:"Astro Bot",platforms:"PS5",tags:[]},
+    {id:0,name:"Gran Turismo 7",platforms:"PS5",tags:[]},
+    {id:0,name:"Demon's Souls",platforms:"PS5",tags:[]},
+    {id:0,name:"Bloodborne",platforms:"PS4",tags:[]},
+    {id:2909400,name:"FINAL FANTASY VII REBIRTH",platforms:"PS5",tags:[]},
+    {id:2515020,name:"FINAL FANTASY XVI",platforms:"PS5",tags:[]},
+    {id:3489700,name:"Stellar Blade",platforms:"PS5",tags:[]},
+    {id:3280350,name:"DEATH STRANDING 2: ON THE BEACH",platforms:"PS5",tags:[],cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3280350/6270c77b0729e2df0a17d660286eeddfd9169386/header.jpg?t=1774022345"},
+    {id:2001120,name:"Split Fiction",platforms:"PS5 · PS4",tags:[]},
+    {id:1426210,name:"It Takes Two",platforms:"PS5 · PS4",tags:[]},
+    {id:3472040,name:"NBA 2K26",platforms:"PS5 · PS4",tags:[],cover:"https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/3472040/f7e126add75c3b09779b44cd349be93d31b0a80b/header.jpg?t=1786115051"},
+    {id:1364780,name:"Street Fighter 6",platforms:"PS5 · PS4",tags:[]},
+    {id:1086940,name:"Baldur's Gate 3",platforms:"PS5",tags:[]},
+    {id:1627720,name:"Lies of P",platforms:"PS5 · PS4",tags:[]},
+    {id:1649240,name:"Returnal",platforms:"PS5",tags:[]},
+    {id:2072450,name:"Like a Dragon: Infinite Wealth",platforms:"PS5 · PS4",tags:[]},
+    {id:1145350,name:"Hades II",platforms:"PS5 · PS4",tags:[]},
+    {id:1030300,name:"Hollow Knight: Silksong",platforms:"PS5 · PS4",tags:[]},
+    {id:1845910,name:"Dragon Age: The Veilguard",platforms:"PS5",tags:[]},
+    {id:2677660,name:"Indiana Jones and the Great Circle",platforms:"PS5",tags:[]},
+    {id:2054970,name:"Dragon's Dogma 2",platforms:"PS5",tags:[]},
+    {id:2246340,name:"Monster Hunter Wilds",platforms:"PS5",tags:[]},
+    {id:2124490,name:"SILENT HILL 2",platforms:"PS5",tags:[]},
+    {id:413150,name:"Stardew Valley",platforms:"PS5 · PS4",tags:[]},
+    {id:1145360,name:"Hades",platforms:"PS5 · PS4",tags:[]},
+    {id:524220,name:"NieR: Automata",platforms:"PS5 · PS4",tags:[]},
+    {id:582010,name:"Monster Hunter: World",platforms:"PS5 · PS4",tags:[]},
+    {id:0,name:"Ratchet & Clank: Rift Apart",platforms:"PS5",tags:[]},
+    {id:0,name:"Sackboy: A Big Adventure",platforms:"PS5 · PS4",tags:[]},
+    {id:2172010,name:"Until Dawn",platforms:"PS5",tags:[]},
+    {id:0,name:"Days Gone",platforms:"PS5 · PS4",tags:[]},
+    {id:0,name:"Marvel's Spider-Man",platforms:"PS4",tags:[]},
+    {id:0,name:"The Last of Us Part II Remastered",platforms:"PS5",tags:[]},
+    {id:0,name:"Horizon Forbidden West Complete Edition",platforms:"PS5",tags:[]}
   ];
   const reqStore = {
     get() { try { return JSON.parse(localStorage.getItem('hg.requests') || '[]'); } catch { return []; } },
     set(v) { localStorage.setItem('hg.requests', JSON.stringify(v)); }
   };
-  const reqPoster = id => id ? `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900_2x.jpg` : '';
-  let reqState = { view: 'shelf', q: '', game: null, opened: false };
+  const reqPoster = g => {
+    const art = g && g.art, id = g && g.id;
+    if (art) return I(art + '.webp');
+    if (g && g.cover) return g.cover;
+    if (id) return `https://cdn.cloudflare.steamstatic.com/steam/apps/${id}/library_600x900.jpg`;
+    return '';
+  };
+  let reqState = { view: 'shelf', q: '', game: null, opened: false, tab: '' };
   function renderRequest() {
     const root = document.createElement('div');
     page.innerHTML = ''; page.append(root); root.className = 'hg-pg rq';
     const go = (patch) => { reqState = Object.assign({}, reqState, patch); draw(); };
     const esc = s => String(s).replace(/&/g, '&' + 'amp;').replace(/</g, '&' + 'lt;').replace(/>/g, '&' + 'gt;').replace(/"/g, '&' + 'quot;').replace(/'/g, '&#39;');
-    const art = g => g && g.id ? `<img src="${reqPoster(g.id)}" alt="" data-fb="${esc((g.name || 'G').slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(((g && g.name) || 'G').slice(0, 2).toUpperCase())}</div>`;
+    const art = g => {
+      const src = reqPoster(g);
+      return src ? `<img src="${src}" alt="" loading="lazy" decoding="async" data-fb="${esc((g.name || 'G').slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(((g && g.name) || 'G').slice(0, 2).toUpperCase())}</div>`;
+    };
     const bindPosters = () => $$('img[data-fb]', root).forEach(im => { im.onerror = () => { const d = document.createElement('div'); d.className = 'rq-ph'; d.textContent = im.dataset.fb; im.replaceWith(d); }; });
+    const unique = arr => arr.filter((g, i, a) => a.findIndex(x => x.name === g.name) === i);
+    const card = (g, i) => {
+      const tag = (g.tags && g.tags[0]) ? `<em class="rq-tag ${g.tags[0]}">${g.tags.includes('upcoming') && g.tags[0]!=='upcoming' ? 'Upcoming' : g.tags[0] === 'new' ? 'New' : g.tags[0] === 'upcoming' ? 'Upcoming' : g.tags[0] === 'trending' ? 'Trending' : ''}</em>` : '';
+      const when = g.date ? `<i>${esc(g.date)}</i>` : '';
+      return `<button class="rq-card" data-i="${i}">${art(g)}${tag}<b>${esc(g.name)}</b><small>₹200 · ${esc(g.platforms || 'PS5 · PS4')}</small>${when}</button>`;
+    };
+    const grid = (list, cls) => `<div class="rq-grid${cls ? ' ' + cls : ''}">${list.map((g, i) => card(g, i)).join('')}</div>`;
+    const bindCards = list => $$('.rq-card', root).forEach(b => {
+      if (b.dataset.custom) b.onclick = () => go({ view: 'game', game: { id: 0, name: reqState.q.trim() }, opened: false });
+      else b.onclick = () => { const g = list[+b.dataset.i]; if (g) go({ view: 'game', game: g, opened: false }); };
+    });
     function draw() {
       const s = reqState;
       if (s.view === 'shelf') {
+        if (!s.tab) { try { s.tab = sessionStorage.getItem('hg.rqTab') || 'all'; sessionStorage.removeItem('hg.rqTab'); } catch { s.tab = 'all'; } }
         const q = s.q.trim().toLowerCase();
-        const list = (q ? GAMES_REQ.filter(g => g[1].toLowerCase().includes(q)) : GAMES_REQ).filter((g, i, a) => a.findIndex(x => x[1] === g[1]) === i).slice(0, 24);
-        const custom = q && !GAMES_REQ.some(g => g[1].toLowerCase() === q);
+        const tab = s.tab || 'all';
+        const all = unique(GAMES_REQ);
+        const byTab = g => {
+          if (tab === 'new' || tab === 'upcoming' || tab === 'trending') return (g.tags || []).includes(tab);
+          if (tab === 'ps5') return /PS5/.test(g.platforms || '');
+          if (tab === 'ps4') return /PS4/.test(g.platforms || '');
+          return true;
+        };
+        const searched = q ? all.filter(g => g.name.toLowerCase().includes(q)) : all.filter(byTab);
+        const custom = q && !all.some(g => g.name.toLowerCase() === q);
+        const TABS = [['all','All'],['new','New'],['upcoming','Upcoming'],['trending','Trending'],['ps5','PS5'],['ps4','PS4']];
+        const chips = `<div class="rq-tabs" role="tablist">${TABS.map(([k,l]) => `<button type="button" class="rq-tab${tab===k?' on':''}" data-tab="${k}" role="tab" aria-selected="${tab===k}">${l}</button>`).join('')}</div>`;
+        const section = (key, title, sub, items) => items.length ? `<section class="rq-sec" data-k="${key}"><div class="rq-sec-h"><h2>${title}</h2><p>${sub}</p></div>${grid(items)}</section>` : '';
+        let body;
+        if (q) {
+          body = `<p class="rq-note">${searched.length ? searched.length + ' match' + (searched.length===1?'':'es') + '. The ₹200 is the order fee, not the hourly slot.' : 'Nothing matched. You can still request that name.'}</p>${grid(searched)}${custom ? `<div class="rq-grid"><button class="rq-card" data-custom="1"><div class="rq-ph">+</div><b>Request “${esc(s.q)}”</b><small>₹200</small></button></div>` : ''}`;
+        } else if (tab === 'all') {
+          const tr = unique(all.filter(g => (g.tags||[]).includes('trending')));
+          const nw = unique(all.filter(g => (g.tags||[]).includes('new')));
+          const up = unique(all.filter(g => (g.tags||[]).includes('upcoming')));
+          body = `<p class="rq-note">Tap a poster. The ₹200 is the order fee, not the hourly slot. ${all.length} games in the catalogue.</p>
+            ${section('trending','Trending now','What players are asking for this week', tr)}
+            ${section('new','New releases','Out from September 2026 through today', nw)}
+            ${section('upcoming','Upcoming','Dated launches — nothing invented', up)}
+            <section class="rq-sec" data-k="all"><div class="rq-sec-h"><h2>All games</h2><p>Every major PS5 and PS4 title you can request.</p></div>${grid(all,'rq-all')}</section>`;
+        } else {
+          const label = {new:['New releases','Recent PS5 and PS4 launches'],upcoming:['Upcoming','Confirmed dates, from mid-November 2026 on'],trending:['Trending now','The games people want on our screens'],ps5:['PS5 games','Titles you can request for PlayStation 5'],ps4:['PS4 games','Titles you can request for PlayStation 4']}[tab] || ['Games',''];
+          body = `<p class="rq-note">${searched.length} ${label[0].toLowerCase()}. The ₹200 is the order fee, not the hourly slot.</p>
+            <section class="rq-sec"><div class="rq-sec-h"><h2>${label[0]}</h2><p>${label[1]}</p></div>${grid(searched)}</section>`;
+        }
         root.innerHTML = `<div class="rq-top"><button class="rq-back" data-back aria-label="Back">${IC.left()}</button><div><h1>Request a game</h1><p>₹200 paid now. Then we order it.</p></div></div>
           <label class="rq-search"><input id="rqFind" placeholder="Search any game" value="${esc(s.q)}" autocomplete="off"><button type="button" id="rqMine">Mine</button></label>
-          <p class="rq-note">${list.length ? 'Tap a poster. The ₹200 is the order fee, not the hourly slot.' : 'Nothing matched. You can still request that name.'}</p>
-          <div class="rq-grid">${list.map((g, i) => `<button class="rq-card" data-i="${i}">${g[0] ? `<img src="${reqPoster(g[0])}" alt="" loading="lazy" data-fb="${esc(g[1].slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(g[1].slice(0, 2).toUpperCase())}</div>`}<b>${esc(g[1])}</b><small>₹200</small></button>`).join('')}${custom ? `<button class="rq-card" data-custom="1"><div class="rq-ph">+</div><b>Request “${esc(s.q)}”</b><small>₹200</small></button>` : ''}</div>`;
+          ${chips}${body}`;
         const input = $('#rqFind', root);
         const caret = input.value.length; input.focus(); try { input.setSelectionRange(caret, caret); } catch {}
         input.addEventListener('input', () => { reqState.q = input.value; draw(); });
         $('#rqMine', root).onclick = () => go({ view: 'mine' });
+        $$('.rq-tab', root).forEach(b => b.onclick = () => go({ tab: b.dataset.tab, q: reqState.q }));
         bindPosters();
-        $$('.rq-card', root).forEach(b => b.onclick = () => {
-          if (b.dataset.custom) go({ view: 'game', game: { id: 0, name: reqState.q.trim() }, opened: false });
-          else { const g = list[+b.dataset.i]; go({ view: 'game', game: { id: g[0], name: g[1] }, opened: false }); }
-        });
+        const listForClick = (() => {
+          if (q) return searched;
+          if (tab === 'all') {
+            // cards in DOM follow trending, new, upcoming, then all
+            const tr = unique(all.filter(g => (g.tags||[]).includes('trending')));
+            const nw = unique(all.filter(g => (g.tags||[]).includes('new')));
+            const up = unique(all.filter(g => (g.tags||[]).includes('upcoming')));
+            return null; // bind per section
+          }
+          return searched;
+        })();
+        if (tab === 'all' && !q) {
+          $$('.rq-sec', root).forEach(sec => {
+            const key = sec.dataset.k;
+            const items = key === 'trending' ? unique(all.filter(g => (g.tags||[]).includes('trending')))
+              : key === 'new' ? unique(all.filter(g => (g.tags||[]).includes('new')))
+              : key === 'upcoming' ? unique(all.filter(g => (g.tags||[]).includes('upcoming')))
+              : all;
+            $$('.rq-card', sec).forEach((b, i) => { b.onclick = () => { const g = items[i]; if (g) go({ view: 'game', game: g, opened: false }); }; });
+          });
+        } else {
+          bindCards(searched);
+        }
         return;
       }
       if (s.view === 'mine') {
         const rows = reqStore.get();
         root.innerHTML = `<div class="rq-top"><button class="rq-back" data-rq-back aria-label="Back">${IC.left()}</button><div><h1>Your requests</h1><p>Saved on this phone.</p></div></div>
-          ${rows.length ? `<div class="rq-list">${rows.map(r => `<article class="rq-item">${r.id ? `<img src="${reqPoster(r.id)}" alt="" data-fb="${esc(r.name.slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(r.name.slice(0, 2).toUpperCase())}</div>`}<div><b>${esc(r.name)}</b><small>${esc(r.code)} · ₹200 · ${new Date(r.at).toLocaleDateString('en-IN')}</small></div></article>`).join('')}</div>` : `<p class="rq-empty">No requests yet. Search a game and pay ₹200.</p>`}`;
+          ${rows.length ? `<div class="rq-list">${rows.map(r => `<article class="rq-item">${reqPoster(r) ? `<img src="${reqPoster(r)}" alt="" loading="lazy" decoding="async" data-fb="${esc(r.name.slice(0, 2).toUpperCase())}">` : `<div class="rq-ph">${esc(r.name.slice(0, 2).toUpperCase())}</div>`}<div><b>${esc(r.name)}</b><small>${esc(r.code)} · ₹200 · ${new Date(r.at).toLocaleDateString('en-IN')}</small></div></article>`).join('')}</div>` : `<p class="rq-empty">No requests yet. Search a game and pay ₹200.</p>`}`;
         bindPosters();
         $('[data-rq-back]', root).onclick = () => go({ view: 'shelf' });
         return;
       }
       const g = s.game;
       if (s.view === 'game') {
+        const meta = [g.platforms, g.date, (g.tags||[]).includes('upcoming') ? 'Upcoming' : (g.tags||[]).includes('new') ? 'New release' : ''].filter(Boolean).join(' · ');
         root.innerHTML = `<div class="rq-top"><button class="rq-back" data-rq-back aria-label="Back">${IC.left()}</button><div><h1>Game</h1><p>Check the poster, then pay.</p></div></div>
-          <div class="rq-hero">${art(g)}<h2>${esc(g.name)}</h2>
+          <div class="rq-hero">${art(g)}<h2>${esc(g.name)}</h2>${meta ? `<p class="rq-meta">${esc(meta)}</p>` : ''}
           <ol class="rq-steps"><li><b>1</b><span>You pay ₹200 now.</span></li><li><b>2</b><span>We order this game for the shop.</span></li><li><b>3</b><span>Come play it here. Slot booking is extra.</span></li></ol>
           <div class="rq-fee"><span>Pay now</span><strong>₹200</strong></div>
           <button class="hg-btn p" id="rqPay" style="width:100%;justify-content:center">Pay ₹200${ARW}</button></div>`;
@@ -811,7 +999,7 @@
       $('#rqDone', root).onclick = () => {
         if (!reqState.opened) return;
         const code = 'RQ' + Math.floor(1000 + Math.random() * 9000);
-        const all = reqStore.get(); all.unshift({ id: g.id, name: g.name, code, at: Date.now() }); reqStore.set(all.slice(0, 30));
+        const all = reqStore.get(); all.unshift({ id: g.id, name: g.name, art: g.art || '', code, at: Date.now() }); reqStore.set(all.slice(0, 30));
         const msg = encodeURIComponent(`Game request ${code}: ${g.name}. I paid ₹200 on UPI.`);
         location.href = 'https://wa.me/917038896627?text=' + msg;
         go({ view: 'done', code });
@@ -828,7 +1016,7 @@
     else { page.classList.remove('on'); document.documentElement.classList.remove('hg-paged'); CTRL.draw = null; }
   }
   addEventListener('hashchange', route);
-  document.addEventListener('click', e => { const r = e.target.closest('[data-route]'); if (r) { e.preventDefault(); HG.hide && HG.hide(); location.hash = r.dataset.route; } });
+  document.addEventListener('click', e => { const r = e.target.closest('[data-route]'); if (r) { e.preventDefault(); if (r.dataset.rqTab) { try { sessionStorage.setItem('hg.rqTab', r.dataset.rqTab); } catch {} } HG.hide && HG.hide(); location.hash = r.dataset.route; } });
   page.addEventListener('click', e => { if (e.target.closest('[data-back]')) { history.length > 1 && /#(control|orders)/.test(location.hash) ? history.back() : (location.hash = ''); } });
   const pageHead = (art, icon, title, text) => `<header class="hg-ph"><div class="hg-art" style="background-image:url(${art})"></div>
     <button class="hg-ph-back" data-back aria-label="Back">${IC.left()}</button><div class="hg-ph-t"><span class="hg-ic">${icon}</span><h1>${title}</h1><p>${text}</p></div></header>`;

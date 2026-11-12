@@ -35,10 +35,10 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&family=Teko:wght@500;600;700&display=swap" media="print" onload="this.media='all'"><noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600;700&family=Chakra+Petch:wght@500;600;700&family=Teko:wght@500;600;700&display=swap"></noscript>
-<link rel="preload" as="image" href="/img/wolverine-key-sm.webp" media="(max-width:760px)" fetchpriority="high">
-<link rel="preload" as="image" href="/img/wolverine-key-md.webp" media="(min-width:1101px)" fetchpriority="high">
-<link rel="preload" as="image" href="/img/c-wolverine-sm.webp" media="(max-width:760px)" fetchpriority="high">
-<link rel="preload" as="image" href="/img/c-wolverine-md.webp" media="(min-width:761px)" fetchpriority="high">
+<link rel="preload" as="image" href="/img/t-wolverine.webp?v=45" media="(max-width:760px)" fetchpriority="high">
+<link rel="preload" as="image" href="/img/w-wolverine.webp?v=45" media="(min-width:761px)" fetchpriority="high">
+<link rel="preload" as="image" href="/img/c-wolverine-sm.webp?v=45" media="(max-width:760px)" fetchpriority="high">
+<link rel="preload" as="image" href="/img/c-wolverine-md.webp?v=45" media="(min-width:761px)" fetchpriority="high">
 <style>
 /* Layout: dark HUD gaming lounge — down-pointing triangles and chamfered corners echo the HG mark; booking is a form beside a sticky ticket */
 :root{
@@ -458,7 +458,7 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
   *:not(.hgl-col):not(.hg-lt-st em):not(.hg-stn .pulse),*::before,*::after{animation:none!important;transition:none!important}
 }
 </style>
-<link rel="stylesheet" href="/hg.css?v=44">
+<link rel="stylesheet" href="/hg.css?v=45">
 </head>
 <body>
 
@@ -538,10 +538,32 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
 
   <section class="section rq-home" id="request-home" aria-labelledby="request-title">
     <div class="wrap rq-home-in">
-      <p class="eyebrow">Not on the shelf</p>
-      <h2 id="request-title">Request any game</h2>
-      <p>Search the game, see its official poster, and pay ₹200 now. That fee is to order it for the shop. Slot time is separate.</p>
-      <button class="btn btn-primary" type="button" data-route="request">Request a game</button>
+      <div class="rq-home-copy">
+        <p class="eyebrow">Not on the shelf</p>
+        <h2 id="request-title">Request any game</h2>
+        <p>Search the catalogue, see its official poster, and pay ₹200 now. That fee is to order it for the shop. Slot time is separate.</p>
+        <button class="btn btn-primary" type="button" data-route="request">Request a game</button>
+      </div>
+      <div class="rq-home-lanes">
+          <button class="rq-lane" type="button" data-route="request" data-rq-tab="new">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M7 8l5-5 5 5"/><path d="M5 14h14"/></svg>
+            <b>New</b><span>Just landed on PS5 and PS4</span>
+          </button>
+          <button class="rq-lane" type="button" data-route="request" data-rq-tab="upcoming">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>
+            <b>Upcoming</b><span>GTA VI, Fable, and more</span>
+          </button>
+          <button class="rq-lane" type="button" data-route="request" data-rq-tab="trending">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 18l5-6 4 3 7-9"/><path d="M14 6h6v6"/></svg>
+            <b>Trending</b><span>What the shop is buzzing about</span>
+          </button>
+        </div>
+        <div class="rq-fan" aria-hidden="true">
+          <img src="/img/hp-wolverine.webp?v=45" alt="" width="600" height="900" loading="lazy" decoding="async">
+          <img src="/img/hp-gta6.webp?v=45" alt="" width="600" height="900" loading="lazy" decoding="async">
+          <img src="/img/hp-nr.webp?v=45" alt="" width="600" height="900" loading="lazy" decoding="async">
+          <img src="/img/hp-sm2.webp?v=45" alt="" width="600" height="900" loading="lazy" decoding="async">
+        </div>
     </div>
   </section>
 
@@ -580,6 +602,16 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
           <button class="btn btn-secondary" type="button" data-pick="ps4">Book PS4</button>
         </article>
       </div>
+      <div class="cn-plus">
+        <figure>
+          <img src="/img/hp-acs.webp?v=45" alt="Naoe from Assassin's Creed Shadows" width="600" height="900" loading="lazy" decoding="async">
+          <figcaption>Assassin's Creed Shadows, on PS5</figcaption>
+        </figure>
+        <figure>
+          <img src="/img/hp-wk.webp?v=45" alt="The Destined One from Black Myth: Wukong" width="600" height="900" loading="lazy" decoding="async">
+          <figcaption>Black Myth: Wukong, on our PS5s</figcaption>
+        </figure>
+      </div>
     </div>
   </section>
 
@@ -591,6 +623,17 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
           <p class="eyebrow">Take-home rental</p>
           <h2 id="rent-title">Take a PS5 home</h2>
           <div class="rent-price"><strong>₹1,000</strong><span>for 12 hours</span></div>
+          <div class="rent-kit">
+            <figure><img src="/img/x-ps5duo.webp?v=45" alt="Two PlayStation 5 consoles ready to rent" width="800" height="450" loading="lazy" decoding="async"></figure>
+            <div class="rk">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7h10a5 5 0 0 1 4.9 6l-.8 4a2.5 2.5 0 0 1-4.4 1L15 16H9l-1.7 2a2.5 2.5 0 0 1-4.4-1l-.8-4A5 5 0 0 1 7 7z"/><path d="M8 10v3M6.5 11.5h3"/></svg>
+              <b>2 pads</b><span>Extra ₹200 each, up to 4</span>
+            </div>
+            <div class="rk">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l4 2"/></svg>
+              <b>12 hours</b><span>Pick up and bring it back here</span>
+            </div>
+          </div>
           <ul class="feature-list">
             <li>PS5 with 2 controllers included</li>
             <li>Extra controller ₹200 each, up to 4 controllers</li>
@@ -612,6 +655,11 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
           <p class="eyebrow">Snacks &amp; drinks</p>
           <h2 id="snacks-title">Fuel the <span>grind</span></h2>
           <p>Order at the counter or add to your booking. Pay for everything together.</p>
+          <ul class="sn-menu">
+            <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M5 4h14l-2 16H7z"/></svg>Chips <b>₹50</b></li>
+            <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M8 3h8l2 5v13H6V8z"/></svg>Cold drink <b>₹40</b></li>
+            <li><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M3 12h18M6 8h12l-1 10H7z"/></svg>On your slot bill</li>
+          </ul>
         </div>
         <div class="sn-tag" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg>Served at your seat</div>
       </div>
@@ -665,8 +713,9 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
           <img src="/img/p-fc26.webp?v=30" alt=""><img src="/img/p-gow.webp?v=30" alt=""><img src="/img/p-gta6.webp?v=30" alt="">
         </div>
       </div>
-      <div class="hh-row">
+      <div class="hh-row hh-cast">
         <figure class="hh-ph"><img src="/img/hh-duo-r22.webp?v=30" alt="Kratos, Spider-Man and Leon playing PS5 with snacks" width="1024" height="768" loading="lazy" decoding="async"></figure>
+        <figure class="hh-legend"><img src="/img/hp-gow.webp?v=45" alt="Kratos from God of War" width="600" height="900" loading="lazy" decoding="async"></figure>
         <div class="hh-cta">
           <p>Afternoon sessions, full squad, all consoles. Grab a slot between 12 and 3.</p>
           <button class="hg-btn p" type="button" data-hg-book>Book now<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
@@ -694,6 +743,9 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
       <div class="ev-strip">
         <img src="/img/w-fc26.webp?v=30" alt="EA SPORTS FC 26 Portugal celebration" loading="lazy" decoding="async">
         <img src="/img/ev-fc26-stadium.webp?v=30" alt="EA SPORTS FC 26 official stadium scene" loading="lazy" decoding="async">
+      </div>
+      <div class="ev-cast ev-cast-one">
+        <figure><img src="/img/ev-fc26-twg.webp?v=45" alt="EA SPORTS FC 26 official two-player artwork" width="1000" height="562" loading="lazy" decoding="async"></figure>
       </div>
       <ol class="ev-list" id="evList"></ol>
       <button class="hg-btn p ev-go" type="button" data-hg-book>Book a practice slot<svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
@@ -1345,5 +1397,5 @@ legend{width:100%;padding:0;margin-bottom:14px;display:flex;align-items:baseline
 })();
 </script>
 
-<script src="/hg.js?v=44" defer></script>
+<script src="/hg.js?v=45" defer></script>
 </body></html>
