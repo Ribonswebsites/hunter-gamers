@@ -1,6 +1,6 @@
 {
- "versionCode": 41,
- "versionName": "4.1",
- "apkUrl": "https://hunter-gamers.pages.dev/downloads/hunter-flutter.apk",
- "notes": "Official game posters, and Request a game for ₹200."
+  "versionCode": 42,
+  "versionName": "4.2",
+  "apkUrl": "https://hunter-gamers.pages.dev/downloads/hunter-flutter.apk",
+  "notes": "New hero: each game now has its own 8-poster login-style scrolling background. Centre characters unchanged."
 }
